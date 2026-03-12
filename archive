@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Reports Archive</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #020617;
+      color: #fff;
+    }
+
+    body {
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.25;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .glow {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      filter: blur(140px);
+      opacity: 0.25;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .glow-1 {
+      background: #2563eb;
+      top: -120px;
+      left: -120px;
+    }
+
+    .glow-2 {
+      background: #4f46e5;
+      bottom: -120px;
+      right: -120px;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+
+    .top-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    .title {
+      font-size: 42px;
+      margin: 0 0 16px;
+    }
+
+    .desc {
+      color: #cbd5f5;
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+
+    .archive-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .archive-item {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px 28px;
+      transition: .25s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+
+    .archive-item:hover {
+      transform: translateY(-4px);
+      border-color: rgba(96,165,250,0.65);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .archive-item h3 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .archive-item p {
+      margin: 0;
+      color: #cbd5f5;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <main class="page">
+    <a class="top-link" href="index.html">← 返回首页</a>
+
+    <h1 class="title">Weekly Reports Archive</h1>
+    <p class="desc">
+      按周归档欧盟化工行业监测报告。后续每周新增一期，并按时间倒序追加在列表最上方。
+    </p>
+
+    <div class="archive-list">
+      <a class="archive-item" href="EU-Chemical-Industry-Report-week-10.html">
+        <h3>2026-W10</h3>
+        <p>2026.03.02 – 2026.03.12</p>
+      </a>
+
+    </div>
+  </main>
+</body>
+</html>
