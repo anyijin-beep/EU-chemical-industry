@@ -2077,10 +2077,24 @@ tbody tr:last-child td { border-bottom: none; }
 
 <script>
 // PAGE NAVIGATION
-document.querySelectorAll('.nav-item').forEach(btn => {
+document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    const page = btn.dataset.page;
-    navigateTo(page);
+    const panelId = btn.dataset.panel;
+    const container = btn.closest('.tab-container') || btn.closest('.page');
+
+    if (!panelId || !container) return;
+
+    container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    container.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+
+    const target = container.querySelector(`#${panelId}`);
+    if (target) {
+      target.classList.add('active');
+    } else {
+      console.error('Panel not found:', panelId);
+    }
   });
 });
 
