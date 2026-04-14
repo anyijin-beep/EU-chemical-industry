@@ -1,0 +1,3808 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global LFP Control Tower | Strategic Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e3a8a;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --warning: #ef4444;
+  --info: #3b82f6;
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --border: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Poppins', system-ui, sans-serif;
+  background: var(--neutral-50);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+  gap: 0;
+}
+
+.app-container.sidebar-collapsed {
+  grid-template-columns: 80px 1fr;
+}
+
+.sidebar {
+  background: var(--neutral-900);
+  border-right: 1px solid rgba(255,255,255,0.1);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: fixed;
+  height: 100vh;
+  width: 280px;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+  z-index: 100;
+}
+
+.app-container.sidebar-collapsed .sidebar {
+  width: 80px;
+  padding: 20px 8px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.sidebar-title {
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.app-container.sidebar-collapsed .sidebar-title {
+  display: none;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: rgba(255,255,255,0.7);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+.nav-item.active { background: var(--primary-light); color: white; font-weight: 600; }
+
+.nav-icon { font-size: 20px; flex-shrink: 0; min-width: 24px; }
+.nav-label { overflow: hidden; }
+.app-container.sidebar-collapsed .nav-label { display: none; }
+
+.sidebar-footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
+
+.toggle-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.toggle-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+.main-content {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.breadcrumb { font-size: 12px; color: var(--text-secondary); }
+.breadcrumb a { color: var(--primary-light); text-decoration: none; margin: 0 4px; }
+.page-title { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.live-indicator { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--success); font-weight: 600; }
+.live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.search-box {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  font-family: 'Poppins', sans-serif;
+  width: 200px;
+  font-size: 13px;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px;
+}
+
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--border); }
+.section-title { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.section-subtitle { font-size: 13px; color: var(--text-secondary); }
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-light), var(--accent));
+}
+
+.metric-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--primary-light); }
+
+.metric-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
+.metric-value { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.metric-change { font-size: 12px; font-weight: 600; }
+.metric-change.positive { color: var(--success); }
+.metric-change.negative { color: var(--warning); }
+
+.alert-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warning);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.alert-card.critical { border-left-color: var(--warning); background: rgba(239, 68, 68, 0.02); }
+.alert-card.warning { border-left-color: var(--accent); background: rgba(245, 158, 11, 0.02); }
+.alert-card.info { border-left-color: var(--info); background: rgba(59, 130, 246, 0.02); }
+
+.alert-card:hover { box-shadow: var(--shadow-md); }
+
+.alert-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.alert-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.alert-badge { font-size: 11px; padding: 4px 8px; border-radius: 4px; font-weight: 600; white-space: nowrap; }
+.alert-badge.critical { background: rgba(239, 68, 68, 0.1); color: var(--warning); }
+.alert-badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+.alert-badge.info { background: rgba(59, 130, 246, 0.1); color: var(--info); }
+
+.alert-content { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+.alert-teams { font-size: 12px; color: var(--text-secondary); }
+.alert-teams strong { color: var(--text-primary); }
+
+.filter-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.filter-btn:hover { border-color: var(--primary-light); color: var(--primary-light); }
+.filter-btn.active { background: var(--primary-light); color: white; border-color: var(--primary-light); }
+
+.card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.card:hover { box-shadow: var(--shadow-md); border-color: var(--primary-light); }
+
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.card-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+.card-content { padding: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.card-footer { padding: 16px 20px; background: var(--bg-secondary); border-top: 1px solid var(--border); display: flex; gap: 8px; }
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-primary { background: rgba(59, 130, 246, 0.1); color: var(--primary-light); }
+.badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+.badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+.badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--warning); }
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-primary { background: var(--primary-light); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--neutral-100); border-color: var(--primary-light); }
+.btn-small { padding: 6px 12px; font-size: 12px; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.dashboard-grid.full { grid-template-columns: 1fr; }
+
+.tab-group {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--primary-light); border-bottom-color: var(--primary-light); }
+
+.tab-group {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--primary-light); border-bottom-color: var(--primary-light); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+.info-block {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-light);
+  margin-bottom: 16px;
+}
+
+.info-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
+.info-value { font-size: 16px; font-weight: 700; color: var(--text-primary); line-height: 1.4; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.region-card {
+  padding: 16px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.region-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-md); }
+.region-card.active { border-color: var(--primary-light); background: rgba(59, 130, 246, 0.05); }
+
+.region-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.region-stat { font-size: 12px; color: var(--text-secondary); }
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
+.status-critical { background: rgba(239, 68, 68, 0.1); color: var(--warning); }
+.status-warning { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+.status-normal { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.info-block {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-light);
+}
+
+.info-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
+.info-value { font-size: 16px; font-weight: 700; color: var(--text-primary); line-height: 1.4; }
+
+.table-responsive { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table th {
+  background: var(--bg-secondary);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+table tr:hover { background: var(--neutral-50); }
+
+.tech-timeline {
+  position: relative;
+  padding-left: 0;
+}
+
+.timeline-item {
+  padding: 20px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--primary-light);
+  transition: all 0.2s ease;
+}
+
+.timeline-item:hover { box-shadow: var(--shadow-md); }
+
+.timeline-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.timeline-subtitle { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+.timeline-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+.chart-placeholder {
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--neutral-100) 100%);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.chart-placeholder-icon { font-size: 48px; margin-bottom: 12px; }
+
+@media (max-width: 1024px) {
+  .metrics-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .app-container { grid-template-columns: 1fr; }
+  .sidebar { width: 100%; height: auto; position: relative; padding: 16px; margin-bottom: 0; }
+  .topbar { padding: 12px 16px; }
+  .content-area { padding: 16px; }
+  .search-box { width: 100%; }
+  .topbar-right { gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🛰️</div>
+      <div class="sidebar-title">LFP Control Tower</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <button class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-item" data-page="market-overview">
+        <span class="nav-icon">🌍</span>
+        <span class="nav-label">Market Overview</span>
+      </button>
+      <button class="nav-item" data-page="regions">
+        <span class="nav-icon">🗺️</span>
+        <span class="nav-label">Regional Analysis</span>
+      </button>
+      <button class="nav-item" data-page="supply-chain">
+        <span class="nav-icon">⛓️</span>
+        <span class="nav-label">Supply Chain</span>
+      </button>
+      <button class="nav-item" data-page="pricing">
+        <span class="nav-icon">💹</span>
+        <span class="nav-label">Price Monitor</span>
+      </button>
+      <button class="nav-item" data-page="capacity">
+        <span class="nav-icon">🏭</span>
+        <span class="nav-label">Capacity Tracker</span>
+      </button>
+      <button class="nav-item" data-page="competitors">
+        <span class="nav-icon">⚔️</span>
+        <span class="nav-label">Competitors</span>
+      </button>
+      <button class="nav-item" data-page="technology">
+        <span class="nav-icon">🔬</span>
+        <span class="nav-label">Technology</span>
+      </button>
+      <button class="nav-item" data-page="policy">
+        <span class="nav-icon">⚖️</span>
+        <span class="nav-label">Policy & Trade</span>
+      </button>
+      <button class="nav-item" data-page="alerts">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Alerts</span>
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="toggle-btn" id="toggle-sidebar">收起</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">Strategic Intelligence Platform / <span id="breadcrumb-text">Dashboard</span></div>
+      </div>
+      <div class="topbar-right">
+        <input type="text" class="search-box" placeholder="Search markets, competitors...">
+        <div class="live-indicator">
+          <span class="live-dot"></span>
+          <span>Live Data</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+
+      <!-- DASHBOARD PAGE -->
+      <div id="page-dashboard" class="page active">
+        <div class="section-header">
+          <h1 class="page-title">Global LFP Intelligence Dashboard</h1>
+          <p class="section-subtitle">Real-time market intelligence, global supply chain tracking, competitive analysis</p>
+        </div>
+
+        <!-- Global KPIs -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Global Market Size</div>
+            <div class="metric-value">$48.2B</div>
+            <div class="metric-change positive">↑ +18.3% YoY</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Average LFP Price</div>
+            <div class="metric-value">¥185/kg</div>
+            <div class="metric-change negative">↓ -12.5% QoQ</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total Global Capacity</div>
+            <div class="metric-value">2.84M MT</div>
+            <div class="metric-change positive">↑ +42.1% YoY</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Supply Coverage</div>
+            <div class="metric-value">98.2%</div>
+            <div class="metric-change positive">↑ +2.1% QoQ</div>
+          </div>
+        </div>
+
+        <!-- Critical Alerts -->
+        <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">🚨 Priority Alerts</h2>
+
+        <div class="alert-card critical">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">CATL Announces 500k MT Facility in Ningde</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">2 hours ago • China Region</div>
+            </div>
+            <span class="alert-badge critical">CRITICAL</span>
+          </div>
+          <div class="alert-content">New production facility announced; expected impact on competitive positioning and pricing pressure in 2024-2025. 55 Wh/kg energy density. Cost structure: ¥7.2k/ton.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Strategy, Procurement | <strong>Impact:</strong> High</div>
+        </div>
+
+        <div class="alert-card critical">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">EU Battery Regulation - Carbon Footprint Requirements Update</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">4 hours ago • Europe Region</div>
+            </div>
+            <span class="alert-badge critical">CRITICAL</span>
+          </div>
+          <div class="alert-content">New carbon footprint requirements published; sourcing transparency now mandatory. Supply chain audit required for compliance by Q4 2024.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Procurement, Compliance, R&D | <strong>Impact:</strong> High</div>
+        </div>
+
+        <div class="alert-card warning">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">LFP Pricing Pressure in North America</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">6 hours ago • North America</div>
+            </div>
+            <span class="alert-badge warning">WARNING</span>
+          </div>
+          <div class="alert-content">US market prices declined 8% week-over-week; margin compression likely. BYD pricing strategy accelerating market share gains.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Finance | <strong>Impact:</strong> Medium</div>
+        </div>
+
+        <!-- Market Status by Region -->
+        <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">📍 Regional Market Status</h2>
+        <div class="region-grid">
+          <div class="region-card active">
+            <div class="region-name">China</div>
+            <div class="region-stat">64% market share</div>
+            <div class="region-stat">8 active alerts</div>
+            <div class="status-badge status-critical">CRITICAL</div>
+          </div>
+          <div class="region-card">
+            <div class="region-name">Europe</div>
+            <div class="region-stat">18% market share</div>
+            <div class="region-stat">4 active alerts</div>
+            <div class="status-badge status-warning">ELEVATED</div>
+          </div>
+          <div class="region-card">
+            <div class="region-name">North America</div>
+            <div class="region-stat">12% market share</div>
+            <div class="region-stat">2 active alerts</div>
+            <div class="status-badge status-normal">NORMAL</div>
+          </div>
+          <div class="region-card">
+            <div class="region-name">Asia-Pacific</div>
+            <div class="region-stat">6% market share</div>
+            <div class="region-stat">3 active alerts</div>
+            <div class="status-badge status-warning">EMERGING</div>
+          </div>
+        </div>
+
+        <!-- Key Market Trends -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 24px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">💹 Price Trends (6-Month)</div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-placeholder-icon">📈</div>
+              <div class="chart-placeholder-text">LFP Cathode Price Trajectory</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🏭 Global Capacity Mix</div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-placeholder-icon">🎯</div>
+              <div class="chart-placeholder-text">Existing vs Announced Capacity</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🚗 Demand by Application</div>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-placeholder-icon">⚡</div>
+              <div class="chart-placeholder-text">EV | ESS | Commercial | Industrial</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKET OVERVIEW PAGE -->
+      <div id="page-market-overview" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Market Overview</h1>
+          <p class="section-subtitle">Global LFP market intelligence, demand trends, competitive landscape</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Global Demand</div>
+            <div class="metric-value">2.1M MT</div>
+            <div class="metric-change positive">↑ 45% YoY</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Capacity Utilization</div>
+            <div class="metric-value">74%</div>
+            <div class="metric-change negative">↓ -8% QoQ</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Supply Shortage Risk</div>
+            <div class="metric-value">Low</div>
+            <div class="metric-change positive">Improving</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Price Volatility (30d)</div>
+            <div class="metric-value">8.2%</div>
+            <div class="metric-change negative">↑ +1.5%</div>
+          </div>
+        </div>
+
+        <h2 class="section-title" style="margin-bottom: 16px;">Market Demand Breakdown</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+          <div class="info-block">
+            <div class="info-label">EV Passenger</div>
+            <div class="info-value">65% • 1.37M MT</div>
+          </div>
+          <div class="info-block">
+            <div class="info-label">Energy Storage (ESS)</div>
+            <div class="info-value">18% • 378k MT</div>
+          </div>
+          <div class="info-block">
+            <div class="info-label">Commercial Vehicle</div>
+            <div class="info-value">12% • 252k MT</div>
+          </div>
+          <div class="info-block">
+            <div class="info-label">Industrial/Off-Grid</div>
+            <div class="info-value">5% • 105k MT</div>
+          </div>
+        </div>
+
+        <h2 class="section-title" style="margin-bottom: 16px;">Market Drivers & Risks</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">✅ Positive Drivers</div>
+            </div>
+            <div class="card-content">
+              <ul style="padding-left: 16px;">
+                <li>EV adoption accelerating globally (+45% YoY)</li>
+                <li>ESS market surge for grid stabilization</li>
+                <li>LFP safer alternative to NCA/NCM</li>
+                <li>Cost advantage widening vs competitors</li>
+                <li>Government subsidies supporting demand</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">⚠️ Risk Factors</div>
+            </div>
+            <div class="card-content">
+              <ul style="padding-left: 16px;">
+                <li>Oversupply risk (capacity > demand)</li>
+                <li>Pricing pressure from new entrants</li>
+                <li>EU anti-dumping tariffs pending</li>
+                <li>Raw material cost volatility</li>
+                <li>Technology disruption (LMFP, etc.)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REGIONS PAGE -->
+      <div id="page-regions" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Regional Analysis</h1>
+          <p class="section-subtitle">Deep-dive into key regional markets, demand, supply, competitors</p>
+        </div>
+
+        <h2 class="section-title" style="margin-bottom: 16px;">Select Region</h2>
+        <div class="region-grid" style="margin-bottom: 32px;">
+          <div class="region-card active" data-region="china">
+            <div class="region-name">China</div>
+            <div class="region-stat">64% Global Share</div>
+          </div>
+          <div class="region-card" data-region="europe">
+            <div class="region-name">Europe</div>
+            <div class="region-stat">18% Global Share</div>
+          </div>
+          <div class="region-card" data-region="north-america">
+            <div class="region-name">N. America</div>
+            <div class="region-stat">12% Global Share</div>
+          </div>
+          <div class="region-card" data-region="asia-pacific">
+            <div class="region-name">Asia-Pacific</div>
+            <div class="region-stat">6% Global Share</div>
+          </div>
+        </div>
+
+        <!-- China Region Detail -->
+        <div class="region-detail" data-region="china" style="display: block;">
+          <h2 class="section-title" style="margin-bottom: 16px;">🇨🇳 China Regional Deep Dive</h2>
+          
+          <div class="detail-grid">
+            <div class="info-block">
+              <div class="info-label">Market Size</div>
+              <div class="info-value">$30.8B (64% of global)</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Demand Growth</div>
+              <div class="info-value">45% YoY</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Active Competitors</div>
+              <div class="info-value">12+ significant players</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Key Alert Count</div>
+              <div class="info-value">8 active / 2 critical</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Top Regional Competitors</h3>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Capacity (k MT)</th>
+                  <th>Market Share</th>
+                  <th>2024 Plan</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>CATL</strong></td>
+                  <td>850</td>
+                  <td>28%</td>
+                  <td>+500k MT Ningde</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>BYD</strong></td>
+                  <td>620</td>
+                  <td>21%</td>
+                  <td>+200k MT capacity</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Gotion High-Tech</strong></td>
+                  <td>380</td>
+                  <td>13%</td>
+                  <td>+100k MT plans</td>
+                  <td><span class="badge badge-warning">→ STABLE</span></td>
+                </tr>
+                <tr>
+                  <td><strong>SVOLT</strong></td>
+                  <td>290</td>
+                  <td>10%</td>
+                  <td>+50k MT planned</td>
+                  <td><span class="badge badge-success">↓ CONTRACTING</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Key Customer Projects</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Tesla Shanghai - Model Y LFP</div>
+                <div class="card-subtitle">Commercial | Large Scale</div>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 8px;"><strong>Status:</strong> Commercial Production</div>
+                <div style="margin-bottom: 8px;"><strong>Volume:</strong> ~150k units/year</div>
+                <div><strong>Relevance:</strong> <span class="badge badge-danger">HIGH</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Li-Auto EV Program</div>
+                <div class="card-subtitle">Ramping | Large Scale</div>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 8px;"><strong>Status:</strong> Production Ramp</div>
+                <div style="margin-bottom: 8px;"><strong>Volume:</strong> ~300k units/year (2025)</div>
+                <div><strong>Relevance:</strong> <span class="badge badge-danger">HIGH</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">XPeng Battery Supply</div>
+                <div class="card-subtitle">Negotiation | Medium</div>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 8px;"><strong>Status:</strong> In Negotiation</div>
+                <div style="margin-bottom: 8px;"><strong>Volume:</strong> TBD (80k+ units potential)</div>
+                <div><strong>Relevance:</strong> <span class="badge badge-warning">MEDIUM</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Europe Region Detail (hidden by default) -->
+        <div class="region-detail" data-region="europe" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">🇪🇺 Europe Regional Deep Dive</h2>
+          
+          <div class="detail-grid">
+            <div class="info-block">
+              <div class="info-label">Market Size</div>
+              <div class="info-value">$8.68B (18% of global)</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Demand Growth</div>
+              <div class="info-value">38% YoY</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Active Competitors</div>
+              <div class="info-value">8 major players</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Key Alert Count</div>
+              <div class="info-value">4 active / 1 critical</div>
+            </div>
+          </div>
+
+          <div class="alert-card critical" style="margin-top: 24px;">
+            <div class="alert-header">
+              <div>
+                <div class="alert-title">🔴 EU Anti-Dumping Tariffs Pending</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Initial determination expected May 31, 2024</div>
+              </div>
+            </div>
+            <div class="alert-content">Predicted tariff range: 18-28%. Significant impact on Chinese LFP imports. Key manufacturers accelerating European production localization.</div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">OEM Demand & Strategic Partnerships</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">VW Group - LFP Strategy</div>
+                <div class="card-subtitle">Strategic | Very Large</div>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 8px;">Volkswagen committing to LFP for 50%+ of EU EV portfolio by 2028.</div>
+                <div style="margin-bottom: 8px;"><strong>Supply Need:</strong> 500k+ MT/year</div>
+                <div><strong>Status:</strong> <span class="badge badge-danger">CRITICAL</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Volvo/Polestar LFP</div>
+                <div class="card-subtitle">Commercial | Large</div>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 8px;">Polestar 3/4 ramping on LFP batteries; next gen vehicles 100% LFP.</div>
+                <div style="margin-bottom: 8px;"><strong>Supply Need:</strong> 150k+ MT/year</div>
+                <div><strong>Status:</strong> <span class="badge badge-warning">HIGH</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPETITORS & VALUE CHAIN PAGE -->
+      <div id="page-competitors" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Competitive Intelligence & Value Chain</h1>
+          <p class="section-subtitle">Complete market ecosystem: upstream suppliers → competitors → downstream customers & OEMs</p>
+        </div>
+
+        <div class="tab-group">
+          <button class="tab-btn active" data-panel="value-chain-overview">Value Chain Map</button>
+          <button class="tab-btn" data-panel="competitors-analysis">Direct Competitors</button>
+          <button class="tab-btn" data-panel="upstream-analysis">Upstream Suppliers</button>
+          <button class="tab-btn" data-panel="downstream-analysis">Downstream Customers</button>
+          <button class="tab-btn" data-panel="competitive-positioning">Positioning & Strategy</button>
+        </div>
+
+        <!-- VALUE CHAIN OVERVIEW -->
+        <div id="value-chain-overview" class="tab-content active">
+          <h2 class="section-title" style="margin-bottom: 16px;">Global LFP Value Chain Architecture</h2>
+
+          <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+              <div class="card-title">📊 End-to-End Value Chain Map</div>
+            </div>
+            <div class="chart-placeholder" style="height: 400px;">
+              <div class="chart-placeholder-icon">🔗</div>
+              <div class="chart-placeholder-text">UPSTREAM (Mining & Processing) → COMPETITORS (LFP Producers) → DOWNSTREAM (Battery Makers & OEMs)</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <!-- UPSTREAM -->
+            <div class="card">
+              <div class="card-header" style="background: rgba(59, 130, 246, 0.05);">
+                <div class="card-title">⬆️ UPSTREAM</div>
+                <div class="card-subtitle">Raw Materials & Processing</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;"><strong>Phosphate Rock Miners:</strong> OCP (Morocco), Yunnan (China), Guizhou</div>
+                <div style="margin-bottom: 12px;"><strong>Lithium Suppliers:</strong> Ganzizhou (China), Atacama (Chile), Pilbara (Australia)</div>
+                <div style="margin-bottom: 12px;"><strong>Processors:</strong> Phosphoric acid mills, lithium refineries</div>
+                <div><strong>Power Suppliers:</strong> Energy cost critical to economics</div>
+              </div>
+            </div>
+
+            <!-- COMPETITORS -->
+            <div class="card">
+              <div class="card-header" style="background: rgba(245, 158, 11, 0.05);">
+                <div class="card-title">⚔️ COMPETITORS</div>
+                <div class="card-subtitle">LFP Cathode Producers</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;"><strong>Tier 1 Leaders:</strong> CATL, BYD (China dominance)</div>
+                <div style="margin-bottom: 12px;"><strong>Tier 2 Players:</strong> Gotion, SVOLT, Lishen (cost focus)</div>
+                <div style="margin-bottom: 12px;"><strong>Tier 3 Emerging:</strong> Northvolt (EU), Regional players</div>
+                <div><strong>Market Dynamic:</strong> Consolidation accelerating</div>
+              </div>
+            </div>
+
+            <!-- DOWNSTREAM -->
+            <div class="card">
+              <div class="card-header" style="background: rgba(16, 185, 129, 0.05);">
+                <div class="card-title">⬇️ DOWNSTREAM</div>
+                <div class="card-subtitle">Battery Makers & Automotive OEMs</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;"><strong>Battery Integrators:</strong> CATL, BYD, Gotion (captive)</div>
+                <div style="margin-bottom: 12px;"><strong>Auto OEMs:</strong> Tesla, NIO, XPeng, VW Group, BYD</div>
+                <div style="margin-bottom: 12px;"><strong>ESS Operators:</strong> Grid-scale energy storage demand surge</div>
+                <div><strong>Market Pull:</strong> 45% YoY EV growth driving demand</div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Value Chain Economics & Margins</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💰 Typical LFP Cost Structure</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                  <span>Phosphate Rock (20%)</span>
+                  <strong>¥1,710</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                  <span>Lithium Carbonate (18%)</span>
+                  <strong>¥1,539</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                  <span>Iron Phosphate (12%)</span>
+                  <strong>¥1,026</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                  <span>Labor & Overhead (15%)</span>
+                  <strong>¥1,283</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                  <span>Energy & Utilities (18%)</span>
+                  <strong>¥1,539</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px;">
+                  <span><strong>Total Cost</strong></span>
+                  <strong style="color: var(--primary-light);">¥7,097</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📊 Industry Margin Profile</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 16px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span><strong>Spot Price (Current)</strong></span>
+                    <strong>¥8,550/MT</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span><strong>COGS (Average)</strong></span>
+                    <strong>¥7,097/MT</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 6px;">
+                    <span><strong>Gross Margin</strong></span>
+                    <strong style="color: var(--success);">¥1,453 (17%)</strong>
+                  </div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 10px; border-radius: 4px; font-size: 12px;">
+                  <p><strong>⚠️ Margin Risk:</strong> Each ¥100 price decline = 1.2% margin loss. Current oversupply → -25-35% price risk</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIRECT COMPETITORS ANALYSIS -->
+        <div id="competitors-analysis" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Direct Competitor Profiles & Strategic Positioning</h2>
+
+          <div class="filter-group">
+            <button class="filter-btn active">All Competitors</button>
+            <button class="filter-btn">Tier 1 (Leaders)</button>
+            <button class="filter-btn">Tier 2 (Challengers)</button>
+            <button class="filter-btn">Tier 3 (Emerging)</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <!-- CATL -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🔴 CATL (Contemporary Amperex)</div>
+                  <div class="card-subtitle">China | Tier 1 Leader | Global #1</div>
+                </div>
+                <span class="badge badge-danger">DOMINANT</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
+                  <div>850k MT | 28% global share | ↑ +$32B revenue (2023)</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
+                  <div>Cost leadership (¥7.2k/MT) | Tech innovation (fast-charge) | VW/BMW partnerships | Vertical integration</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
+                  <div>Ningde Phase III (+500k MT) | European expansion | LMFP development | Grid storage focus</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
+                  <div style="font-weight: 700; color: var(--warning);">🔴 CRITICAL | Price competition inevitable</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COUNTER STRATEGY</div>
+                  <div style="font-size: 12px; color: var(--primary-light);">↓ Focus on premium/differentiated products | ↓ Build OEM relationships | ↓ Innovation in LMFP</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- BYD -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🟡 BYD Battery</div>
+                  <div class="card-subtitle">China | Tier 1 Leader | Global #2</div>
+                </div>
+                <span class="badge badge-warning">STRONG</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
+                  <div>620k MT | 21% global share | Vertical integration with OEM</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
+                  <div>Integrated EV manufacturer | Lower cost (¥6.8k/MT) | In-house demand | Energy density innovation (180 Wh/kg)</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
+                  <div>Wuhan expansion | Mexico facility planned | Aggressive pricing | LMFP R&D | Third-party sales push</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
+                  <div style="font-weight: 700; color: var(--warning);">🟡 HIGH | Pricing strategy threatening margins</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COUNTER STRATEGY</div>
+                  <div style="font-size: 12px; color: var(--primary-light);">↓ Compete on technology not price | ↓ Build OEM partnerships | ↓ Cost optimization necessary</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GOTION -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🟢 Gotion High-Tech</div>
+                  <div class="card-subtitle">China | Tier 2 Challenger | Global #3</div>
+                </div>
+                <span class="badge badge-success">MODERATE</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
+                  <div>380k MT | 13% global share | ESS-focused positioning</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
+                  <div>Cost efficiency | ESS expertise | Stable utilization (76%) | European expansion planned</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
+                  <div>Hungary Europe facility (+250k MT) | ESS market focus | Cost-optimized production | Emerging market expansion</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
+                  <div style="font-weight: 700; color: var(--accent);">🟡 MEDIUM | ESS growth could strengthen position</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COUNTER STRATEGY</div>
+                  <div style="font-size: 12px; color: var(--primary-light);">↓ ESS differentiation | ↓ Regional partnerships | ↓ Cost parity required</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NORTHVOLT -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🔵 Northvolt</div>
+                  <div class="card-subtitle">Sweden | Tier 3 Emerging | Premium Player</div>
+                </div>
+                <span class="badge badge-primary">WATCH</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
+                  <div>150k MT | Premium positioning | EU tariff protection advantage</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
+                  <div>EU production (tariff shield) | Carbon-neutral manufacturing | VW partnership | Premium pricing power</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
+                  <div>Phase 2 expansion (+150k MT) | VW strategic partnership | Sustainability focus | Premium LFP variant</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">RISK FACTORS</div>
+                  <div style="font-weight: 700; color: var(--warning);">⚠️ Financing challenges | Phase 2 delayed | VW commitment uncertain</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">OPPORTUNITY</div>
+                  <div style="font-size: 12px; color: var(--success);">Premium LFP segment niche; supply-constrained market benefits</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SVOLT -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">⚫ SVOLT Energy</div>
+                  <div class="card-subtitle">China | Tier 2 Under Pressure | Struggling</div>
+                </div>
+                <span class="badge badge-warning">DECLINING</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
+                  <div>290k MT | 10% market share | Declining utilization (69%)</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CURRENT POSITION</div>
+                  <div>Cost disadvantage vs leaders | Limited OEM partnerships | Oversupply vulnerability | Acquisition target speculation</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC OUTLOOK</div>
+                  <div>Consolidation candidate | Cost restructuring needed | Likely acquired or exits 2025-2026</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
+                  <div style="font-weight: 700; color: var(--success);">🟢 LOW | Struggling player; not primary threat</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">OPPORTUNITY</div>
+                  <div style="font-size: 12px; color: var(--info);">M&A target for consolidation | Talent/asset acquisition potential</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Competitive Positioning Matrix</h2>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 Cost vs Innovation Positioning</div>
+            </div>
+            <div class="chart-placeholder" style="height: 320px;">
+              <div class="chart-placeholder-icon">⚔️</div>
+              <div class="chart-placeholder-text">X-axis: Production Cost | Y-axis: Technology Innovation | CATL (top-left) | BYD (center-left) | Northvolt (center-right)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UPSTREAM SUPPLIERS -->
+        <div id="upstream-analysis" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">⬆️ Upstream Suppliers & Raw Materials</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Phosphate Rock Cost</div>
+              <div class="metric-value">$112.80</div>
+              <div class="metric-change positive">↑ +5.1% QoQ</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Lithium Carbonate</div>
+              <div class="metric-value">$52,000</div>
+              <div class="metric-change positive">↑ +1.8% QoQ</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Phosphoric Acid</div>
+              <div class="metric-value">$380/MT</div>
+              <div class="metric-change positive">↑ +3.2% QoQ</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Supply Chain Health</div>
+              <div class="metric-value">7.2/10</div>
+              <div class="metric-change negative">↓ -0.6 (pressure)</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Key Upstream Players & Supply Risk</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <!-- Phosphate Rock -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🪨 Phosphate Rock Miners</div>
+                <div class="card-subtitle">Sourcing Risk: HIGH</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">Global Production: 220M MT/year</div>
+                  <ul style="padding-left: 16px;">
+                    <li>Morocco OCP: 30% global | ↓ -5% capacity (risk)</li>
+                    <li>China domestic: 35% global | ↑ +8.3% expansion</li>
+                    <li>USA, Russia, Others: 35%</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
+                  <strong>Risk:</strong> Morocco dominance creates supply concentration risk
+                </div>
+              </div>
+            </div>
+
+            <!-- Lithium -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚡ Lithium Carbonate Suppliers</div>
+                <div class="card-subtitle">Sourcing Risk: MEDIUM</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">Key Sources: China, Chile, Australia</div>
+                  <ul style="padding-left: 16px;">
+                    <li>Ganzizhou (China): 60% supply | Inventory concerns</li>
+                    <li>Atacama (Chile): 20% | Long-term stable</li>
+                    <li>Pilbara (Australia): 15% | Expanding</li>
+                    <li>Others: 5%</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
+                  <strong>Current:</strong> Inventory 12-15 days (tight); price volatility expected
+                </div>
+              </div>
+            </div>
+
+            <!-- Phosphoric Acid -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🏭 Phosphoric Acid Processors</div>
+                <div class="card-subtitle">Sourcing Risk: LOW-MEDIUM</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">Processing Capacity: 20M MT/year (China)</div>
+                  <ul style="padding-left: 16px;">
+                    <li>Yunnan province: 40% capacity</li>
+                    <li>Guizhou province: 35% capacity</li>
+                    <li>Sichuan province: 25% capacity</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
+                  <strong>Status:</strong> Adequate supply; lead time 2-3 weeks typical
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Supply Risk Assessment & Mitigation</h3>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Raw Material</th>
+                  <th>Current Risk</th>
+                  <th>Price Trend</th>
+                  <th>Inventory Health</th>
+                  <th>Mitigation Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Phosphate Rock</strong></td>
+                  <td><span class="badge badge-danger">HIGH</span></td>
+                  <td>↑ +5.1% (upward)</td>
+                  <td>Morocco ↓5%, tightening</td>
+                  <td>Diversify suppliers; lock long-term deals</td>
+                </tr>
+                <tr>
+                  <td><strong>Lithium Carbonate</strong></td>
+                  <td><span class="badge badge-warning">MEDIUM</span></td>
+                  <td>↑ +1.8% (volatile)</td>
+                  <td>12-15 days (tight)</td>
+                  <td>Multi-source agreements; hedging</td>
+                </tr>
+                <tr>
+                  <td><strong>Phosphoric Acid</strong></td>
+                  <td><span class="badge badge-success">LOW</span></td>
+                  <td>↑ +3.2% (stable)</td>
+                  <td>Adequate</td>
+                  <td>Maintain supply relationships</td>
+                </tr>
+                <tr>
+                  <td><strong>Energy (Power)</strong></td>
+                  <td><span class="badge badge-warning">MEDIUM</span></td>
+                  <td>↑ (seasonal)</td>
+                  <td>Regional variation</td>
+                  <td>Secure long-term power contracts; efficiency focus</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DOWNSTREAM CUSTOMERS -->
+        <div id="downstream-analysis" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">⬇️ Downstream Customers & Market Demand</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Global EV Sales (2023)</div>
+              <div class="metric-value">13.6M</div>
+              <div class="metric-change positive">↑ +35% YoY</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">LFP Adoption Rate</div>
+              <div class="metric-value">42%</div>
+              <div class="metric-change positive">↑ +12% YoY</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">ESS Market Growth</div>
+              <div class="metric-value">3x vs EV</div>
+              <div class="metric-change positive">Emerging opportunity</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Customer Concentration</div>
+              <div class="metric-value">Top 5 = 60%</div>
+              <div class="metric-change negative">↑ (consolidation)</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Tier 1 OEM & Battery Integrator Demand</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <!-- Tesla -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🚗 Tesla</div>
+                  <div class="card-subtitle">USA | EV Focus | Premium positioning</div>
+                </div>
+                <span class="badge badge-primary">KEY CUSTOMER</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">LFP Demand: 800k+ units/year (2024)</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Model 3/Y entry tiers + new markets</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">Current Suppliers</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">CATL (primary), BYD (secondary), local options</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">Sourcing Strategy</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Multi-supplier approach; Fremont localization</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>📊 Opportunity:</strong> Premium LFP variant; energy density focus
+                </div>
+              </div>
+            </div>
+
+            <!-- NIO/XPeng -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🏎️ NIO / XPeng / Li-Auto</div>
+                  <div class="card-subtitle">China | Premium EV | LFP growth</div>
+                </div>
+                <span class="badge badge-primary">GROWTH CUSTOMER</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">Combined LFP Demand: 2M+ units/year</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Rapid LFP adoption across price tiers</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">Primary Suppliers</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">CATL, BYD, Gotion direct supply</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">Buyer Power</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">High bargaining power; strong negotiations</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>📊 Opportunity:</strong> Volume growth; battery technology differentiation
+                </div>
+              </div>
+            
+
+      <!-- TECHNOLOGY PAGE -->
+      <div id="page-technology" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Technology & Innovation</h1>
+          <p class="section-subtitle">LFP technology roadmap, breakthroughs, R&D signals, emerging chemistries</p>
+        </div>
+
+        <h2 class="section-title" style="margin-bottom: 16px;">LFP Technology Maturity Roadmap</h2>
+        <div class="tech-timeline">
+          <div class="timeline-item" style="border-left-color: var(--success);">
+            <div class="timeline-title">🟢 Fast Charge (>80% in <20min)</div>
+            <div class="timeline-subtitle">Maturity: Commercial | Leaders: CATL, BYD | Timeline: NOW</div>
+            <div class="timeline-desc">Fast-charge LFP already in commercial production. CATL and BYD leading with proprietary cathode doping and electrolyte systems. Performance verified in multiple OEM platforms (Tesla Model Y, NIO ET6, etc.).</div>
+          </div>
+
+          <div class="timeline-item" style="border-left-color: var(--accent);">
+            <div class="timeline-title">🟡 Energy Density >200 Wh/kg</div>
+            <div class="timeline-subtitle">Maturity: Late-stage | Leaders: BYD, Gotion | Timeline: 2024-25</div>
+            <div class="timeline-desc">BYD recently announced 180 Wh/kg breakthroughs. Gotion demonstrating 185+ Wh/kg in labs. Commercial production feasibility within 12-18 months. Minor cost increase (2-3%) acceptable for premium segment.</div>
+          </div>
+
+          <div class="timeline-item" style="border-left-color: var(--success);">
+            <div class="timeline-title">🟢 Low-Temperature Performance (-20°C+)</div>
+            <div class="timeline-subtitle">Maturity: Commercial | Leaders: CATL | Timeline: NOW</div>
+            <div class="timeline-desc">CATL's -20°C capable LFP already in EV fleet operations in northern China. Electrolyte & separator innovations enabling cold-climate performance. Critical for North America & Europe winter markets.</div>
+          </div>
+
+          <div class="timeline-item" style="border-left-color: var(--warning);">
+            <div class="timeline-title">🔴 LMFP (Manganese-doped LFP)</div>
+            <div class="timeline-subtitle">Maturity: Early-stage | Leaders: CATL, BYD | Timeline: 2025-26</div>
+            <div class="timeline-desc">Adds manganese dopant for higher energy density (200+ Wh/kg target) while maintaining LFP safety. Cost adder ~10-15%. Both CATL and BYD claiming 2025 commercial readiness. Major strategic inflection point.</div>
+          </div>
+
+          <div class="timeline-item" style="border-left-color: var(--warning);">
+            <div class="timeline-title">🔴 Cycle Life >1M Cycles</div>
+            <div class="timeline-subtitle">Maturity: Research | Leaders: Academic labs | Timeline: 2026+</div>
+            <div class="timeline-desc">Academic research showing >1M cycle potential in lab conditions. Industry skeptical on commercial viability & cost-benefit trade-off. Strategic relevance: Ultra-long-life ESS applications.</div>
+          </div>
+        </div>
+
+        <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">📊 R&D Investment by Player</h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Primary Focus</th>
+                <th>Investment Level</th>
+                <th>Key Breakthrough</th>
+                <th>Timeline to Market</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>CATL</strong></td>
+                <td>Fast charge, LMFP, low-temp</td>
+                <td>Highest</td>
+                <td>Fast-charge 80% in 18 min</td>
+                <td>2024-25</td>
+              </tr>
+              <tr>
+                <td><strong>BYD</strong></td>
+                <td>Energy density, cost reduction</td>
+                <td>High</td>
+                <td>180 Wh/kg cathode</td>
+                <td>2024-25</td>
+              </tr>
+              <tr>
+                <td><strong>Gotion</strong></td>
+                <td>Energy density, ESS-specific</td>
+                <td>Medium</td>
+                <td>185 Wh/kg lab demo</td>
+                <td>2025-26</td>
+              </tr>
+              <tr>
+                <td><strong>Northvolt</strong></td>
+                <td>Sustainability, premium LFP</td>
+                <td>Medium</td>
+                <td>Carbon-neutral manufacturing</td>
+                <td>2024 onwards</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUPPLY CHAIN PAGE -->
+      <div id="page-supply-chain" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Supply Chain Tracking</h1>
+          <p class="section-subtitle">Real-time end-to-end monitoring: Phosphate Rock → LFP → Battery → OEM. Bottleneck detection, supplier performance, inventory levels, lead times</p>
+        </div>
+
+        <div class="tab-group">
+          <button class="tab-btn active" data-panel="supply-health">Health Dashboard</button>
+          <button class="tab-btn" data-panel="supply-stages">Supply Stages</button>
+          <button class="tab-btn" data-panel="supply-suppliers">Supplier Performance</button>
+          <button class="tab-btn" data-panel="supply-inventory">Inventory Tracking</button>
+          <button class="tab-btn" data-panel="supply-risks">Risk Matrix</button>
+        </div>
+
+        <!-- HEALTH DASHBOARD -->
+        <div id="supply-health" class="tab-content active">
+          <h2 class="section-title" style="margin-bottom: 16px;">Supply Chain Health Dashboard</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Overall Health Score</div>
+              <div class="metric-value">7.8/10</div>
+              <div class="metric-change positive">↑ +0.6 this week</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Critical Bottlenecks</div>
+              <div class="metric-value">2</div>
+              <div class="metric-change negative">↑ +1 new (phosphate rock)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Avg Lead Time</div>
+              <div class="metric-value">28 days</div>
+              <div class="metric-change negative">↑ +2 days (delays)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Supply Risk Index</div>
+              <div class="metric-value">6.2/10</div>
+              <div class="metric-change negative">↑ (rising concern)</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+              <div class="card-title">📊 Supply Chain Pipeline Status</div>
+            </div>
+            <div class="chart-placeholder" style="height: 350px;">
+              <div class="chart-placeholder-icon">⛓️</div>
+              <div class="chart-placeholder-text">Flow: Phosphate Rock (Mining) → Processing (Acid Mills) → LFP Production → Battery Assembly → OEM Distribution</div>
+            </div>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">5-Stage Supply Chain Overview</h2>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+            <div class="card">
+              <div class="card-header" style="background: rgba(239, 68, 68, 0.05);">
+                <div class="card-title">⛏️ Mining & Extraction</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 10px;"><strong>Health:</strong> 🔴 Critical</div>
+                <div style="margin-bottom: 10px;"><strong>Lead Time:</strong> 4-6 weeks (shipping)</div>
+                <div style="margin-bottom: 10px;"><strong>Status:</strong> Morocco OCP ↓5%, tightening</div>
+                <div style="font-weight: 700; color: var(--warning);">Risk Score: 8.5/10 (HIGH)</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="background: rgba(245, 158, 11, 0.05);">
+                <div class="card-title">🏭 Processing & Refining</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 10px;"><strong>Health:</strong> 🟡 Moderate</div>
+                <div style="margin-bottom: 10px;"><strong>Lead Time:</strong> 2-3 weeks (H3PO4)</div>
+                <div style="margin-bottom: 10px;"><strong>Status:</strong> 82% capacity utilization</div>
+                <div style="font-weight: 700; color: var(--accent);">Risk Score: 5.2/10 (MEDIUM)</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="background: rgba(59, 130, 246, 0.05);">
+                <div class="card-title">🧪 LFP Synthesis</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 10px;"><strong>Health:</strong> 🟢 Good</div>
+                <div style="margin-bottom: 10px;"><strong>Lead Time:</strong> 3-4 weeks (production)</div>
+                <div style="margin-bottom: 10px;"><strong>Status:</strong> 78% utilization, stable</div>
+                <div style="font-weight: 700; color: var(--success);">Risk Score: 4.1/10 (LOW)</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="background: rgba(16, 185, 129, 0.05);">
+                <div class="card-title">🔋 Battery Assembly</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 10px;"><strong>Health:</strong> 🟢 Good</div>
+                <div style="margin-bottom: 10px;"><strong>Lead Time:</strong> 2-4 weeks (OEM lead)</div>
+                <div style="margin-bottom: 10px;"><strong>Status:</strong> CATL/BYD capacity adequate</div>
+                <div style="font-weight: 700; color: var(--success);">Risk Score: 3.8/10 (LOW)</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header" style="background: rgba(99, 102, 241, 0.05);">
+                <div class="card-title">🚗 OEM Distribution</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 10px;"><strong>Health:</strong> 🟡 Moderate</div>
+                <div style="margin-bottom: 10px;"><strong>Lead Time:</strong> 1-2 weeks (delivery)</div>
+                <div style="margin-bottom: 10px;"><strong>Status:</strong> Logistics cost ↑8%</div>
+                <div style="font-weight: 700; color: var(--accent);">Risk Score: 5.9/10 (MEDIUM)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUPPLY STAGES DETAIL -->
+        <div id="supply-stages" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Detailed Supply Chain Stages</h2>
+
+          <div class="alert-card critical">
+            <div class="alert-header">
+              <div>
+                <div class="alert-title">🚨 Stage 1: Phosphate Rock Mining - CRITICAL BOTTLENECK</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Morocco OCP production down 5% | Global shortage risk</div>
+              </div>
+              <span class="alert-badge critical">URGENT ACTION</span>
+            </div>
+            <div class="alert-content">Morocco OCP (30% global supply) facing capacity reduction. Price up 5.1% ($112.80/MT). China imports 38% of supply. Forecast: Sustained high prices 4+ weeks. Impact: Cost increase ¥150-200/MT LFP.</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📍 Global Phosphate Rock Suppliers</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 10px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span><strong>Morocco (OCP)</strong></span>
+                    <span>30% | ↓ -5%</span>
+                  </div>
+                  <div style="width: 100%; background: var(--border); height: 4px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 30%; height: 100%; background: var(--warning);"></div>
+                  </div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span><strong>China (Domestic)</strong></span>
+                    <span>35% | ↑ +8.3%</span>
+                  </div>
+                  <div style="width: 100%; background: var(--border); height: 4px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 35%; height: 100%; background: var(--success);"></div>
+                  </div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <span><strong>USA, Russia, Others</strong></span>
+                    <span>35% | Stable</span>
+                  </div>
+                  <div style="width: 100%; background: var(--border); height: 4px; border-radius: 2px; overflow: hidden;">
+                    <div style="width: 35%; height: 100%; background: var(--info);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💡 Mitigation Actions</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li style="margin-bottom: 8px;"><strong>Immediate:</strong> Lock 6-month supply agreements at current prices</li>
+                  <li style="margin-bottom: 8px;"><strong>Short-term:</strong> Increase China domestic sourcing to 50%+</li>
+                  <li style="margin-bottom: 8px;"><strong>Medium-term:</strong> Explore Russia, Kazakhstan alternatives</li>
+                  <li style="margin-bottom: 8px;"><strong>Long-term:</strong> Develop internal phosphate processing capability</li>
+                  <li><strong>Inventory:</strong> Increase safety stock from 20 to 30 days</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Stage Lead Times & Variability</h3>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Stage</th>
+                  <th>Typical Lead Time</th>
+                  <th>Variability</th>
+                  <th>Current Status</th>
+                  <th>Delay Risk</th>
+                  <th>Next Bottleneck Window</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Phosphate Mining</strong></td>
+                  <td>4-6 weeks</td>
+                  <td>±2 weeks</td>
+                  <td>On schedule</td>
+                  <td><span class="badge badge-danger">HIGH</span></td>
+                  <td>Q2 2024 (price surge)</td>
+                </tr>
+                <tr>
+                  <td><strong>Processing</strong></td>
+                  <td>2-3 weeks</td>
+                  <td>±5 days</td>
+                  <td>On schedule</td>
+                  <td><span class="badge badge-warning">MEDIUM</span></td>
+                  <td>Q3 2024 (seasonal)</td>
+                </tr>
+                <tr>
+                  <td><strong>LFP Production</strong></td>
+                  <td>3-4 weeks</td>
+                  <td>±3 days</td>
+                  <td>+2 days delay</td>
+                  <td><span class="badge badge-success">LOW</span></td>
+                  <td>Resolving</td>
+                </tr>
+                <tr>
+                  <td><strong>Battery Assembly</strong></td>
+                  <td>2-4 weeks</td>
+                  <td>±1 week</td>
+                  <td>On schedule</td>
+                  <td><span class="badge badge-success">LOW</span></td>
+                  <td>No issues</td>
+                </tr>
+                <tr>
+                  <td><strong>Logistics</strong></td>
+                  <td>1-2 weeks</td>
+                  <td>±3 days</td>
+                  <td>On schedule</td>
+                  <td><span class="badge badge-warning">MEDIUM</span></td>
+                  <td>Seasonal peaks</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SUPPLIER PERFORMANCE -->
+        <div id="supply-suppliers" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Supplier Performance & Reliability Tracking</h2>
+
+          <div class="filter-group">
+            <button class="filter-btn active">All Suppliers</button>
+            <button class="filter-btn">Phosphate Rock</button>
+            <button class="filter-btn">Lithium</button>
+            <button class="filter-btn">Processing</button>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Supplier</th>
+                  <th>Material</th>
+                  <th>Capacity</th>
+                  <th>On-Time Delivery</th>
+                  <th>Quality Score</th>
+                  <th>Price Competitiveness</th>
+                  <th>Overall Rating</th>
+                  <th>Risk Level</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>OCP Morocco</strong></td>
+                  <td>Phosphate Rock</td>
+                  <td>66M MT/yr</td>
+                  <td><span class="badge badge-success">94%</span></td>
+                  <td>8.7/10</td>
+                  <td><span class="badge badge-warning">Medium</span></td>
+                  <td>8.5/10</td>
+                  <td><span class="badge badge-danger">CRITICAL ↓5%</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Yunnan Mining (China)</strong></td>
+                  <td>Phosphate Rock</td>
+                  <td>78M MT/yr</td>
+                  <td><span class="badge badge-success">96%</span></td>
+                  <td>8.4/10</td>
+                  <td><span class="badge badge-success">Good</span></td>
+                  <td>8.6/10</td>
+                  <td><span class="badge badge-warning">EXPANDING ↑</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Ganzizhou Lithium (China)</strong></td>
+                  <td>Lithium Carbonate</td>
+                  <td>120k MT/yr</td>
+                  <td><span class="badge badge-warning">89%</span></td>
+                  <td>8.1/10</td>
+                  <td><span class="badge badge-warning">Volatile</span></td>
+                  <td>7.9/10</td>
+                  <td><span class="badge badge-warning">INVENTORY LOW</span></td>
+                </tr>
+                <tr>
+                  <td><strong>SQM (Chile - Lithium)</strong></td>
+                  <td>Lithium Carbonate</td>
+                  <td>80k MT/yr</td>
+                  <td><span class="badge badge-success">98%</span></td>
+                  <td>9.2/10</td>
+                  <td><span class="badge badge-warning">Premium</span></td>
+                  <td>9.0/10</td>
+                  <td><span class="badge badge-success">RELIABLE</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Yunnan Phosphorus Mill</strong></td>
+                  <td>Phosphoric Acid</td>
+                  <td>8.2M MT/yr</td>
+                  <td><span class="badge badge-success">95%</span></td>
+                  <td>8.8/10</td>
+                  <td><span class="badge badge-success">Competitive</span></td>
+                  <td>8.8/10</td>
+                  <td><span class="badge badge-success">HEALTHY</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Supplier Concentration Risk</h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🚨 High Concentration Risks</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li style="margin-bottom: 8px;"><strong>Phosphate Rock:</strong> Morocco OCP (30%) + China (35%) = 65% concentration</li>
+                  <li style="margin-bottom: 8px;"><strong>Lithium:</strong> Ganzizhou (China) = 60% of carbonate supply</li>
+                  <li style="margin-bottom: 8px;"><strong>Phosphoric Acid:</strong> Yunnan region = 40% of capacity</li>
+                  <li><strong>Impact:</strong> Single supplier disruption = 20-30% cost shock</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">✅ Diversification Strategy</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li style="margin-bottom: 8px;"><strong>Phosphate:</strong> Increase non-Morocco to 40% (Russia, USA)</li>
+                  <li style="margin-bottom: 8px;"><strong>Lithium:</strong> Target SQM/Pilbara 30%, Ganzizhou 50%, other 20%</li>
+                  <li style="margin-bottom: 8px;"><strong>Processing:</strong> Add Guizhou, Sichuan capacity to portfolio</li>
+                  <li><strong>Timeline:</strong> 12-18 months to achieve diversification targets</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INVENTORY TRACKING -->
+        <div id="supply-inventory" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Real-Time Inventory Levels & Turnover</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Avg Inventory Days</div>
+              <div class="metric-value">28 days</div>
+              <div class="metric-change negative">↑ +2 days (high)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Safety Stock Level</div>
+              <div class="metric-value">20 days</div>
+              <div class="metric-change neutral">Target: 25-30 days</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Inventory Velocity</div>
+              <div class="metric-value">13 turns/year</div>
+              <div class="metric-change negative">↓ -2 turns (slower)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Working Capital</div>
+              <div class="metric-value">$2.4B</div>
+              <div class="metric-change negative">↑ +¥300M (tied up)</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Inventory by Material</h3>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Material</th>
+                  <th>Current Stock</th>
+                  <th>Days on Hand</th>
+                  <th>Target Days</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Phosphate Rock</strong></td>
+                  <td>180k MT</td>
+                  <td>18 days</td>
+                  <td>25-30 days</td>
+                  <td><span class="badge badge-warning">LOW</span></td>
+                  <td>⚠️ Order 50k MT this week</td>
+                </tr>
+                <tr>
+                  <td><strong>Phosphoric Acid</strong></td>
+                  <td>120k MT</td>
+                  <td>22 days</td>
+                  <td>20-24 days</td>
+                  <td><span class="badge badge-success">ADEQUATE</span></td>
+                  <td>✓ Maintain current level</td>
+                </tr>
+                <tr>
+                  <td><strong>Lithium Carbonate</strong></td>
+                  <td>8.5k MT</td>
+                  <td>12 days</td>
+                  <td>20-25 days</td>
+                  <td><span class="badge badge-danger">CRITICAL</span></td>
+                  <td>🚨 Emergency order 8k MT</td>
+                </tr>
+                <tr>
+                  <td><strong>Iron Phosphate</strong></td>
+                  <td>35k MT</td>
+                  <td>24 days</td>
+                  <td>20-25 days</td>
+                  <td><span class="badge badge-success">ADEQUATE</span></td>
+                  <td>✓ Maintain current level</td>
+                </tr>
+                <tr>
+                  <td><strong>LFP Cathode (Finished)</strong></td>
+                  <td>92k MT</td>
+                  <td>28 days</td>
+                  <td>22-28 days</td>
+                  <td><span class="badge badge-warning">HIGH</span></td>
+                  <td>⚡ Accelerate sales/orders</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Inventory Optimization Opportunities</h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="info-block" style="border-left-color: var(--warning);">
+              <div class="info-label">⚠️ Immediate Action (Next 7 days)</div>
+              <div style="font-size: 13px; color: var(--text-primary); margin-top: 12px;">
+                <p><strong>1. Lithium Emergency:</strong> Order 8k MT carbonate immediately (12-day inventory is critical). Reach out to SQM Chile for premium-priced emergency supply.</p>
+                <p style="margin-top: 8px;"><strong>2. Phosphate Rock:</strong> Contract 50k MT from Yunnan/Guizhou at favorable terms to build safety stock.</p>
+                <p style="margin-top: 8px;"><strong>3. LFP Finished:</strong> Accelerate customer orders; 28-day inventory is 3+ days above target.</p>
+              </div>
+            </div>
+
+            <div class="info-block" style="border-left-color: var(--success);">
+              <div class="info-label">✅ Strategic Optimization (30-90 days)</div>
+              <div style="font-size: 13px; color: var(--text-primary); margin-top: 12px;">
+                <p><strong>1. Implement VMI:</strong> Vendor-managed inventory with key suppliers (OCP, Yunnan). Reduce safety stock by 5-10% through better visibility.</p>
+                <p style="margin-top: 8px;"><strong>2. Demand-Driven:</strong> Link production to OEM orders; reduce finished goods by 15% (saving ¥200-300M working capital).</p>
+                <p style="margin-top: 8px;"><strong>3. Supply Contracts:</strong> Long-term fixed prices reduce inventory hedge needs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RISK MATRIX -->
+        <div id="supply-risks" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Supply Chain Risk Matrix & Mitigation</h2>
+
+          <div class="alert-card critical">
+            <div class="alert-header">
+              <div>
+                <div class="alert-title">🚨 Top 3 Supply Chain Risks This Quarter</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Critical impacts on cost, delivery, margins</div>
+              </div>
+              <span class="alert-badge critical">PRIORITY</span>
+            </div>
+            <div class="alert-content">
+              <ol style="padding-left: 16px;">
+                <li style="margin-bottom: 12px;"><strong>Phosphate Rock Supply Shock:</strong> Morocco OCP ↓5%, price ↑5.1%. Impact: +¥150-200/MT cost. Mitigation: Lock 6-month contracts, diversify to China/Russia.</li>
+                <li style="margin-bottom: 12px;"><strong>Lithium Inventory Crisis:</strong> Ganzizhou only 12-day supply (critical low). Risk: 2-week production halt if disrupted. Mitigation: Emergency orders, multi-source agreements (SQM, Pilbara).</li>
+                <li><strong>Shipping Cost Inflation:</strong> Ocean freight China→Europe up 8% ($1,300/TEU). Impact: +2-3% logistics cost. Mitigation: Contract long-term; explore rail/overland routes.</li>
+              </ol>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Comprehensive Risk Scoring Matrix</h3>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Risk Category</th>
+                  <th>Current Impact</th>
+                  <th>Likelihood</th>
+                  <th>Risk Score</th>
+                  <th>Trend</th>
+                  <th>Mitigation Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Supply Concentration</strong></td>
+                  <td>High (65% phosphate)</td>
+                  <td>65%</td>
+                  <td>8.2/10</td>
+                  <td>↑ Rising</td>
+                  <td>Diversify suppliers; long-term contracts</td>
+                </tr>
+                <tr>
+                  <td><strong>Price Volatility</strong></td>
+                  <td>High (±5-10%)</td>
+                  <td>75%</td>
+                  <td>7.9/10</td>
+                  <td>→ Stable</td>
+                  <td>Hedging; fixed-price agreements</td>
+                </tr>
+                <tr>
+                  <td><strong>Lead Time Variability</strong></td>
+                  <td>Medium (±2 weeks)</td>
+                  <td>50%</td>
+                  <td>6.1/10</td>
+                  <td>↓ Improving</td>
+                  <td>Safety stock optimization; VMI</td>
+                </tr>
+                <tr>
+                  <td><strong>Geopolitical Risk</strong></td>
+                  <td>Low-Medium</td>
+                  <td>35%</td>
+                  <td>4.2/10</td>
+                  <td>→ Stable</td>
+                  <td>Monitor trade policy; diversify geography</td>
+                </tr>
+                <tr>
+                  <td><strong>Quality/Compliance</strong></td>
+                  <td>Low</td>
+                  <td>20%</td>
+                  <td>2.8/10</td>
+                  <td>↓ Improving</td>
+                  <td>Audit suppliers; standards enforcement</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Risk Mitigation Roadmap (12 Months)</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Q1 2024: Immediate Stabilization</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li>Emergency lithium order (8k MT)</li>
+                  <li>Lock phosphate 6-month contracts</li>
+                  <li>Increase safety stock to 25 days</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Q2-Q3 2024: Diversification</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li>Qualify Russia/Chile suppliers</li>
+                  <li>Establish VMI with key suppliers</li>
+                  <li>Reduce finished inventory by 10%</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Q4 2024-Q1 2025: Optimization</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li>Implement demand-driven planning</li>
+                  <li>Hedging strategy (futures, contracts)</li>
+                  <li>Supply chain visibility 100%</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+
+      <!-- PRICE MONITOR PAGE -->
+      <div id="page-pricing" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Price Monitor</h1>
+          <p class="section-subtitle">Real-time LFP, lithium, phosphate rock, and freight cost tracking with predictions</p>
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-btn active">All Prices</button>
+          <button class="filter-btn">LFP Cathode</button>
+          <button class="filter-btn">Raw Materials</button>
+          <button class="filter-btn">Freight</button>
+          <button class="filter-btn">Trends</button>
+        </div>
+
+        <!-- Key Price Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">LFP Cathode Spot Price</div>
+            <div class="metric-value">¥8,550/MT</div>
+            <div class="metric-change negative">↓ -2.3% QoQ</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Lithium Carbonate</div>
+            <div class="metric-value">$52,000/MT</div>
+            <div class="metric-change positive">↑ +1.8% QoQ</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Phosphate Rock (BPL-30)</div>
+            <div class="metric-value">$112.80/MT</div>
+            <div class="metric-change positive">↑ +5.1% QoQ</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">China→EU Shipping</div>
+            <div class="metric-value">$1,300/TEU</div>
+            <div class="metric-change positive">↑ +8.0% QoQ</div>
+          </div>
+        </div>
+
+        <!-- Price Trends Chart -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <div class="card-title">📈 Price Trends (12-Week Historical)</div>
+          </div>
+          <div class="chart-placeholder" style="height: 350px;">
+            <div class="chart-placeholder-icon">📊</div>
+            <div class="chart-placeholder-text">LFP Cathode vs Lithium Carbonate vs Phosphate Rock</div>
+          </div>
+        </div>
+
+        <!-- Price Breakdown Table -->
+        <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Detailed Price Analysis by Material</h2>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Material</th>
+                <th>Current Price</th>
+                <th>1-Week Change</th>
+                <th>4-Week Avg</th>
+                <th>52-Week High/Low</th>
+                <th>Forecast (4W)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>LFP Cathode</strong></td>
+                <td>¥8,550/MT</td>
+                <td><span class="badge badge-danger">↓ -2.3%</span></td>
+                <td>¥8,725/MT</td>
+                <td>¥9,200 / ¥7,800</td>
+                <td><span class="badge badge-warning">→ Stable</span></td>
+              </tr>
+              <tr>
+                <td><strong>Lithium Carbonate</strong></td>
+                <td>$52,000/MT</td>
+                <td><span class="badge badge-success">↑ +1.8%</span></td>
+                <td>$51,250/MT</td>
+                <td>$65,000 / $48,000</td>
+                <td><span class="badge badge-warning">↑ +2-3% expected</span></td>
+              </tr>
+              <tr>
+                <td><strong>Phosphoric Acid</strong></td>
+                <td>$380/MT</td>
+                <td><span class="badge badge-success">↑ +3.2%</span></td>
+                <td>$368/MT</td>
+                <td>$420 / $340</td>
+                <td><span class="badge badge-warning">↑ Sustained pressure</span></td>
+              </tr>
+              <tr>
+                <td><strong>Phosphate Rock (BPL-30)</strong></td>
+                <td>$112.80/MT</td>
+                <td><span class="badge badge-success">↑ +5.1%</span></td>
+                <td>$107.50/MT</td>
+                <td>$125 / $95</td>
+                <td><span class="badge badge-warning">↑ +3-4% likely</span></td>
+              </tr>
+              <tr>
+                <td><strong>China→Europe Freight</strong></td>
+                <td>$1,300/TEU</td>
+                <td><span class="badge badge-success">↑ +8.0%</span></td>
+                <td>$1,204/TEU</td>
+                <td>$1,600 / $900</td>
+                <td><span class="badge badge-warning">→ Stable/slight ↓</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Price Drivers & Analysis -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📉 LFP Price Downward Pressure</div>
+            </div>
+            <div class="card-content">
+              <ul style="padding-left: 16px;">
+                <li style="margin-bottom: 8px;">Supply oversupply: +28% new capacity YoY</li>
+                <li style="margin-bottom: 8px;">Demand softness: EV sales in Europe/Asia slowing</li>
+                <li style="margin-bottom: 8px;">Competition intensifying: Price wars among CATL, BYD, Gotion</li>
+                <li style="margin-bottom: 8px;">Inventory buildup: 28-day turnover (high)</li>
+                <li>Market consolidation accelerating</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📈 Raw Material Upward Pressure</div>
+            </div>
+            <div class="card-content">
+              <ul style="padding-left: 16px;">
+                <li style="margin-bottom: 8px;">Phosphate rock: Morocco OCP production ↓5%</li>
+                <li style="margin-bottom: 8px;">Lithium: Supply chain tightness (inventory low)</li>
+                <li style="margin-bottom: 8px;">Shipping: Ocean freight elevated due to route constraints</li>
+                <li style="margin-bottom: 8px;">Regulations: Environmental compliance costs rising</li>
+                <li>Geopolitical risk premiums embedded</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Implications & Margin Impact -->
+        <div class="info-block" style="margin-top: 24px; border-left-color: var(--warning);">
+          <div class="info-label">⚠️ Margin Impact Analysis</div>
+          <div class="info-value" style="color: var(--warning); font-size: 14px; margin-bottom: 8px;">LFP margin compression likely</div>
+          <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            <p><strong>Cost Structure Shift:</strong> LFP decline (-2.3%) outpaced by lithium (+1.8%) and phosphate rock (+5.1%). Net margin impact: -0.8% to -1.2% depending on sourcing mix.</p>
+            <p style="margin-top: 8px;"><strong>Recommended Actions:</strong> Lock lithium costs via long-term contracts; diversify phosphate rock suppliers; optimize production efficiency to offset price pressure.</p>
+          </div>
+        </div>
+
+        <!-- Price Forecast -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <div class="card-title">🔮 4-Week Price Forecast (AI Model)</div>
+          </div>
+          <div class="card-content">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+              <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">LFP Cathode</div>
+                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">¥8,400 (-1.8%)</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Confidence: 87%</div>
+              </div>
+              <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">Lithium Carbonate</div>
+                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">$53,000 (+1.9%)</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Confidence: 82%</div>
+              </div>
+              <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">Phosphate Rock</div>
+                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">$116.50 (+3.3%)</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Confidence: 84%</div>
+              </div>
+              <div style="padding: 12px; background: var(--bg-secondary); border-radius: 6px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600;">Freight (China→EU)</div>
+                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">$1,250 (-3.8%)</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Confidence: 79%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAPACITY TRACKER PAGE -->
+      <div id="page-capacity" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Capacity Tracker</h1>
+          <p class="section-subtitle">Global LFP & phosphate capacity mapping, expansion projects, utilization analysis, and timeline tracking</p>
+        </div>
+
+        <div class="tab-group">
+          <button class="tab-btn active" data-panel="capacity-overview">Overview</button>
+          <button class="tab-btn" data-panel="capacity-projects">Projects</button>
+          <button class="tab-btn" data-panel="capacity-utilization">Utilization</button>
+          <button class="tab-btn" data-panel="capacity-timeline">Timeline</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="capacity-overview" class="tab-content active">
+          <h2 class="section-title" style="margin-bottom: 16px;">Global Capacity Snapshot</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Global LFP Capacity</div>
+              <div class="metric-value">2.84M MT</div>
+              <div class="metric-change positive">↑ +42.1% YoY</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Existing Capacity</div>
+              <div class="metric-value">1.24M MT</div>
+              <div class="metric-change positive">↑ +12% YoY</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Under Construction</div>
+              <div class="metric-value">680k MT</div>
+              <div class="metric-change positive">↑ +68% YoY</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Announced (Not Started)</div>
+              <div class="metric-value">920k MT</div>
+              <div class="metric-change neutral">Planning phase</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+              <div class="card-title">📊 Global Capacity Distribution by Stage</div>
+            </div>
+            <div class="chart-placeholder" style="height: 350px;">
+              <div class="chart-placeholder-icon">🎯</div>
+              <div class="chart-placeholder-text">Existing (1.24M) | Under Construction (680k) | Announced (920k)</div>
+            </div>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Top 10 Global LFP Producers</h2>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Company</th>
+                  <th>Region</th>
+                  <th>Current Capacity</th>
+                  <th>Utilization</th>
+                  <th>2026 Target</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1</strong></td>
+                  <td><strong>CATL</strong></td>
+                  <td>China</td>
+                  <td>850k MT/yr</td>
+                  <td><span class="badge badge-success">85.2%</span></td>
+                  <td>1,350k MT</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>2</strong></td>
+                  <td><strong>BYD</strong></td>
+                  <td>China</td>
+                  <td>620k MT/yr</td>
+                  <td><span class="badge badge-success">82.1%</span></td>
+                  <td>880k MT</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>3</strong></td>
+                  <td><strong>Gotion High-Tech</strong></td>
+                  <td>China</td>
+                  <td>380k MT/yr</td>
+                  <td><span class="badge badge-warning">76.4%</span></td>
+                  <td>520k MT</td>
+                  <td><span class="badge badge-warning">→ STABLE</span></td>
+                </tr>
+                <tr>
+                  <td><strong>4</strong></td>
+                  <td><strong>SVOLT</strong></td>
+                  <td>China</td>
+                  <td>290k MT/yr</td>
+                  <td><span class="badge badge-warning">69.3%</span></td>
+                  <td>380k MT</td>
+                  <td><span class="badge badge-warning">→ STABLE</span></td>
+                </tr>
+                <tr>
+                  <td><strong>5</strong></td>
+                  <td><strong>Northvolt</strong></td>
+                  <td>Sweden</td>
+                  <td>150k MT/yr</td>
+                  <td><span class="badge badge-success">88.5%</span></td>
+                  <td>250k MT</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>6</strong></td>
+                  <td><strong>Tesla (Fremont)</strong></td>
+                  <td>USA</td>
+                  <td>120k MT/yr</td>
+                  <td><span class="badge badge-success">91.2%</span></td>
+                  <td>200k MT</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>7</strong></td>
+                  <td><strong>Lishen Battery</strong></td>
+                  <td>China</td>
+                  <td>280k MT/yr</td>
+                  <td><span class="badge badge-warning">71.8%</span></td>
+                  <td>420k MT</td>
+                  <td><span class="badge badge-warning">→ STABLE</span></td>
+                </tr>
+                <tr>
+                  <td><strong>8</strong></td>
+                  <td><strong>CATL Europe</strong></td>
+                  <td>Germany</td>
+                  <td>80k MT/yr</td>
+                  <td><span class="badge badge-success">82.0%</span></td>
+                  <td>150k MT</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>9</strong></td>
+                  <td><strong>Huayou Cobalt</strong></td>
+                  <td>China</td>
+                  <td>210k MT/yr</td>
+                  <td><span class="badge badge-warning">68.5%</span></td>
+                  <td>350k MT</td>
+                  <td><span class="badge badge-danger">↑ EXPANDING</span></td>
+                </tr>
+                <tr>
+                  <td><strong>10</strong></td>
+                  <td><strong>Contemporary (India)</strong></td>
+                  <td>India</td>
+                  <td>95k MT/yr</td>
+                  <td><span class="badge badge-warning">65.2%</span></td>
+                  <td>180k MT</td>
+                  <td><span class="badge badge-warning">→ STABLE</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Capacity by Region</h2>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+            <div class="info-block">
+              <div class="info-label">China</div>
+              <div class="info-value">2.33M MT (82%)</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">CATL, BYD, Gotion dominate</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Europe</div>
+              <div class="info-value">230k MT (8%)</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Northvolt, CATL EU, expanding</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">North America</div>
+              <div class="info-value">200k MT (7%)</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Tesla, BYD US, localizing</div>
+            </div>
+            <div class="info-block">
+              <div class="info-label">Asia-Pacific (ex-China)</div>
+              <div class="info-value">85k MT (3%)</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">India, Japan, emerging</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROJECTS TAB -->
+        <div id="capacity-projects" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Active Expansion Projects (Under Construction + Planning)</h2>
+
+          <div class="filter-group">
+            <button class="filter-btn active">All Projects</button>
+            <button class="filter-btn">Under Construction</button>
+            <button class="filter-btn">Planning Phase</button>
+            <button class="filter-btn">At Risk</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <!-- Project 1 -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🚧 CATL Ningde Phase III</div>
+                  <div class="card-subtitle">China | 500k MT | ¥120B investment</div>
+                </div>
+                <span class="badge badge-danger">UNDER CONSTRUCTION</span>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">500k MT/year LFP cathode</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">TIMELINE</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Completion: Q4 2024</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">PROGRESS</div>
+                  <div class="progress-bar" style="width: 100%; height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden;">
+                    <div style="width: 72%; height: 100%; background: var(--success);"></div>
+                  </div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">72% complete | Equipment installation phase</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">IMPACT</div>
+                  <div style="font-size: 12px; color: var(--text-primary);">Major competitive step; 59% cost advantage over incumbents</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🚧 BYD Wuhan LFP Expansion</div>
+                  <div class="card-subtitle">China | 300k MT | ¥85B investment</div>
+                </div>
+                <span class="badge badge-danger">UNDER CONSTRUCTION</span>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">300k MT/year LFP + battery</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">TIMELINE</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Completion: Q2 2025</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">PROGRESS</div>
+                  <div class="progress-bar" style="width: 100%; height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden;">
+                    <div style="width: 58%; height: 100%; background: var(--info);"></div>
+                  </div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">58% complete | Foundation work ongoing</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">IMPACT</div>
+                  <div style="font-size: 12px; color: var(--text-primary);">Vertical integration; supports 2M+ EV units/year</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project 3 -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">📋 Gotion Europe Manufacturing</div>
+                  <div class="card-subtitle">Hungary | 250k MT | €95M investment</div>
+                </div>
+                <span class="badge badge-primary">PLANNING</span>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">250k MT/year LFP cathode</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">TIMELINE</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Completion: Q4 2025</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">PROGRESS</div>
+                  <div class="progress-bar" style="width: 100%; height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden;">
+                    <div style="width: 28%; height: 100%; background: var(--accent);"></div>
+                  </div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">28% complete | Site acquisition, permits pending</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">RISK LEVEL</div>
+                  <div style="font-size: 12px; color: var(--text-primary);">🟡 Medium (EU tariff uncertainty)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project 4 -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🚨 Northvolt Skellefteå Phase 2</div>
+                  <div class="card-subtitle">Sweden | 150k MT | €1.5B investment</div>
+                </div>
+                <span class="badge badge-warning">AT RISK</span>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">150k MT/year premium LFP</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">ORIGINAL TIMELINE</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--warning);">Q2 2025 → Delayed to Q4 2025</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">ISSUE</div>
+                  <div style="font-size: 12px; color: var(--warning); font-weight: 600;">⚠️ Financing challenges; VW commitment unclear</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">RISK MITIGATION</div>
+                  <div style="font-size: 12px; color: var(--text-primary);">Seeking strategic investor; scaling back Phase 2</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project 5 -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">📋 BYD Mexico Facility</div>
+                  <div class="card-subtitle">Mexico | 120k MT | $180M investment</div>
+                </div>
+                <span class="badge badge-primary">PLANNING</span>
+              </div>
+              <div class="card-content">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">120k MT/year LFP cathode</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">TIMELINE</div>
+                  <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">Completion: Q2 2026</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC GOAL</div>
+                  <div style="font-size: 12px; color: var(--text-primary);">USMCA compliance; serve North America OEMs</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">STATUS</div>
+                  <div style="font-size: 12px; color: var(--text-primary);">Feasibility study phase; regulatory approvals pending</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UTILIZATION TAB -->
+        <div id="capacity-utilization" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Production Capacity Utilization Analysis</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Global Average Utilization</div>
+              <div class="metric-value">78.3%</div>
+              <div class="metric-change neutral">Within healthy range (70-85%)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Top Performer (CATL)</div>
+              <div class="metric-value">85.2%</div>
+              <div class="metric-change positive">↑ +2.1% QoQ</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Lowest (New Entrants)</div>
+              <div class="metric-value">52.1%</div>
+              <div class="metric-change negative">↓ -5.3% QoQ</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Optimal Target Range</div>
+              <div class="metric-value">82-88%</div>
+              <div class="metric-change neutral">Profitability sweet spot</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+              <div class="card-title">📊 Utilization Rate by Company</div>
+            </div>
+            <div class="chart-placeholder" style="height: 300px;">
+              <div class="chart-placeholder-icon">📈</div>
+              <div class="chart-placeholder-text">CATL, BYD, Gotion, SVOLT, Lishen, New Entrants comparison</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Utilization Trends & Outlook</h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📍 Current State (Q1 2024)</div>
+              </div>
+              <div class="card-content">
+                <ul style="padding-left: 16px;">
+                  <li style="margin-bottom: 8px;"><strong>CATL:</strong> 85.2% | Strong demand, premium positioning</li>
+                  <li style="margin-bottom: 8px;"><strong>BYD:</strong> 82.1% | Stable, self-sufficient capacity strategy</li>
+                  <li style="margin-bottom: 8px;"><strong>Gotion:</strong> 76.4% | Moderate utilization, cost focus</li>
+                  <li style="margin-bottom: 8px;"><strong>SVOLT:</strong> 69.3% | Underutilized, struggling volumes</li>
+                  <li><strong>Newcomers:</strong> 52.1% | Significant excess capacity, margin pressure</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🔮 12-Month Outlook</div>
+              </div>
+              <div class="card-content">
+                <ul style="padding-left: 16px;">
+                  <li style="margin-bottom: 8px;"><strong>Q2-Q3 2024:</strong> Seasonal dip to 72-75% (EV seasonality)</li>
+                  <li style="margin-bottom: 8px;"><strong>Q4 2024:</strong> Recovery to 80%+ (year-end push)</li>
+                  <li style="margin-bottom: 8px;"><strong>2025:</strong> Equilibrate to 76-82% as new capacity comes online</li>
+                  <li style="margin-bottom: 8px;"><strong>Risk:</strong> Oversupply if demand growth < 20% CAGR</li>
+                  <li><strong>Opportunity:</strong> Consolidation accelerates; weak players exit</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Utilization by Quarter (Historical & Forecast)</h3>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Q4 2023</th>
+                  <th>Q1 2024</th>
+                  <th>Q2F 2024</th>
+                  <th>Q3F 2024</th>
+                  <th>Q4F 2024</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>CATL</strong></td>
+                  <td>84.1%</td>
+                  <td>85.2%</td>
+                  <td>82.5%</td>
+                  <td>81.2%</td>
+                  <td>86.8%</td>
+                  <td><span class="badge badge-success">HEALTHY</span></td>
+                </tr>
+                <tr>
+                  <td><strong>BYD</strong></td>
+                  <td>80.5%</td>
+                  <td>82.1%</td>
+                  <td>79.3%</td>
+                  <td>78.4%</td>
+                  <td>84.2%</td>
+                  <td><span class="badge badge-success">HEALTHY</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Gotion</strong></td>
+                  <td>73.2%</td>
+                  <td>76.4%</td>
+                  <td>72.1%</td>
+                  <td>69.8%</td>
+                  <td>75.5%</td>
+                  <td><span class="badge badge-warning">MODERATE</span></td>
+                </tr>
+                <tr>
+                  <td><strong>SVOLT</strong></td>
+                  <td>71.8%</td>
+                  <td>69.3%</td>
+                  <td>65.2%</td>
+                  <td>62.1%</td>
+                  <td>68.5%</td>
+                  <td><span class="badge badge-warning">AT RISK</span></td>
+                </tr>
+                <tr>
+                  <td><strong>New Entrants Avg</strong></td>
+                  <td>58.5%</td>
+                  <td>52.1%</td>
+                  <td>48.3%</td>
+                  <td>45.1%</td>
+                  <td>52.8%</td>
+                  <td><span class="badge badge-danger">CRITICAL</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TIMELINE TAB -->
+        <div id="capacity-timeline" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Capacity Expansion Timeline (2024-2027)</h2>
+
+          <div class="tech-timeline">
+            <div class="timeline-item" style="border-left-color: var(--success);">
+              <div class="timeline-title">Q4 2024: CATL Ningde Phase III Online</div>
+              <div class="timeline-subtitle">+500k MT | Completion: 72% → 100%</div>
+              <div class="timeline-desc">CATL's flagship expansion comes online; competitive positioning strengthens. Expected cost: ¥7.2k/MT (industry-leading). Market share impact: +8-10% globally.</div>
+            </div>
+
+            <div class="timeline-item" style="border-left-color: var(--info);">
+              <div class="timeline-title">Q1 2025: BYD Multiple Facility Ramps</div>
+              <div class="timeline-subtitle">+280k MT cumulative | Wuhan, Sichuan, Yunnan</div>
+              <div class="timeline-desc">BYD's distributed capacity strategy matures. Vertical integration benefits emerging. EV volume support: 3M+ units/year potential.</div>
+            </div>
+
+            <div class="timeline-item" style="border-left-color: var(--accent);">
+              <div class="timeline-title">Q2 2025: Gotion Europe Groundbreaking</div>
+              <div class="timeline-subtitle">Hungary facility | 250k MT planned</div>
+              <div class="timeline-desc">First major Chinese LFP producer localized EU capacity. Tariff circumvention strategy. 18-month construction timeline begins.</div>
+            </div>
+
+            <div class="timeline-item" style="border-left-color: var(--info);">
+              <div class="timeline-title">Q4 2025: Multiple Projects Converging</div>
+              <div class="timeline-subtitle">+450k MT new capacity online</div>
+              <div class="timeline-desc">Northvolt Sweden, Gotion Hungary, BYD Mexico at various stages. Global capacity exceeds 3.5M MT. Severe oversupply risk triggers consolidation.</div>
+            </div>
+
+            <div class="timeline-item" style="border-left-color: var(--warning);">
+              <div class="timeline-title">2026: Market Consolidation Wave</div>
+              <div class="timeline-subtitle">Weak players exit; leaders expand</div>
+              <div class="timeline-desc">Small LFP producers struggle with 45-50% utilization rates. M&A accelerates. Industry bifurcates: cost leaders (CATL, BYD) + premium players (Northvolt) survive.</div>
+            </div>
+
+            <div class="timeline-item" style="border-left-color: var(--success);">
+              <div class="timeline-title">2027: Stabilization at 4.2M MT Capacity</div>
+              <div class="timeline-subtitle">Market equilibrium emerges</div>
+              <div class="timeline-desc">Oversupply pressures ease; utilization stabilizes at 75-80%. ESS market growth absorbs excess capacity. Premium LFP variants (LMFP) gain share.</div>
+            </div>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Strategic Implications & Scenarios</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📉 Oversupply Scenario (60% probability)</div>
+              </div>
+              <div class="card-content">
+                <p><strong>Triggers:</strong> EV demand growth < 15% CAGR; oversupply hits 35-40% by 2026</p>
+                <p style="margin-top: 12px;"><strong>Consequences:</strong></p>
+                <ul style="padding-left: 16px; margin-top: 8px;">
+                  <li>LFP price drops 25-35% by end 2025</li>
+                  <li>Margin compression forces consolidation</li>
+                  <li>Small players exit; industry shrinks to top 6-7</li>
+                  <li>Cost leaders dominate; premium segment grows</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📈 Balanced Growth Scenario (40% probability)</div>
+              </div>
+              <div class="card-content">
+                <p><strong>Triggers:</strong> EV/ESS demand grows 20%+ CAGR; capacity matches demand</p>
+                <p style="margin-top: 12px;"><strong>Consequences:</strong></p>
+                <ul style="padding-left: 16px; margin-top: 8px;">
+                  <li>Utilization stays 80-85% (healthy)</li>
+                  <li>Pricing stabilizes at ¥8k-9k/MT range</li>
+                  <li>Profitable players expand; weak ones acquired</li>
+                  <li>Technology differentiation (LMFP) matters</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+        <div class="section-header">
+          <h1 class="page-title">Alert Center</h1>
+          <p class="section-subtitle">Real-time market alerts, policy updates, competitive intelligence</p>
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-btn active">All Alerts</button>
+          <button class="filter-btn">🔴 Critical</button>
+          <button class="filter-btn">🟡 Warning</button>
+          <button class="filter-btn">🔵 Info</button>
+        </div>
+
+        <div class="alert-card critical">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">CATL 500k MT Facility Announcement</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">2 hours ago | Region: China | Category: Capacity Expansion</div>
+            </div>
+            <span class="alert-badge critical">CRITICAL</span>
+          </div>
+          <div class="alert-content">New Ningde production facility; expected 2024 completion. Capacity: 500k MT/year. Cost structure: ¥7.2k/ton. Energy density: 55 Wh/kg. Strategic implication: Competitive pricing pressure expected; market share defense urgent for Q4 2024.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Strategy, Procurement | <strong>Impact Level:</strong> High</div>
+        </div>
+
+        <div class="alert-card critical">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">EU Battery Regulation - Carbon Footprint Requirements Published</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">4 hours ago | Region: Europe | Category: Policy/Regulation</div>
+            </div>
+            <span class="alert-badge critical">CRITICAL</span>
+          </div>
+          <div class="alert-content">New carbon footprint limits (kg CO₂eq/kWh) for battery imports. Sourcing transparency mandatory by Q4 2024. Supply chain audit required. Impact on Chinese manufacturers expected; European sourcing premium possible.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Procurement, Compliance, R&D, Legal | <strong>Impact Level:</strong> High</div>
+        </div>
+
+        <div class="alert-card warning">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">LFP Pricing Pressure in North America Market</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">6 hours ago | Region: N. America | Category: Market Dynamics</div>
+            </div>
+            <span class="alert-badge warning">WARNING</span>
+          </div>
+          <div class="alert-content">US spot prices declined 8% week-over-week (¥170 → ¥156/kg). BYD aggressive pricing strategy accelerating share gains. Margin compression likely Q2-Q3 2024. Recommend pricing strategy review; customer retention focus.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Finance | <strong>Impact Level:</strong> Medium</div>
+        </div>
+
+        <div class="alert-card warning">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">LMFP Technology Milestone - 290 Wh/kg Demonstrated</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">8 hours ago | Category: Technology Breakthrough</div>
+            </div>
+            <span class="alert-badge warning">WARNING</span>
+          </div>
+          <div class="alert-content">CATL/BYD LMFP cell demonstrating 290 Wh/kg (vs 200 for conventional LFP). Fast-charge performance improved. Cost adder ~10-15% acceptable. Commercial viability timeline accelerated to 2025. Disruptive potential for energy density-sensitive applications.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> R&D, Strategy, Product Management | <strong>Impact Level:</strong> Medium</div>
+        </div>
+
+        <div class="alert-card" style="border-left-color: var(--info);">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">Tier-1 OEM LFP Evaluation Request</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">12 hours ago | Category: Business Opportunity</div>
+            </div>
+            <span class="alert-badge warning">INFO</span>
+          </div>
+          <div class="alert-content">Major automotive supplier requests LFP cathode samples for evaluation. Potential volume: 50k+ MT/year. Timeline: 6-month evaluation → 12-month ramp. Strategic opportunity for supply partnership and technology collaboration.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Account Management | <strong>Impact Level:</strong> High</div>
+        </div>
+
+            <!-- ESS Operators -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">⚡ Energy Storage Systems (ESS)</div>
+                  <div class="card-subtitle">Grid Operators | Utility Scale | Fastest growth</div>
+                </div>
+                <span class="badge badge-success">EMERGING SEGMENT</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">Market Growth: 3x faster than EV</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Renewables integration driving demand</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">LFP Advantages</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Safety, durability (10+ years), cost-effective</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">Key Markets</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">China, USA, Germany, Australia</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>📊 Opportunity:</strong> Massive untapped market; 2-3x volume potential vs EV by 2030
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Customer Concentration & Bargaining Power</h3>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer Type</th>
+                  <th>2024 LFP Demand</th>
+                  <th>Growth Rate</th>
+                  <th>Bargaining Power</th>
+                  <th>Strategic Importance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Tesla</strong></td>
+                  <td>800k MT+</td>
+                  <td>+25% YoY</td>
+                  <td><span class="badge badge-danger">VERY HIGH</span></td>
+                  <td>Premium positioning signal</td>
+                </tr>
+                <tr>
+                  <td><strong>BYD (captive)</strong></td>
+                  <td>620k MT</td>
+                  <td>+30% YoY</td>
+                  <td><span class="badge badge-danger">N/A (internal)</span></td>
+                  <td>Vertical integration</td>
+                </tr>
+                <tr>
+                  <td><strong>NIO/XPeng/Li-Auto</strong></td>
+                  <td>1.2M MT</td>
+                  <td>+40% YoY</td>
+                  <td><span class="badge badge-danger">HIGH</span></td>
+                  <td>High-volume growth</td>
+                </tr>
+                <tr>
+                  <td><strong>VW Group</strong></td>
+                  <td>1.5M MT</td>
+                  <td>+50% YoY</td>
+                  <td><span class="badge badge-danger">VERY HIGH</span></td>
+                  <td>Premium segment legitimacy</td>
+                </tr>
+                <tr>
+                  <td><strong>ESS Operators</strong></td>
+                  <td>2M+ MT</td>
+                  <td>+80% YoY</td>
+                  <td><span class="badge badge-warning">MEDIUM</span></td>
+                  <td>Emerging opportunity</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- COMPETITIVE POSITIONING -->
+        <div id="competitive-positioning" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Strategic Positioning & Competitive Scenarios</h2>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">Porter's Five Forces Analysis</h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">1. Threat of New Entrants</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Force Level: 🔴 HIGH</strong></p>
+                <p style="margin-top: 8px;">Low barriers to entry; capital intensive but achievable. New players entering: Tesla, emerging Chinese firms, regional players.</p>
+                <p style="margin-top: 8px;"><strong>Impact:</strong> Oversupply, margin compression</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">2. Bargaining Power of Suppliers</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Force Level: 🟡 MEDIUM-HIGH</strong></p>
+                <p style="margin-top: 8px;">Phosphate rock (Morocco OCP 30%) & lithium concentrated. Suppliers have leverage on prices.</p>
+                <p style="margin-top: 8px;"><strong>Impact:</strong> Cost pressure, need for long-term contracts</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">3. Bargaining Power of Buyers</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Force Level: 🔴 HIGH</strong></p>
+                <p style="margin-top: 8px;">Large OEMs (Tesla, VW, BYD) have significant power. Can negotiate price, volume, terms aggressively.</p>
+                <p style="margin-top: 8px;"><strong>Impact:</strong> Price pressure, margin squeeze for smaller suppliers</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">4. Threat of Substitutes</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Force Level: 🟡 MEDIUM</strong></p>
+                <p style="margin-top: 8px;">NCA/NCM (energy density) still preferred for premium; LMFP emerging threat; solid-state in development.</p>
+                <p style="margin-top: 8px;"><strong>Impact:</strong> Technology innovation necessary; LFP R&D critical</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">5. Competitive Rivalry</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Force Level: 🔴 VERY HIGH</strong></p>
+                <p style="margin-top: 8px;">CATL, BYD, Gotion, SVOLT, newcomers all competing intensely. Price wars starting. Oversupply accelerating consolidation.</p>
+                <p style="margin-top: 8px;"><strong>Impact:</strong> Industry consolidation; weak players exit 2025-2026</p>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Market Structure Scenarios (2026)</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📉 Oversupply Scenario (60%)</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Conditions:</strong> Capacity > Demand by 35-40%; EV growth < 15% CAGR</p>
+                <p style="margin-top: 12px;"><strong>Outcomes:</strong></p>
+                <ul style="padding-left: 16px; margin-top: 8px;">
+                  <li>Market consolidates to top 5-6 global players</li>
+                  <li>LFP price drops 25-35% (¥6,200-6,500/MT)</li>
+                  <li>Margins compress to 8-10% (vs 17% now)</li>
+                  <li>Small players acquired or exit</li>
+                  <li>Premium LFP (LMFP) emerges as differentiator</li>
+                  <li>ESS market absorbs excess capacity</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📈 Balanced Growth (40%)</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Conditions:</strong> EV+ESS demand matches capacity growth (20%+ CAGR)</p>
+                <p style="margin-top: 12px;"><strong>Outcomes:</strong></p>
+                <ul style="padding-left: 16px; margin-top: 8px;">
+                  <li>Utilization stays healthy 80-85%</li>
+                  <li>LFP pricing stabilizes ¥8-9k/MT</li>
+                  <li>Top 10 players coexist; slower consolidation</li>
+                  <li>Margins remain 12-16% (healthy)</li>
+                  <li>Technology differentiation (LMFP, fast-charge) valued</li>
+                  <li>Regional players thrive in local markets</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Your Strategic Position & Recommendations</h2>
+
+          <div class="info-block" style="margin-bottom: 20px; border-left-color: var(--primary-light);">
+            <div class="info-label">🎯 Competitive Assessment Framework</div>
+            <div style="font-size: 13px; color: var(--text-primary); margin-top: 12px; line-height: 1.6;">
+              <p><strong>1. Cost Competitiveness:</strong> Can we match CATL (¥7.2k) or BYD (¥6.8k) cost structure? If not, compete on quality/technology.</p>
+              <p style="margin-top: 8px;"><strong>2. Customer Access:</strong> Do we have OEM relationships? Focus on customer retention and long-term partnerships.</p>
+              <p style="margin-top: 8px;"><strong>3. Technology Differentiation:</strong> LMFP, fast-charge, low-temp, energy density innovation. Where do we lead?</p>
+              <p style="margin-top: 8px;"><strong>4. Supply Chain Position:</strong> Can we secure lithium/phosphate rock long-term? Strategic partnerships critical.</p>
+              <p style="margin-top: 8px;"><strong>5. Geographic Presence:</strong> Local production for tariff avoidance (EU especially). Expand to growth regions (India, ASEAN).</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">✅ Strengths to Leverage</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li>Technology edge (if applicable)</li>
+                  <li>OEM relationships & long-term contracts</li>
+                  <li>Supply chain partnerships</li>
+                  <li>Regional market presence</li>
+                  <li>Cost efficiency initiatives</li>
+                  <li>ESS market expansion potential</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚠️ Weaknesses to Address</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <ul style="padding-left: 16px;">
+                  <li>Cost structure vs CATL/BYD</li>
+                  <li>Brand recognition globally</li>
+                  <li>R&D investment levels</li>
+                  <li>Capacity vs competition</li>
+                  <li>Customer concentration risk</li>
+                  <li>Geographic diversification</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POLICY & TRADE PAGE -->
+      <div id="page-policy" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Policy & Trade</h1>
+          <p class="section-subtitle">Regulatory tracking, tariffs, trade restrictions, sustainability requirements, government incentives</p>
+        </div>
+
+        <div class="tab-group">
+          <button class="tab-btn active" data-panel="policy-overview">Overview</button>
+          <button class="tab-btn" data-panel="policy-tariffs">Tariffs & Trade</button>
+          <button class="tab-btn" data-panel="policy-regulations">Regulations</button>
+          <button class="tab-btn" data-panel="policy-incentives">Incentives</button>
+        </div>
+
+        <!-- Overview -->
+        <div id="policy-overview" class="tab-content active">
+          <h2 class="section-title" style="margin-bottom: 16px;">Global Policy & Trade Landscape</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Key Trade Risks</div>
+              <div class="metric-value">8/10</div>
+              <div class="metric-change negative">↑ Rising tensions</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Regulatory Changes</div>
+              <div class="metric-value">12/year</div>
+              <div class="metric-change positive">Predictable cycle</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Market Access Risk</div>
+              <div class="metric-value">Medium</div>
+              <div class="metric-change neutral">Varies by region</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Government Support</div>
+              <div class="metric-value">High</div>
+              <div class="metric-change positive">Incentives available</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Regional Policy Summary</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇨🇳 China</div>
+                <div class="card-subtitle">Market Dominant</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Policy Support:</strong> Government backing for battery industry expansion</p>
+                <p style="margin-top: 8px;"><strong>Tariffs:</strong> 0% import duty on LFP (domestic preference)</p>
+                <p style="margin-top: 8px;"><strong>Market Access:</strong> Restricted for foreign competitors in key sectors</p>
+                <p style="margin-top: 8px;"><strong>ESS Incentives:</strong> 25% subsidy for energy storage projects</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇪🇺 European Union</div>
+                <div class="card-subtitle">Anti-Dumping Under Way</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Anti-Dumping Investigation:</strong> Initial determination May 31, 2024</p>
+                <p style="margin-top: 8px;"><strong>Predicted Tariffs:</strong> 18-28% on Chinese LFP imports</p>
+                <p style="margin-top: 8px;"><strong>Carbon Border Tax:</strong> Scope 3 emissions tracking required</p>
+                <p style="margin-top: 8px;"><strong>Battery Passport:</strong> Mandatory from 2025 for all imports</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇺🇸 United States</div>
+                <div class="card-subtitle">Supportive for Clean Energy</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Tariffs:</strong> 0% on LFP imports (Clean Energy IRA eligible)</p>
+                <p style="margin-top: 8px;"><strong>Incentives:</strong> $7,500 EV tax credit (battery content rules)</p>
+                <p style="margin-top: 8px;"><strong>Local Content:</strong> USMCA 75% North America rule</p>
+                <p style="margin-top: 8px;"><strong>Government Support:</strong> Manufacturing grants available</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇮🇳 India</div>
+                <div class="card-subtitle">Emerging Opportunity</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Tariffs:</strong> 15% import duty on batteries</p>
+                <p style="margin-top: 8px;"><strong>PLI Scheme:</strong> Production incentive for domestic manufacturing</p>
+                <p style="margin-top: 8px;"><strong>Localization:</strong> Push for local content manufacturing</p>
+                <p style="margin-top: 8px;"><strong>Market Growth:</strong> 35%+ CAGR expected 2024-2028</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tariffs & Trade -->
+        <div id="policy-tariffs" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Tariffs & Trade Restrictions</h2>
+
+          <div class="alert-card critical">
+            <div class="alert-header">
+              <div>
+                <div class="alert-title">🔴 EU Anti-Dumping Tariffs - Initial Determination May 31, 2024</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Predicted impact: 18-28% tariff on Chinese LFP imports</div>
+              </div>
+              <span class="alert-badge critical">CRITICAL</span>
+            </div>
+            <div class="alert-content">EU launching anti-dumping investigation on Chinese LFP imports. Preliminary tariff estimate 18-28%. Effective date: Q3 2024. Strategic response: Localize production in EU (Hungary, Germany, Poland facilities) to circumvent tariffs.</div>
+          </div>
+
+          <div class="table-responsive" style="margin-top: 24px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Region/Country</th>
+                  <th>Current Tariff</th>
+                  <th>Effective Date</th>
+                  <th>Trend</th>
+                  <th>Strategic Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>USA</strong></td>
+                  <td>0% (Clean Energy eligible)</td>
+                  <td>Current</td>
+                  <td>Favorable</td>
+                  <td>Expand US sourcing; leverage tariff benefits</td>
+                </tr>
+                <tr>
+                  <td><strong>EU</strong></td>
+                  <td>18-28% (pending)</td>
+                  <td>May 31, 2024</td>
+                  <td>Rising</td>
+                  <td>Localize EU production; circumvent tariff</td>
+                </tr>
+                <tr>
+                  <td><strong>India</strong></td>
+                  <td>15%</td>
+                  <td>Current</td>
+                  <td>Stable</td>
+                  <td>Direct sourcing; PLI incentives available</td>
+                </tr>
+                <tr>
+                  <td><strong>Japan</strong></td>
+                  <td>2-4%</td>
+                  <td>Current</td>
+                  <td>Stable</td>
+                  <td>Direct sourcing; regional partnerships</td>
+                </tr>
+                <tr>
+                  <td><strong>ASEAN</strong></td>
+                  <td>5% (varies)</td>
+                  <td>Current</td>
+                  <td>Stable</td>
+                  <td>Regional hub strategy</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Regulations -->
+        <div id="policy-regulations" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Environmental & Compliance Regulations</h2>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🔋 EU Battery Regulation (2024-2025)</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Carbon Footprint Limits:</strong> kg CO₂eq per kWh required</p>
+                <p style="margin-top: 8px;"><strong>Battery Passport:</strong> Digital ID mandatory from 2025</p>
+                <p style="margin-top: 8px;"><strong>Transparency:</strong> Supply chain traceability required</p>
+                <p style="margin-top: 8px;"><strong>Impact:</strong> Chinese manufacturers need supply chain audit; sourcing premium expected</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">♻️ Recycling Obligations (Global)</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>EU:</strong> 50% recycling rate mandatory by 2025</p>
+                <p style="margin-top: 8px;"><strong>USA:</strong> Battery recycling infrastructure grants available</p>
+                <p style="margin-top: 8px;"><strong>China:</strong> Producer responsibility scheme evolving</p>
+                <p style="margin-top: 8px;"><strong>Opportunity:</strong> Recycling value recovery for raw materials</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚡ Local Content Requirements</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>USA (USMCA):</strong> 75% North America content for EV tax credit</p>
+                <p style="margin-top: 8px;"><strong>India:</strong> PLI scheme requires 50% domestic value-add</p>
+                <p style="margin-top: 8px;"><strong>Brazil:</strong> Local manufacturing incentives</p>
+                <p style="margin-top: 8px;"><strong>Impact:</strong> Forces regional production strategy</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🏭 Environmental Compliance</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Water Usage:</strong> Stricter limits in water-scarce regions</p>
+                <p style="margin-top: 8px;"><strong>Emissions:</strong> Carbon pricing mechanisms expanding</p>
+                <p style="margin-top: 8px;"><strong>Discharge:</strong> Phosphate discharge limits in Yangtze region</p>
+                <p style="margin-top: 8px;"><strong>Cost Impact:</strong> 5-10% production cost increase expected</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Incentives -->
+        <div id="policy-incentives" class="tab-content" style="display: none;">
+          <h2 class="section-title" style="margin-bottom: 16px;">Government Incentives & Support Programs</h2>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇺🇸 US Inflation Reduction Act (IRA)</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Battery Tax Credit:</strong> $7,500 per EV (battery content rules)</p>
+                <p style="margin-top: 8px;"><strong>Manufacturing Grants:</strong> $10B available for battery production</p>
+                <p style="margin-top: 8px;"><strong>Direct Pay:</strong> 30% credits for clean manufacturing</p>
+                <p style="margin-top: 8px;"><strong>Eligibility:</strong> North America 75% content requirement</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇨🇳 China EV & ESS Incentives</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>EV Subsidies:</strong> Direct purchase incentives phasing out</p>
+                <p style="margin-top: 8px;"><strong>ESS Support:</strong> 25% subsidy for grid-scale storage</p>
+                <p style="margin-top: 8px;"><strong>Industrial Policy:</strong> Regional battery cluster development</p>
+                <p style="margin-top: 8px;"><strong>R&D Grants:</strong> Technology innovation support</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇪🇺 EU Green Deal Funding</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>IPCEI Battery:</strong> €3B+ funding for battery gigafactories</p>
+                <p style="margin-top: 8px;"><strong>Green Bonds:</strong> Preferential financing for clean manufacturing</p>
+                <p style="margin-top: 8px;"><strong>Carbon Credits:</strong> Revenue opportunities for low-carbon production</p>
+                <p style="margin-top: 8px;"><strong>Eligibility:</strong> European manufacturing with tariff shield</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🇮🇳 India PLI Scheme</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <p><strong>Production Incentive:</strong> 5% subsidy on manufacturing output</p>
+                <p style="margin-top: 8px;"><strong>Investment Support:</strong> Capital expenditure assistance</p>
+                <p style="margin-top: 8px;"><strong>Duration:</strong> 5-year program (2021-2026)</p>
+                <p style="margin-top: 8px;"><strong>Target:</strong> Build domestic battery ecosystem</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Strategic Implications for LFP Producers</h3>
+
+          <div class="info-block" style="border-left-color: var(--primary-light);">
+            <div class="info-label">📊 Key Takeaways</div>
+            <div style="font-size: 13px; color: var(--text-primary); margin-top: 12px; line-height: 1.6;">
+              <p><strong>1. Regional Localization Required:</strong> EU tariff risk requires 2025-26 local production; US and India incentivize domestic manufacturing.</p>
+              <p style="margin-top: 8px;"><strong>2. Supply Chain Transparency Critical:</strong> EU battery passport and carbon footprint tracking becoming standard; prepare supply chain audit.</p>
+              <p style="margin-top: 8px;"><strong>3. Sustainability Advantage:</strong> Low-carbon LFP production unlocks premium pricing and government support in developed markets.</p>
+              <p style="margin-top: 8px;"><strong>4. Emerging Market Opportunity:</strong> India PLI scheme and ASEAN tariffs create favorable conditions for regional expansion.</p>
+              <p style="margin-top: 8px;"><strong>5. R&D Investment Needed:</strong> Technology innovation subsidies available; LMFP, fast-charge, recyclability differentiation valued.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTS PAGE -->
+      <div id="page-alerts" class="page">
+        <div class="section-header">
+          <h1 class="page-title">Alert Center</h1>
+          <p class="section-subtitle">Real-time market alerts, policy updates, competitive intelligence, supply chain warnings</p>
+        </div>
+
+        <div class="filter-group">
+          <button class="filter-btn active">All Alerts</button>
+          <button class="filter-btn">🔴 Critical</button>
+          <button class="filter-btn">🟡 Warning</button>
+          <button class="filter-btn">🔵 Info</button>
+        </div>
+
+        <div class="alert-card critical">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">CATL 500k MT Facility Announcement</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">2 hours ago | Region: China | Category: Capacity Expansion</div>
+            </div>
+            <span class="alert-badge critical">CRITICAL</span>
+          </div>
+          <div class="alert-content">New Ningde production facility; expected 2024 completion. Capacity: 500k MT/year. Cost structure: ¥7.2k/ton. Energy density: 55 Wh/kg. Strategic implication: Competitive pricing pressure expected; market share defense urgent for Q4 2024.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Strategy, Procurement | <strong>Impact Level:</strong> High</div>
+        </div>
+
+        <div class="alert-card critical">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">EU Battery Regulation - Carbon Footprint Requirements Published</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">4 hours ago | Region: Europe | Category: Policy/Regulation</div>
+            </div>
+            <span class="alert-badge critical">CRITICAL</span>
+          </div>
+          <div class="alert-content">New carbon footprint limits (kg CO₂eq/kWh) for battery imports. Sourcing transparency mandatory by Q4 2024. Supply chain audit required. Impact on Chinese manufacturers expected; European sourcing premium possible.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Procurement, Compliance, R&D, Legal | <strong>Impact Level:</strong> High</div>
+        </div>
+
+        <div class="alert-card warning">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">LFP Pricing Pressure in North America Market</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">6 hours ago | Region: N. America | Category: Market Dynamics</div>
+            </div>
+            <span class="alert-badge warning">WARNING</span>
+          </div>
+          <div class="alert-content">US spot prices declined 8% week-over-week (¥170 → ¥156/kg). BYD aggressive pricing strategy accelerating share gains. Margin compression likely Q2-Q3 2024. Recommend pricing strategy review; customer retention focus.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Finance | <strong>Impact Level:</strong> Medium</div>
+        </div>
+
+        <div class="alert-card warning">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">LMFP Technology Milestone - 290 Wh/kg Demonstrated</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">8 hours ago | Category: Technology Breakthrough</div>
+            </div>
+            <span class="alert-badge warning">WARNING</span>
+          </div>
+          <div class="alert-content">CATL/BYD LMFP cell demonstrating 290 Wh/kg (vs 200 for conventional LFP). Fast-charge performance improved. Cost adder ~10-15% acceptable. Commercial viability timeline accelerated to 2025. Disruptive potential for energy density-sensitive applications.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> R&D, Strategy, Product Management | <strong>Impact Level:</strong> Medium</div>
+        </div>
+
+        <div class="alert-card" style="border-left-color: var(--info);">
+          <div class="alert-header">
+            <div>
+              <div class="alert-title">Tier-1 OEM LFP Evaluation Request</div>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">12 hours ago | Category: Business Opportunity</div>
+            </div>
+            <span class="alert-badge warning">INFO</span>
+          </div>
+          <div class="alert-content">Major automotive supplier requests LFP cathode samples for evaluation. Potential volume: 50k+ MT/year. Timeline: 6-month evaluation → 12-month ramp. Strategic opportunity for supply partnership and technology collaboration.</div>
+          <div class="alert-teams"><strong>Relevant Teams:</strong> Sales, Account Management | <strong>Impact Level:</strong> High</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// PAGE NAVIGATION
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.dataset.page;
+    navigateTo(page);
+  });
+});
+
+function navigateTo(page) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-page="${page}"]`).classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  
+  const pageNames = {
+    'dashboard': 'Dashboard',
+    'market-overview': 'Market Overview',
+    'regions': 'Regional Analysis',
+    'supply-chain': 'Supply Chain',
+    'pricing': 'Price Monitor',
+    'capacity': 'Capacity Tracker',
+    'competitors': 'Competitors',
+    'technology': 'Technology',
+    'policy': 'Policy & Trade',
+    'alerts': 'Alert Center'
+  };
+  document.getElementById('breadcrumb-text').textContent = pageNames[page] || 'Dashboard';
+}
+
+// TAB FUNCTIONALITY FOR SUPPLY CHAIN & PRICING
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panelId = btn.getAttribute('data-panel');
+    if (panelId) {
+      // Update active button
+      btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Update active content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = content.id === panelId ? 'block' : 'none';
+      });
+    }
+  });
+});
+
+// REGION CARD SELECTION
+document.querySelectorAll('.region-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const region = card.getAttribute('data-region');
+    if (region) {
+      // Update active state
+      document.querySelectorAll('.region-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      
+      // Update region details visibility
+      document.querySelectorAll('.region-detail').forEach(detail => {
+        detail.style.display = detail.getAttribute('data-region') === region ? 'block' : 'none';
+      });
+    }
+  });
+});
+
+// FILTER BUTTONS
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// SIDEBAR TOGGLE
+document.getElementById('toggle-sidebar').addEventListener('click', () => {
+  const container = document.querySelector('.app-container');
+  container.classList.toggle('sidebar-collapsed');
+  const btnText = container.classList.contains('sidebar-collapsed') ? '展开' : '收起';
+  document.getElementById('toggle-sidebar').textContent = btnText;
+});
+
+// Initialize
+navigateTo('dashboard');
+</script>
+
+</body>
+</html>
