@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LFP 产业链智能平台 1.0 | AI驱动的产业链实时监测</title>
+<title>LFP 产业链智能资讯平台 1.0 | AI驱动的产业链实时监测</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -497,7 +496,7 @@ tbody tr:last-child td { border-bottom: none; }
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">⚡</div>
-      <h1 class="sidebar-title">LFP智能资讯平台</h1>
+      <h1 class="sidebar-title">LFP 智能资讯平台</h1>
     </div>
 
     <nav class="sidebar-nav">
@@ -732,43 +731,44 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
+      <// ...existing code...
       <!-- SUPPLY CHAIN -->
       <div id="page-supply-chain" class="page">
         <div class="section-header">
-          <h1 class="page-title">Supply Chain Tracking</h1>
-          <p class="section-subtitle">Real-time monitoring: Phosphate Rock → LFP → Battery → OEM. Risk detection, supplier performance, inventory optimization</p>
+          <h1 class="page-title">供应链追踪</h1>
+          <p class="section-subtitle">实时监测：磷矿 → LFP → 电池 → OEM。风险识别、供应商绩效、库存优化</p>
         </div>
 
         <div class="tab-container">
           <div class="tab-bar">
-            <button class="tab-btn active" data-tab="supply-health" data-panel="tab-supply-health">Health Dashboard</button>
-            <button class="tab-btn" data-tab="supply-bottleneck" data-panel="tab-supply-bottleneck">Bottlenecks & Risks</button>
-            <button class="tab-btn" data-tab="supply-suppliers" data-panel="tab-supply-suppliers">Supplier Performance</button>
-            <button class="tab-btn" data-tab="supply-optimization" data-panel="tab-supply-optimization">Optimization</button>
+            <button class="tab-btn active" data-tab="supply-health" data-panel="tab-supply-health">健康仪表盘</button>
+            <button class="tab-btn" data-tab="supply-bottleneck" data-panel="tab-supply-bottleneck">瓶颈与风险</button>
+            <button class="tab-btn" data-tab="supply-suppliers" data-panel="tab-supply-suppliers">供应商绩效</button>
+            <button class="tab-btn" data-tab="supply-optimization" data-panel="tab-supply-optimization">优化方案</button>
           </div>
 
           <!-- HEALTH DASHBOARD -->
           <div id="tab-supply-health" class="tab-content active">
             <div class="metrics-grid">
               <div class="metric-card">
-                <div class="metric-label">Health Score</div>
+                <div class="metric-label">健康得分</div>
                 <div class="metric-value">7.8/10</div>
-                <div class="metric-change positive">↑ +0.6 this week</div>
+                <div class="metric-change positive">↑ +0.6 本周</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Critical Bottlenecks</div>
+                <div class="metric-label">关键瓶颈</div>
                 <div class="metric-value">2</div>
-                <div class="metric-change negative">↑ +1 new</div>
+                <div class="metric-change negative">↑ +1 新增</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Avg Lead Time</div>
-                <div class="metric-value">28 days</div>
-                <div class="metric-change negative">↑ +2 delays</div>
+                <div class="metric-label">平均交付期</div>
+                <div class="metric-value">28 天</div>
+                <div class="metric-change negative">↑ +2 延迟</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Supply Risk Index</div>
+                <div class="metric-label">供应风险指数</div>
                 <div class="metric-value">6.2/10</div>
-                <div class="metric-change negative">↑ Rising</div>
+                <div class="metric-change negative">↑ 风险上升</div>
               </div>
             </div>
 
@@ -776,41 +776,41 @@ tbody tr:last-child td { border-bottom: none; }
               <div class="chart-container">
                 <div class="chart-placeholder">
                   <div class="chart-placeholder-icon">⛓️</div>
-                  <div class="chart-placeholder-text">5-Stage Pipeline: Mining → Processing → LFP Production → Battery Assembly → OEM Distribution</div>
+                  <div class="chart-placeholder-text">5阶段流程：采矿 → 加工 → LFP生产 → 电池组装 → OEM分销</div>
                 </div>
               </div>
             </div>
 
             <div class="dashboard-grid">
               <div class="card">
-                <div class="card-header"><div class="card-title">⛏️ Mining & Extraction</div></div>
+                <div class="card-header"><div class="card-title">⛏️ 采矿与开采</div></div>
                 <div class="card-content">
-                  <p><strong>Health:</strong> 🔴 Critical | <strong>Lead Time:</strong> 4-6 weeks | <strong>Risk Score:</strong> 8.5/10</p>
-                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">Morocco OCP ↓5%, tightening. Status: Sustained tight supply expected.</p>
+                  <p><strong>健康：</strong> 🔴 危险 | <strong>交付期：</strong> 4-6 周 | <strong>风险得分：</strong> 8.5/10</p>
+                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">摩洛哥 OCP 下降 5%，供应持续紧张。预计紧缺状态继续存在。</p>
                 </div>
               </div>
 
               <div class="card">
-                <div class="card-header"><div class="card-title">🏭 Processing & Refining</div></div>
+                <div class="card-header"><div class="card-title">🏭 加工与精炼</div></div>
                 <div class="card-content">
-                  <p><strong>Health:</strong> 🟡 Moderate | <strong>Lead Time:</strong> 2-3 weeks | <strong>Risk Score:</strong> 5.2/10</p>
-                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">82% utilization, stabilizing. Secondary processors available.</p>
+                  <p><strong>健康：</strong> 🟡 中等 | <strong>交付期：</strong> 2-3 周 | <strong>风险得分：</strong> 5.2/10</p>
+                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">82% 利用率，逐步稳定。二级加工商供应可用。</p>
                 </div>
               </div>
 
               <div class="card">
-                <div class="card-header"><div class="card-title">🧪 LFP Synthesis</div></div>
+                <div class="card-header"><div class="card-title">🧪 LFP 合成</div></div>
                 <div class="card-content">
-                  <p><strong>Health:</strong> 🟢 Good | <strong>Lead Time:</strong> 3-4 weeks | <strong>Risk Score:</strong> 4.1/10</p>
-                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">78% utilization, stable. +2 day delay resolving.</p>
+                  <p><strong>健康：</strong> 🟢 良好 | <strong>交付期：</strong> 3-4 周 | <strong>风险得分：</strong> 4.1/10</p>
+                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">利用率 78%，稳定。延迟 2 天问题正在解决。</p>
                 </div>
               </div>
 
               <div class="card">
-                <div class="card-header"><div class="card-title">🔋 Battery Assembly</div></div>
+                <div class="card-header"><div class="card-title">🔋 电池组装</div></div>
                 <div class="card-content">
-                  <p><strong>Health:</strong> 🟢 Good | <strong>Lead Time:</strong> 2-4 weeks | <strong>Risk Score:</strong> 3.8/10</p>
-                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">CATL/BYD/Gotion capacity adequate, OEM lead time within norms.</p>
+                  <p><strong>健康：</strong> 🟢 良好 | <strong>交付期：</strong> 2-4 周 | <strong>风险得分：</strong> 3.8/10</p>
+                  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">CATL/BYD/Gotion 产能充足，OEM 交付期在正常范围。</p>
                 </div>
               </div>
             </div>
@@ -820,23 +820,23 @@ tbody tr:last-child td { border-bottom: none; }
           <div id="tab-supply-bottleneck" class="tab-content">
             <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--warning); background: rgba(239, 68, 68, 0.02);">
               <div class="card-header">
-                <div class="card-title" style="color: var(--warning);">🚨 CRITICAL: Phosphate Rock Supply Shock</div>
+                <div class="card-title" style="color: var(--warning);">🚨 严重：磷矿供应冲击</div>
               </div>
               <div class="card-content">
-                <p><strong>Issue:</strong> Morocco OCP (30% global) down 5% | Price ↑5.1% ($112.80/MT)</p>
-                <p style="margin-top: 8px;"><strong>Impact:</strong> +¥150-200/MT LFP cost increase</p>
-                <p style="margin-top: 8px;"><strong>Mitigation:</strong> Lock 6-month contracts, diversify to China/Russia suppliers, increase safety stock to 30 days</p>
+                <p><strong>问题：</strong> 摩洛哥 OCP（占全球 30%）下降 5% | 价格 ↑5.1%（$112.80/吨）</p>
+                <p style="margin-top: 8px;"><strong>影响：</strong> LFP 成本预计增加 ¥150-200/吨</p>
+                <p style="margin-top: 8px;"><strong>应对：</strong> 锁定 6 个月合同，供应商多元化，库存安全天数提升至 30 天</p>
               </div>
             </div>
 
             <div class="card" style="margin-bottom: 20px; border-left: 4px solid var(--warning); background: rgba(239, 68, 68, 0.02);">
               <div class="card-header">
-                <div class="card-title" style="color: var(--warning);">🚨 CRITICAL: Lithium Inventory Crisis</div>
+                <div class="card-title" style="color: var(--warning);">🚨 严重：锂库存危机</div>
               </div>
               <div class="card-content">
-                <p><strong>Issue:</strong> Ganzizhou supply only <span style="font-weight: 700; color: var(--warning);">12 days</span> (critical low)</p>
-                <p style="margin-top: 8px;"><strong>Risk:</strong> 2-week production halt if disrupted</p>
-                <p style="margin-top: 8px;"><strong>Mitigation:</strong> Emergency order 8k MT from SQM Chile, establish multi-source agreements (Pilbara, others)</p>
+                <p><strong>问题：</strong> 赣州库存仅 <span style="font-weight: 700; color: var(--warning);">12 天</span>（严重偏低）</p>
+                <p style="margin-top: 8px;"><strong>风险：</strong> 若供给中断，可能导致 2 周生产停滞</p>
+                <p style="margin-top: 8px;"><strong>应对：</strong> 紧急订购 8k 吨 SQM 智利货源，建立多源协议（Pilbara 等）</p>
               </div>
             </div>
 
@@ -844,48 +844,48 @@ tbody tr:last-child td { border-bottom: none; }
               <table>
                 <thead>
                   <tr>
-                    <th>Supply Stage</th>
-                    <th>Current Bottleneck</th>
-                    <th>Risk</th>
-                    <th>4-Week Forecast</th>
-                    <th>Mitigation</th>
+                    <th>供应环节</th>
+                    <th>当前瓶颈</th>
+                    <th>风险</th>
+                    <th>4周预测</th>
+                    <th>应对措施</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><strong>Phosphate Rock</strong></td>
-                    <td>Morocco OCP ↓5%</td>
-                    <td><span class="badge badge-warning">HIGH</span></td>
-                    <td>Sustained tight supply</td>
-                    <td>Diversify suppliers, lock deals</td>
+                    <td><strong>磷矿</strong></td>
+                    <td>摩洛哥 OCP ↓5%</td>
+                    <td><span class="badge badge-warning">高</span></td>
+                    <td>持续紧张</td>
+                    <td>多元化供应商，锁定合同</td>
                   </tr>
                   <tr>
-                    <td><strong>Lithium Carbonate</strong></td>
-                    <td>Inventory 12 days (LOW)</td>
-                    <td><span class="badge badge-warning">CRITICAL</span></td>
-                    <td>8-10 day shortage risk</td>
-                    <td>Emergency orders, multi-source</td>
+                    <td><strong>碳酸锂</strong></td>
+                    <td>库存 12 天（低）</td>
+                    <td><span class="badge badge-warning">严重</span></td>
+                    <td>8-10 天缺货风险</td>
+                    <td>紧急订货，多源协定</td>
                   </tr>
                   <tr>
-                    <td><strong>Phosphoric Acid</strong></td>
-                    <td>Mill utilization 82%</td>
-                    <td><span class="badge badge-accent">MEDIUM</span></td>
-                    <td>Stabilizing</td>
-                    <td>Secondary processors partner</td>
+                    <td><strong>磷酸</strong></td>
+                    <td>工厂利用率 82%</td>
+                    <td><span class="badge badge-accent">中</span></td>
+                    <td>稳中向好</td>
+                    <td>合作二级加工商</td>
                   </tr>
                   <tr>
-                    <td><strong>Shipping/Logistics</strong></td>
-                    <td>Ocean freight ↑8%</td>
-                    <td><span class="badge badge-accent">MEDIUM</span></td>
-                    <td>2-3% cost increase</td>
-                    <td>Rail routes, advance booking</td>
+                    <td><strong>物流</strong></td>
+                    <td>海运费 ↑8%</td>
+                    <td><span class="badge badge-accent">中</span></td>
+                    <td>成本 ↑2-3%</td>
+                    <td>铁路运输，提前订舱</td>
                   </tr>
                   <tr>
-                    <td><strong>Production Delays</strong></td>
-                    <td>LFP lead time +2 days</td>
-                    <td><span class="badge badge-success">LOW</span></td>
-                    <td>Resolving</td>
-                    <td>Expedite raw materials</td>
+                    <td><strong>生产延迟</strong></td>
+                    <td>LFP 交付期 +2 天</td>
+                    <td><span class="badge badge-success">低</span></td>
+                    <td>正在缓解</td>
+                    <td>加快原料交付</td>
                   </tr>
                 </tbody>
               </table>
@@ -893,22 +893,22 @@ tbody tr:last-child td { border-bottom: none; }
 
             <div class="dashboard-grid">
               <div class="card">
-                <div class="card-header"><div class="card-title">🌍 Supplier Distribution Risk</div></div>
+                <div class="card-header"><div class="card-title">🌍 供应商分布风险</div></div>
                 <div class="card-content">
-                  <p style="margin-bottom: 12px;"><strong>Phosphate Rock:</strong> Morocco 30% + China 35% = <span style="color: var(--warning); font-weight: 700;">65% concentration</span></p>
-                  <p style="margin-bottom: 12px;"><strong>Lithium Carbonate:</strong> Ganzizhou = <span style="color: var(--warning); font-weight: 700;">60% concentration</span></p>
-                  <p style="margin-bottom: 12px;"><strong>Phosphoric Acid:</strong> Yunnan = 40% concentration</p>
-                  <p style="font-size: 13px; color: var(--text-secondary);">⚠️ Single supplier disruption = 20-30% cost shock</p>
+                  <p style="margin-bottom: 12px;"><strong>磷矿：</strong> 摩洛哥 30% + 中国 35% = <span style="color: var(--warning); font-weight: 700;">65% 集中度</span></p>
+                  <p style="margin-bottom: 12px;"><strong>碳酸锂：</strong> 赣州 60% 集中</p>
+                  <p style="margin-bottom: 12px;"><strong>磷酸：</strong> 云南 40% 集中</p>
+                  <p style="font-size: 13px; color: var(--text-secondary);">⚠️ 单一供应商中断可能导致 20-30% 成本冲击</p>
                 </div>
               </div>
 
               <div class="card">
-                <div class="card-header"><div class="card-title">✅ Diversification Strategy (12-18 months)</div></div>
+                <div class="card-header"><div class="card-title">✅ 多元化策略（12-18个月）</div></div>
                 <div class="card-content">
-                  <p><strong>Phosphate:</strong> Non-Morocco target 40% (Russia, USA alternatives)</p>
-                  <p style="margin-top: 10px;"><strong>Lithium:</strong> SQM 30%, Ganzizhou 50%, others 20%</p>
-                  <p style="margin-top: 10px;"><strong>Processing:</strong> Add Guizhou, Sichuan mills to portfolio</p>
-                  <p style="margin-top: 10px;"><strong>Result:</strong> Reduce supplier risk to <3/10</p>
+                  <p><strong>磷矿：</strong> 非摩洛哥目标 40%（俄罗斯、美国备选）</p>
+                  <p style="margin-top: 10px;"><strong>锂：</strong> SQM 30%，赣州 50%，其他 20%</p>
+                  <p style="margin-top: 10px;"><strong>加工：</strong> 新增贵州、四川加工厂</p>
+                  <p style="margin-top: 10px;"><strong>结果：</strong> 将供应风险降至 <3/10</p>
                 </div>
               </div>
             </div>
@@ -920,73 +920,73 @@ tbody tr:last-child td { border-bottom: none; }
               <table>
                 <thead>
                   <tr>
-                    <th>Supplier</th>
-                    <th>Material</th>
-                    <th>Capacity</th>
-                    <th>On-Time</th>
-                    <th>Quality</th>
-                    <th>Rating</th>
-                    <th>Status</th>
+                    <th>供应商</th>
+                    <th>物料</th>
+                    <th>产能</th>
+                    <th>准时率</th>
+                    <th>质量</th>
+                    <th>评分</th>
+                    <th>状态</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><strong>OCP Morocco</strong></td>
-                    <td>Phosphate</td>
+                    <td><strong>OCP 摩洛哥</strong></td>
+                    <td>磷矿</td>
                     <td>66M MT</td>
                     <td>94%</td>
                     <td>8.7/10</td>
                     <td>8.5/10</td>
-                    <td><span class="badge badge-warning">CRITICAL ↓5%</span></td>
+                    <td><span class="badge badge-warning">危机 ↓5%</span></td>
                   </tr>
                   <tr>
-                    <td><strong>Yunnan Mining</strong></td>
-                    <td>Phosphate</td>
+                    <td><strong>云南矿业</strong></td>
+                    <td>磷矿</td>
                     <td>78M MT</td>
                     <td>96%</td>
                     <td>8.4/10</td>
                     <td>8.6/10</td>
-                    <td><span class="badge badge-success">EXPANDING ↑</span></td>
+                    <td><span class="badge badge-success">扩张中 ↑</span></td>
                   </tr>
                   <tr>
-                    <td><strong>Ganzizhou</strong></td>
-                    <td>Lithium</td>
+                    <td><strong>赣州</strong></td>
+                    <td>锂</td>
                     <td>120k MT</td>
                     <td>89%</td>
                     <td>8.1/10</td>
                     <td>7.9/10</td>
-                    <td><span class="badge badge-warning">INVENTORY LOW</span></td>
+                    <td><span class="badge badge-warning">库存低</span></td>
                   </tr>
                   <tr>
-                    <td><strong>SQM Chile</strong></td>
-                    <td>Lithium</td>
+                    <td><strong>SQM 智利</strong></td>
+                    <td>锂</td>
                     <td>80k MT</td>
                     <td>98%</td>
                     <td>9.2/10</td>
                     <td>9.0/10</td>
-                    <td><span class="badge badge-success">RELIABLE</span></td>
+                    <td><span class="badge badge-success">可靠</span></td>
                   </tr>
                   <tr>
-                    <td><strong>Yunnan Phosphorus</strong></td>
-                    <td>Phosphoric Acid</td>
+                    <td><strong>云南磷化</strong></td>
+                    <td>磷酸</td>
                     <td>8.2M MT</td>
                     <td>95%</td>
                     <td>8.8/10</td>
                     <td>8.8/10</td>
-                    <td><span class="badge badge-success">HEALTHY</span></td>
+                    <td><span class="badge badge-success">健康</span></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
             <div class="card">
-              <div class="card-header"><div class="card-title">📊 Inventory Status & Immediate Actions</div></div>
+              <div class="card-header"><div class="card-title">📊 库存状态与即时行动</div></div>
               <div class="card-content">
-                <p><strong>Phosphate Rock:</strong> 18 days (Target: 25-30) → ⚠️ <span style="font-weight: 700;">Order 50k MT this week</span></p>
-                <p style="margin-top: 10px;"><strong>Lithium Carbonate:</strong> <span style="color: var(--warning); font-weight: 700;">12 days (CRITICAL)</span> → 🚨 <span style="font-weight: 700;">Emergency order 8k MT from SQM</span></p>
-                <p style="margin-top: 10px;"><strong>Phosphoric Acid:</strong> 22 days (OK) → ✓ Maintain current level</p>
-                <p style="margin-top: 10px;"><strong>LFP Cathode:</strong> 28 days (HIGH) → ⚡ <span style="font-weight: 700;">Accelerate customer orders</span></p>
-                <p style="margin-top: 12px; font-size: 13px; color: var(--text-secondary);"><strong>Working Capital Impact:</strong> ¥200-300M recovery potential through optimization</p>
+                <p><strong>磷矿：</strong> 18 天（目标：25-30）→ ⚠️ <span style="font-weight: 700;">本周订购 50k 吨</span></p>
+                <p style="margin-top: 10px;"><strong>碳酸锂：</strong> <span style="color: var(--warning); font-weight: 700;">12 天（严重）</span> → 🚨 <span style="font-weight: 700;">紧急订购 8k 吨 SQM</span></p>
+                <p style="margin-top: 10px;"><strong>磷酸：</strong> 22 天（正常）→ ✓ 维持当前水平</p>
+                <p style="margin-top: 10px;"><strong>LFP 正极：</strong> 28 天（高）→ ⚡ <span style="font-weight: 700;">加快客户订单</span></p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--text-secondary);"><strong>营运资本影响：</strong> 通过优化可释放约 ¥200-300M 资金</p>
               </div>
             </div>
           </div>
@@ -995,62 +995,62 @@ tbody tr:last-child td { border-bottom: none; }
           <div id="tab-supply-optimization" class="tab-content">
             <div class="metrics-grid">
               <div class="metric-card">
-                <div class="metric-label">Inventory Days</div>
-                <div class="metric-value">28 days</div>
-                <div class="metric-change negative">Target: 18-22</div>
+                <div class="metric-label">库存天数</div>
+                <div class="metric-value">28 天</div>
+                <div class="metric-change negative">目标：18-22</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Safety Stock</div>
-                <div class="metric-value">20 days</div>
-                <div class="metric-change negative">Target: 25-30</div>
+                <div class="metric-label">安全库存</div>
+                <div class="metric-value">20 天</div>
+                <div class="metric-change negative">目标：25-30</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Working Capital</div>
-                <div class="metric-value">$2.4B</div>
-                <div class="metric-change neutral">Recovery: ¥200-300M</div>
+                <div class="metric-label">营运资本</div>
+                <div class="metric-value">¥2.4B</div>
+                <div class="metric-change neutral">恢复：¥200-300M</div>
               </div>
               <div class="metric-card">
-                <div class="metric-label">Optimization Index</div>
+                <div class="metric-label">优化指数</div>
                 <div class="metric-value">6.8/10</div>
-                <div class="metric-change neutral">Improvement room</div>
+                <div class="metric-change neutral">仍有提升空间</div>
               </div>
             </div>
 
             <div class="dashboard-grid">
               <div class="card">
-                <div class="card-header"><div class="card-title">⚡ Immediate (Next 7 Days)</div></div>
+                <div class="card-header"><div class="card-title">⚡ 立即行动（下 7 天）</div></div>
                 <div class="card-content">
-                  <p>1️⃣ <strong>Lithium Emergency:</strong> Order 8k MT carbonate from SQM Chile</p>
-                  <p style="margin-top: 10px;">2️⃣ <strong>Phosphate Contract:</strong> Lock 50k MT from Yunnan at favorable rates</p>
-                  <p style="margin-top: 10px;">3️⃣ <strong>LFP Sales Push:</strong> Accelerate orders to reduce finished goods</p>
-                  <p style="margin-top: 10px;">4️⃣ <strong>Supplier Outreach:</strong> Negotiate expedited shipments</p>
+                  <p>1️⃣ <strong>锂紧急采购：</strong> 订购 8k 吨 SQM 智利碳酸锂</p>
+                  <p style="margin-top: 10px;">2️⃣ <strong>磷矿合同：</strong> 锁定 50k 吨云南采购</p>
+                  <p style="margin-top: 10px;">3️⃣ <strong>LFP 销售推进：</strong> 加快订单以减少成品库存</p>
+                  <p style="margin-top: 10px;">4️⃣ <strong>供应商沟通：</strong> 协商加急发货</p>
                 </div>
               </div>
 
               <div class="card">
-                <div class="card-header"><div class="card-title">🎯 Strategic (30-90 Days)</div></div>
+                <div class="card-header"><div class="card-title">🎯 战略行动（30-90 天）</div></div>
                 <div class="card-content">
-                  <p>1️⃣ <strong>VMI Implementation:</strong> Vendor-managed inventory (reduce safety stock 5-10%)</p>
-                  <p style="margin-top: 10px;">2️⃣ <strong>Demand-Driven Planning:</strong> Link production to OEM orders (reduce finished goods 15%)</p>
-                  <p style="margin-top: 10px;">3️⃣ <strong>Long-Term Contracts:</strong> Fixed-price agreements for cost stability</p>
-                  <p style="margin-top: 10px;">4️⃣ <strong>Hedging Strategy:</strong> Futures contracts for price protection</p>
+                  <p>1️⃣ <strong>实施 VMI：</strong> 供应商管理库存（减少安全库存 5-10%）</p>
+                  <p style="margin-top: 10px;">2️⃣ <strong>需求驱动计划：</strong> 生产与 OEM 订单联动（减少成品 15%）</p>
+                  <p style="margin-top: 10px;">3️⃣ <strong>长期合同：</strong> 固定价格协议稳定成本</p>
+                  <p style="margin-top: 10px;">4️⃣ <strong>对冲策略：</strong> 期货保护价格波动</p>
                 </div>
               </div>
             </div>
 
             <div class="card">
-              <div class="card-header"><div class="card-title">📈 12-Month Roadmap</div></div>
+              <div class="card-header"><div class="card-title">📈 12 个月路线图</div></div>
               <div class="card-content">
-                <p><strong>Q1 2024:</strong> Emergency stabilization (lithium orders, phosphate contracts, safety stock ↑30 days)</p>
-                <p style="margin-top: 10px;"><strong>Q2-Q3 2024:</strong> Supplier diversification (Russia, Chile, new mills), VMI setup</p>
-                <p style="margin-top: 10px;"><strong>Q4 2024-Q1 2025:</strong> Full optimization (demand-driven planning, hedging, 100% visibility)</p>
-                <p style="margin-top: 12px; font-weight: 700; color: var(--success);">Target: Reduce inventory 10-15%, recover ¥200-300M, reduce risk to 4.5/10</p>
+                <p><strong>2024Q1：</strong> 紧急稳控（锂采购、磷矿合同、安全库存↑30%）</p>
+                <p style="margin-top: 10px;"><strong>2024Q2-Q3：</strong> 供应商多元化（俄罗斯、智利、新厂），VMI 建设</p>
+                <p style="margin-top: 10px;"><strong>2024Q4-2025Q1：</strong> 全面优化（需求驱动、对冲、全链可见性）</p>
+                <p style="margin-top: 12px; font-weight: 700; color: var(--success);">目标：库存下降 10-15%，恢复 ¥200-300M，风险降至 4.5/10</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-
+  
       <!-- PRICING -->
       <div id="page-pricing" class="page">
         <div class="section-header">
@@ -1263,7 +1263,7 @@ tbody tr:last-child td { border-bottom: none; }
                   <span class="badge badge-accent">环保创新</span>
                 </div>
                 <div class="card-content">
-                  <p><strong>堆积量：</strong> 7.3亿吨/年</p>
+                  <p><strong>堆积现状：</strong> 7.3亿吨/年增长，利用率仅22%</p>
                   <p><strong>利用率：</strong> 当前22% → 目标40%(2027)</p>
                   <p style="margin-top: 10px;"><strong>关键技术：</strong> • 低温煅烧制建材 • 直接生产水泥 • 稀有元素提取</p>
                 </div>
@@ -1600,24 +1600,15 @@ tbody tr:last-child td { border-bottom: none; }
                 </div>
                 <div class="card-content" style="font-size: 13px;">
                   <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
-                    <div>150k MT | Premium positioning | EU tariff protection advantage</div>
+                    <div style="font-weight: 700; margin-bottom: 6px;">Global Production: 220M MT/year</div>
+                    <ul style="padding-left: 16px;">
+                      <li>Morocco OCP: 30% global | ↓ -5% capacity (risk)</li>
+                      <li>China domestic: 35% global | ↑ +8.3% expansion</li>
+                      <li>USA, Russia, Others: 35%</li>
+                    </ul>
                   </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
-                    <div>EU production (tariff shield) | Carbon-neutral manufacturing | VW partnership | Premium pricing power</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
-                    <div>Phase 2 expansion (+150k MT) | VW strategic partnership | Sustainability focus | Premium LFP variant</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">RISK FACTORS</div>
-                    <div style="font-weight: 700; color: var(--warning);">⚠️ Financing challenges | Phase 2 delayed | VW commitment uncertain</div>
-                  </div>
-                  <div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">OPPORTUNITY</div>
-                    <div style="font-size: 12px; color: var(--success);">Premium LFP segment niche; supply-constrained market benefits</div>
+                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
+                    <strong>Risk:</strong> Morocco dominance creates supply concentration risk
                   </div>
                 </div>
               </div>
@@ -1633,24 +1624,16 @@ tbody tr:last-child td { border-bottom: none; }
                 </div>
                 <div class="card-content" style="font-size: 13px;">
                   <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
-                    <div>290k MT | 10% market share | Declining utilization (69%)</div>
+                    <div style="font-weight: 700; margin-bottom: 6px;">Key Sources: China, Chile, Australia</div>
+                    <ul style="padding-left: 16px;">
+                      <li>Ganzizhou (China): 60% supply | Inventory concerns</li>
+                      <li>Atacama (Chile): 20% | Long-term stable</li>
+                      <li>Pilbara (Australia): 15% | Expanding</li>
+                      <li>Others: 5%</li>
+                    </ul>
                   </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CURRENT POSITION</div>
-                    <div>Cost disadvantage vs leaders | Limited OEM partnerships | Oversupply vulnerability | Acquisition target speculation</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC OUTLOOK</div>
-                    <div>Consolidation candidate | Cost restructuring needed | Likely acquired or exits 2025-2026</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
-                    <div style="font-weight: 700; color: var(--success);">🟢 LOW | Struggling player; not primary threat</div>
-                  </div>
-                  <div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">OPPORTUNITY</div>
-                    <div style="font-size: 12px; color: var(--info);">M&A target for consolidation | Talent/asset acquisition potential</div>
+                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
+                    <strong>Current:</strong> Inventory 12-15 days (tight); price volatility expected
                   </div>
                 </div>
               </div>
@@ -1696,7 +1679,7 @@ tbody tr:last-child td { border-bottom: none; }
               </div>
             </div>
   
-            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Key Upstream Players & Supply Risk</h3>
+            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Key Upstream Players & Supply Risk</h2>
   
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
               <!-- Phosphate Rock -->
@@ -1764,7 +1747,7 @@ tbody tr:last-child td { border-bottom: none; }
               </div>
             </div>
   
-            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Supply Risk Assessment & Mitigation</h3>
+            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Supply Risk Assessment & Mitigation</h2>
   
             <div class="table-responsive">
               <table>
@@ -1838,7 +1821,7 @@ tbody tr:last-child td { border-bottom: none; }
               </div>
             </div>
   
-            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Tier 1 OEM & Battery Integrator Demand</h3>
+            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Tier 1 OEM & Battery Integrator Demand</h2>
   
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
               <!-- Tesla -->
