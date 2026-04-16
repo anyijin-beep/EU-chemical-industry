@@ -731,7 +731,6 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
-      <// ...existing code...
       <!-- SUPPLY CHAIN -->
       <div id="page-supply-chain" class="page">
         <div class="section-header">
@@ -1341,7 +1340,7 @@ tbody tr:last-child td { border-bottom: none; }
           </div>
         </div>
       </div>
-
+      // ...existing code...
       <!-- COMPANIES -->
       <div id="page-companies" class="page">
         <div class="section-header">
@@ -1349,102 +1348,99 @@ tbody tr:last-child td { border-bottom: none; }
           <p class="section-subtitle">全球主要LFP及磷矿企业深度情报追踪</p>
         </div>
 
-           <div class="tab-group">
-          <button class="tab-btn active" data-panel="value-chain-overview">Value Chain Map</button>
-          <button class="tab-btn" data-panel="competitors-analysis">Direct Competitors</button>
-          <button class="tab-btn" data-panel="upstream-analysis">Upstream Suppliers</button>
-          <button class="tab-btn" data-panel="downstream-analysis">Downstream Customers</button>
-          <button class="tab-btn" data-panel="competitive-positioning">Positioning & Strategy</button>
+        <div class="tab-group">
+          <button class="tab-btn active" data-panel="value-chain-overview">价值链地图</button>
+          <button class="tab-btn" data-panel="competitors-analysis">直接竞争对手</button>
+          <button class="tab-btn" data-panel="upstream-analysis">上游供应商</button>
+          <button class="tab-btn" data-panel="downstream-analysis">下游客户</button>
+          <button class="tab-btn" data-panel="competitive-positioning">定位与策略</button>
         </div>
 
         <!-- VALUE CHAIN OVERVIEW -->
         <div id="value-chain-overview" class="tab-content active">
-          <h2 class="section-title" style="margin-bottom: 16px;">Global LFP Value Chain Architecture</h2>
+          <h2 class="section-title" style="margin-bottom: 16px;">全球LFP价值链架构</h2>
 
           <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
-              <div class="card-title">📊 End-to-End Value Chain Map</div>
+              <div class="card-title">📊 端到端价值链地图</div>
             </div>
             <div class="chart-placeholder" style="height: 400px;">
               <div class="chart-placeholder-icon">🔗</div>
-              <div class="chart-placeholder-text">UPSTREAM (Mining & Processing) → COMPETITORS (LFP Producers) → DOWNSTREAM (Battery Makers & OEMs)</div>
+              <div class="chart-placeholder-text">上游（采矿与加工）→ 中游（LFP生产）→ 下游（电池厂与OEM）</div>
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-            <!-- UPSTREAM -->
             <div class="card">
               <div class="card-header" style="background: rgba(59, 130, 246, 0.05);">
-                <div class="card-title">⬆️ UPSTREAM</div>
-                <div class="card-subtitle">Raw Materials & Processing</div>
+                <div class="card-title">⬆️ 上游</div>
+                <div class="card-subtitle">原料与加工</div>
               </div>
               <div class="card-content" style="font-size: 13px;">
-                <div style="margin-bottom: 12px;"><strong>Phosphate Rock Miners:</strong> OCP (Morocco), Yunnan (China), Guizhou</div>
-                <div style="margin-bottom: 12px;"><strong>Lithium Suppliers:</strong> Ganzizhou (China), Atacama (Chile), Pilbara (Australia)</div>
-                <div style="margin-bottom: 12px;"><strong>Processors:</strong> Phosphoric acid mills, lithium refineries</div>
-                <div><strong>Power Suppliers:</strong> Energy cost critical to economics</div>
+                <div style="margin-bottom: 12px;"><strong>磷矿开采：</strong> 摩洛哥 OCP、中国云南、贵州</div>
+                <div style="margin-bottom: 12px;"><strong>锂资源：</strong> 赣州、智利阿塔卡马、澳大利亚皮尔布拉</div>
+                <div style="margin-bottom: 12px;"><strong>加工环节：</strong> 磷酸厂、锂盐精炼</div>
+                <div><strong>成本关键：</strong> 能源与电力成本</div>
               </div>
             </div>
 
-            <!-- COMPETITORS -->
             <div class="card">
               <div class="card-header" style="background: rgba(245, 158, 11, 0.05);">
-                <div class="card-title">⚔️ COMPETITORS</div>
-                <div class="card-subtitle">LFP Cathode Producers</div>
+                <div class="card-title">⚔️ 竞争对手</div>
+                <div class="card-subtitle">LFP正极厂商</div>
               </div>
               <div class="card-content" style="font-size: 13px;">
-                <div style="margin-bottom: 12px;"><strong>Tier 1 Leaders:</strong> CATL, BYD (China dominance)</div>
-                <div style="margin-bottom: 12px;"><strong>Tier 2 Players:</strong> Gotion, SVOLT, Lishen (cost focus)</div>
-                <div style="margin-bottom: 12px;"><strong>Tier 3 Emerging:</strong> Northvolt (EU), Regional players</div>
-                <div><strong>Market Dynamic:</strong> Consolidation accelerating</div>
+                <div style="margin-bottom: 12px;"><strong>头部企业：</strong> 宁德时代、比亚迪</div>
+                <div style="margin-bottom: 12px;"><strong>追赶者：</strong> 国轩高科、杉杉、德尔股份</div>
+                <div style="margin-bottom: 12px;"><strong>新锐企业：</strong> Northvolt、欧洲本地厂商</div>
+                <div><strong>趋势：</strong> 行业整合持续加剧</div>
               </div>
             </div>
 
-            <!-- DOWNSTREAM -->
             <div class="card">
               <div class="card-header" style="background: rgba(16, 185, 129, 0.05);">
-                <div class="card-title">⬇️ DOWNSTREAM</div>
-                <div class="card-subtitle">Battery Makers & Automotive OEMs</div>
+                <div class="card-title">⬇️ 下游</div>
+                <div class="card-subtitle">电池厂与汽车OEM</div>
               </div>
               <div class="card-content" style="font-size: 13px;">
-                <div style="margin-bottom: 12px;"><strong>Battery Integrators:</strong> CATL, BYD, Gotion (captive)</div>
-                <div style="margin-bottom: 12px;"><strong>Auto OEMs:</strong> Tesla, NIO, XPeng, VW Group, BYD</div>
-                <div style="margin-bottom: 12px;"><strong>ESS Operators:</strong> Grid-scale energy storage demand surge</div>
-                <div><strong>Market Pull:</strong> 45% YoY EV growth driving demand</div>
+                <div style="margin-bottom: 12px;"><strong>电池集成商：</strong> 宁德时代、比亚迪、国轩高科</div>
+                <div style="margin-bottom: 12px;"><strong>汽车厂：</strong> 特斯拉、蔚来、小鹏、比亚迪、沃尔沃</div>
+                <div style="margin-bottom: 12px;"><strong>储能需求：</strong> 逐步成为新增拉动因素</div>
+                <div><strong>市场驱动：</strong> EV销量年增约45%</div>
               </div>
             </div>
           </div>
 
-          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Value Chain Economics & Margins</h2>
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">价值链经济与利润分析</h2>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="card">
               <div class="card-header">
-                <div class="card-title">💰 Typical LFP Cost Structure</div>
+                <div class="card-title">💰 典型LFP成本结构</div>
               </div>
               <div class="card-content" style="font-size: 13px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <span>Phosphate Rock (20%)</span>
+                  <span>磷矿成本 (20%)</span>
                   <strong>¥1,710</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <span>Lithium Carbonate (18%)</span>
+                  <span>碳酸锂成本 (18%)</span>
                   <strong>¥1,539</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <span>Iron Phosphate (12%)</span>
+                  <span>磷酸成本 (12%)</span>
                   <strong>¥1,026</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <span>Labor & Overhead (15%)</span>
+                  <span>人工与制造费用 (15%)</span>
                   <strong>¥1,283</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <span>Energy & Utilities (18%)</span>
+                  <span>能源与公用事业 (18%)</span>
                   <strong>¥1,539</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px;">
-                  <span><strong>Total Cost</strong></span>
+                  <span><strong>总成本</strong></span>
                   <strong style="color: var(--primary-light);">¥7,097</strong>
                 </div>
               </div>
@@ -1452,514 +1448,502 @@ tbody tr:last-child td { border-bottom: none; }
 
             <div class="card">
               <div class="card-header">
-                <div class="card-title">📊 Industry Margin Profile</div>
+                <div class="card-title">📊 行业利润概况</div>
               </div>
               <div class="card-content" style="font-size: 13px;">
                 <div style="margin-bottom: 16px;">
                   <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span><strong>Spot Price (Current)</strong></span>
-                    <strong>¥8,550/MT</strong>
+                    <span><strong>现货价格</strong></span>
+                    <strong>¥8,550/吨</strong>
                   </div>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                    <span><strong>COGS (Average)</strong></span>
-                    <strong>¥7,097/MT</strong>
+                    <span><strong>平均成本</strong></span>
+                    <strong>¥7,097/吨</strong>
                   </div>
                   <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 6px;">
-                    <span><strong>Gross Margin</strong></span>
+                    <span><strong>毛利</strong></span>
                     <strong style="color: var(--success);">¥1,453 (17%)</strong>
                   </div>
                 </div>
                 <div style="background: var(--bg-secondary); padding: 10px; border-radius: 4px; font-size: 12px;">
-                  <p><strong>⚠️ Margin Risk:</strong> Each ¥100 price decline = 1.2% margin loss. Current oversupply → -25-35% price risk</p>
+                  <p><strong>⚠️ 利润风险：</strong> 每下降¥100，毛利压缩约1.2%。当前供给偏紧，价格波动风险较高。</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-          <!-- DIRECT COMPETITORS ANALYSIS -->
-          <div id="competitors-analysis" class="tab-content">
-            
-            <h2 class="section-title" style="margin-bottom: 16px;">Direct Competitor Profiles & Strategic Positioning</h2>
-  
-            <div class="filter-group">
-              <button class="filter-btn active">All Competitors</button>
-              <button class="filter-btn">Tier 1 (Leaders)</button>
-              <button class="filter-btn">Tier 2 (Challengers)</button>
-              <button class="filter-btn">Tier 3 (Emerging)</button>
-            </div>
-  
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
-              <!-- CATL -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <div class="card-title">🔴 CATL (Contemporary Amperex)</div>
-                    <div class="card-subtitle">China | Tier 1 Leader | Global #1</div>
-                  </div>
-                  <span class="badge badge-danger">DOMINANT</span>
-                </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
-                    <div>850k MT | 28% global share | ↑ +$32B revenue (2023)</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
-                    <div>Cost leadership (¥7.2k/MT) | Tech innovation (fast-charge) | VW/BMW partnerships | Vertical integration</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
-                    <div>Ningde Phase III (+500k MT) | European expansion | LMFP development | Grid storage focus</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
-                    <div style="font-weight: 700; color: var(--warning);">🔴 CRITICAL | Price competition inevitable</div>
-                  </div>
-                  <div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COUNTER STRATEGY</div>
-                    <div style="font-size: 12px; color: var(--primary-light);">↓ Focus on premium/differentiated products | ↓ Build OEM relationships | ↓ Innovation in LMFP</div>
-                  </div>
-                </div>
-              </div>
-  
-              <!-- BYD -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <div class="card-title">🟡 BYD Battery</div>
-                    <div class="card-subtitle">China | Tier 1 Leader | Global #2</div>
-                  </div>
-                  <span class="badge badge-warning">STRONG</span>
-                </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
-                    <div>620k MT | 21% global share | Vertical integration with OEM</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
-                    <div>Integrated EV manufacturer | Lower cost (¥6.8k/MT) | In-house demand | Energy density innovation (180 Wh/kg)</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
-                    <div>Wuhan expansion | Mexico facility planned | Aggressive pricing | LMFP R&D | Third-party sales push</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
-                    <div style="font-weight: 700; color: var(--warning);">🟡 HIGH | Pricing strategy threatening margins</div>
-                  </div>
-                  <div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COUNTER STRATEGY</div>
-                    <div style="font-size: 12px; color: var(--primary-light);">↓ Compete on technology not price | ↓ Build OEM partnerships | ↓ Cost optimization necessary</div>
-                  </div>
-                </div>
-              </div>
-  
-              <!-- GOTION -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <div class="card-title">🟢 Gotion High-Tech</div>
-                    <div class="card-subtitle">China | Tier 2 Challenger | Global #3</div>
-                  </div>
-                  <span class="badge badge-success">MODERATE</span>
-                </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">CAPACITY & MARKET</div>
-                    <div>380k MT | 13% global share | ESS-focused positioning</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COMPETITIVE ADVANTAGES</div>
-                    <div>Cost efficiency | ESS expertise | Stable utilization (76%) | European expansion planned</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">STRATEGIC MOVES</div>
-                    <div>Hungary Europe facility (+250k MT) | ESS market focus | Cost-optimized production | Emerging market expansion</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">THREAT LEVEL</div>
-                    <div style="font-weight: 700; color: var(--accent);">🟡 MEDIUM | ESS growth could strengthen position</div>
-                  </div>
-                  <div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">COUNTER STRATEGY</div>
-                    <div style="font-size: 12px; color: var(--primary-light);">↓ ESS differentiation | ↓ Regional partnerships | ↓ Cost parity required</div>
-                  </div>
-                </div>
-              </div>
-  
-              <!-- NORTHVOLT -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <div class="card-title">🔵 Northvolt</div>
-                    <div class="card-subtitle">Sweden | Tier 3 Emerging | Premium Player</div>
-                  </div>
-                  <span class="badge badge-primary">WATCH</span>
-                </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700; margin-bottom: 6px;">Global Production: 220M MT/year</div>
-                    <ul style="padding-left: 16px;">
-                      <li>Morocco OCP: 30% global | ↓ -5% capacity (risk)</li>
-                      <li>China domestic: 35% global | ↑ +8.3% expansion</li>
-                      <li>USA, Russia, Others: 35%</li>
-                    </ul>
-                  </div>
-                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
-                    <strong>Risk:</strong> Morocco dominance creates supply concentration risk
-                  </div>
-                </div>
-              </div>
-  
-              <!-- SVOLT -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <div class="card-title">⚫ SVOLT Energy</div>
-                    <div class="card-subtitle">China | Tier 2 Under Pressure | Struggling</div>
-                  </div>
-                  <span class="badge badge-warning">DECLINING</span>
-                </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700; margin-bottom: 6px;">Key Sources: China, Chile, Australia</div>
-                    <ul style="padding-left: 16px;">
-                      <li>Ganzizhou (China): 60% supply | Inventory concerns</li>
-                      <li>Atacama (Chile): 20% | Long-term stable</li>
-                      <li>Pilbara (Australia): 15% | Expanding</li>
-                      <li>Others: 5%</li>
-                    </ul>
-                  </div>
-                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
-                    <strong>Current:</strong> Inventory 12-15 days (tight); price volatility expected
-                  </div>
-                </div>
-              </div>
-            </div>
-  
-            <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">Competitive Positioning Matrix</h2>
-  
+        <!-- DIRECT COMPETITORS ANALYSIS -->
+        <div id="competitors-analysis" class="tab-content">
+          <h2 class="section-title" style="margin-bottom: 16px;">直接竞争对手与战略定位</h2>
+
+          <div class="filter-group">
+            <button class="filter-btn active">全部竞争对手</button>
+            <button class="filter-btn">一线（头部）</button>
+            <button class="filter-btn">二线（挑战者）</button>
+            <button class="filter-btn">三线（新锐）</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
             <div class="card">
               <div class="card-header">
-                <div class="card-title">📊 Cost vs Innovation Positioning</div>
-              </div>
-              <div class="chart-placeholder" style="height: 320px;">
-                <div class="chart-placeholder-icon">⚔️</div>
-                <div class="chart-placeholder-text">X-axis: Production Cost | Y-axis: Technology Innovation | CATL (top-left) | BYD (center-left) | Northvolt (center-right)</div>
-              </div>
-            </div>
-          </div>
-  
-          <!-- UPSTREAM SUPPLIERS -->
-          <div id="upstream-analysis" class="tab-content">
-            <h2 class="section-title" style="margin-bottom: 16px;">⬆️ Upstream Suppliers & Raw Materials</h2>
-  
-            <div class="metrics-grid">
-              <div class="metric-card">
-                <div class="metric-label">Phosphate Rock Cost</div>
-                <div class="metric-value">$112.80</div>
-                <div class="metric-change positive">↑ +5.1% QoQ</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Lithium Carbonate</div>
-                <div class="metric-value">$52,000</div>
-                <div class="metric-change positive">↑ +1.8% QoQ</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Phosphoric Acid</div>
-                <div class="metric-value">$380/MT</div>
-                <div class="metric-change positive">↑ +3.2% QoQ</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Supply Chain Health</div>
-                <div class="metric-value">7.2/10</div>
-                <div class="metric-change negative">↓ -0.6 (pressure)</div>
-              </div>
-            </div>
-  
-            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Key Upstream Players & Supply Risk</h2>
-  
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-              <!-- Phosphate Rock -->
-              <div class="card">
-                <div class="card-header">
-                  <div class="card-title">🪨 Phosphate Rock Miners</div>
-                  <div class="card-subtitle">Sourcing Risk: HIGH</div>
+                <div>
+                  <div class="card-title">🔴 宁德时代 (CATL)</div>
+                  <div class="card-subtitle">中国 | 头部龙头 | 全球第一</div>
                 </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700; margin-bottom: 6px;">Global Production: 220M MT/year</div>
-                    <ul style="padding-left: 16px;">
-                      <li>Morocco OCP: 30% global | ↓ -5% capacity (risk)</li>
-                      <li>China domestic: 35% global | ↑ +8.3% expansion</li>
-                      <li>USA, Russia, Others: 35%</li>
-                    </ul>
-                  </div>
-                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
-                    <strong>Risk:</strong> Morocco dominance creates supply concentration risk
-                  </div>
+                <span class="badge badge-warning">主导</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">产能与市场</div>
+                  <div>850k 吨 | 全球份额28% | 2023年营收增长显著</div>
                 </div>
-              </div>
-  
-              <!-- Lithium -->
-              <div class="card">
-                <div class="card-header">
-                  <div class="card-title">⚡ Lithium Carbonate Suppliers</div>
-                  <div class="card-subtitle">Sourcing Risk: MEDIUM</div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">竞争优势</div>
+                  <div>成本领先、技术创新、VW/BMW合作、垂直整合</div>
                 </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700; margin-bottom: 6px;">Key Sources: China, Chile, Australia</div>
-                    <ul style="padding-left: 16px;">
-                      <li>Ganzizhou (China): 60% supply | Inventory concerns</li>
-                      <li>Atacama (Chile): 20% | Long-term stable</li>
-                      <li>Pilbara (Australia): 15% | Expanding</li>
-                      <li>Others: 5%</li>
-                    </ul>
-                  </div>
-                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
-                    <strong>Current:</strong> Inventory 12-15 days (tight); price volatility expected
-                  </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">战略动作</div>
+                  <div>宁德三期扩产、欧洲扩张、LMFP开发、储能布局</div>
                 </div>
-              </div>
-  
-              <!-- Phosphoric Acid -->
-              <div class="card">
-                <div class="card-header">
-                  <div class="card-title">🏭 Phosphoric Acid Processors</div>
-                  <div class="card-subtitle">Sourcing Risk: LOW-MEDIUM</div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">威胁级别</div>
+                  <div style="font-weight: 700; color: var(--warning);">🔴 极高 | 价格竞争不可避免</div>
                 </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700; margin-bottom: 6px;">Processing Capacity: 20M MT/year (China)</div>
-                    <ul style="padding-left: 16px;">
-                      <li>Yunnan province: 40% capacity</li>
-                      <li>Guizhou province: 35% capacity</li>
-                      <li>Sichuan province: 25% capacity</li>
-                    </ul>
-                  </div>
-                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; margin-top: 8px;">
-                    <strong>Status:</strong> Adequate supply; lead time 2-3 weeks typical
-                  </div>
-                </div>
-              </div>
-            </div>
-  
-            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Supply Risk Assessment & Mitigation</h2>
-  
-            <div class="table-responsive">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Raw Material</th>
-                    <th>Current Risk</th>
-                    <th>Price Trend</th>
-                    <th>Inventory Health</th>
-                    <th>Mitigation Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Phosphate Rock</strong></td>
-                    <td><span class="badge badge-danger">HIGH</span></td>
-                    <td>↑ +5.1% (upward)</td>
-                    <td>Morocco ↓5%, tightening</td>
-                    <td>Diversify suppliers; lock long-term deals</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Lithium Carbonate</strong></td>
-                    <td><span class="badge badge-warning">MEDIUM</span></td>
-                    <td>↑ +1.8% (volatile)</td>
-                    <td>12-15 days (tight)</td>
-                    <td>Multi-source agreements; hedging</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Phosphoric Acid</strong></td>
-                    <td><span class="badge badge-success">LOW</span></td>
-                    <td>↑ +3.2% (stable)</td>
-                    <td>Adequate</td>
-                    <td>Maintain supply relationships</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Energy (Power)</strong></td>
-                    <td><span class="badge badge-warning">MEDIUM</span></td>
-                    <td>↑ (seasonal)</td>
-                    <td>Regional variation</td>
-                    <td>Secure long-term power contracts; efficiency focus</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-  
-          <!-- DOWNSTREAM CUSTOMERS -->
-          <div id="downstream-analysis" class="tab-content">
-            <h2 class="section-title" style="margin-bottom: 16px;">⬇️ Downstream Customers & Market Demand</h2>
-  
-            <div class="metrics-grid">
-              <div class="metric-card">
-                <div class="metric-label">Global EV Sales (2023)</div>
-                <div class="metric-value">13.6M</div>
-                <div class="metric-change positive">↑ +35% YoY</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">LFP Adoption Rate</div>
-                <div class="metric-value">42%</div>
-                <div class="metric-change positive">↑ +12% YoY</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">ESS Market Growth</div>
-                <div class="metric-value">3x vs EV</div>
-                <div class="metric-change positive">Emerging opportunity</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Customer Concentration</div>
-                <div class="metric-value">Top 5 = 60%</div>
-                <div class="metric-change negative">↑ (consolidation)</div>
-              </div>
-            </div>
-  
-            <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">Tier 1 OEM & Battery Integrator Demand</h2>
-  
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
-              <!-- Tesla -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <div class="card-title">🚗 Tesla</div>
-                    <div class="card-subtitle">USA | EV Focus | Premium positioning</div>
-                  </div>
-                  <span class="badge badge-primary">KEY CUSTOMER</span>
-                </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700;">LFP Demand: 800k+ units/year (2024)</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Model 3/Y entry tiers + new markets</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700;">Current Suppliers</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">CATL (primary), BYD (secondary), local options</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700;">Sourcing Strategy</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Multi-supplier approach; Fremont localization</div>
-                  </div>
-                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
-                    <strong>📊 Opportunity:</strong> Premium LFP variant; energy density focus
-                  </div>
-                </div>
-              </div>
-  
-              <!-- NIO/XPeng -->
-              <div class="card">
-                <div class="card-header">
-                  <div>
-                    <div class="card-title">🏎️ NIO / XPeng / Li-Auto</div>
-                    <div class="card-subtitle">China | Premium EV | LFP growth</div>
-                  </div>
-                  <span class="badge badge-primary">GROWTH CUSTOMER</span>
-                </div>
-                <div class="card-content" style="font-size: 13px;">
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700;">Combined LFP Demand: 2M+ units/year</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Rapid LFP adoption across price tiers</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700;">Primary Suppliers</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">CATL, BYD, Gotion direct supply</div>
-                  </div>
-                  <div style="margin-bottom: 12px;">
-                    <div style="font-weight: 700;">Buyer Power</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">High bargaining power; strong negotiations</div>
-                  </div>
-                  <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
-                    <strong>📊 Opportunity:</strong> Volume growth; battery technology differentiation
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card" style="margin-top: 24px;">
-              <div class="card-header">
-                <div class="card-title">Downstream Demand Implications</div>
-              </div>
-              <div class="card-content">
-                <p><strong>EV demand remains the main pull factor</strong>, while ESS is emerging as the fastest-growing incremental market.</p>
-                <p style="margin-top: 10px;"><strong>Customer concentration is rising</strong>, which increases pricing pressure and requires stronger OEM/battery-maker relationship management.</p>
-                <p style="margin-top: 10px;"><strong>Strategic implication:</strong> Suppliers need differentiated LFP products, stable delivery performance, and clearer positioning by end-use segment.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- POSITIONING & STRATEGY -->
-          <div id="competitive-positioning" class="tab-content">
-            <h2 class="section-title" style="margin-bottom: 16px;">🎯 Positioning & Strategy</h2>
-
-            <div class="metrics-grid">
-              <div class="metric-card">
-                <div class="metric-label">Recommended Position</div>
-                <div class="metric-value">Premium+</div>
-                <div class="metric-change positive">Differentiate beyond price</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Priority Segment</div>
-                <div class="metric-value">EV + ESS</div>
-                <div class="metric-change positive">Balanced exposure</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Key Threat</div>
-                <div class="metric-value">Oversupply</div>
-                <div class="metric-change negative">Margin compression risk</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Core Response</div>
-                <div class="metric-value">LMFP</div>
-                <div class="metric-change positive">Technology upgrade path</div>
-              </div>
-            </div>
-
-            <div class="dashboard-grid">
-              <div class="card">
-                <div class="card-header">
-                  <div class="card-title">Strategic Positioning Recommendation</div>
-                </div>
-                <div class="card-content">
-                  <p><strong>Avoid pure price competition</strong> against CATL and BYD, whose scale and integration create structural cost advantages.</p>
-                  <p style="margin-top: 10px;"><strong>Compete through differentiated value</strong>: premium LFP variants, reliability, OEM customization, and faster technical support.</p>
-                  <p style="margin-top: 10px;"><strong>Focus geographies</strong>: Europe for premium/localized opportunities, China for scale benchmarking, and ESS markets for faster growth.</p>
-                </div>
-              </div>
-
-              <div class="card">
-                <div class="card-header">
-                  <div class="card-title">Priority Strategic Actions</div>
-                </div>
-                <div class="card-content">
-                  <p>1. Build stronger OEM and battery-maker relationships</p>
-                  <p style="margin-top: 10px;">2. Accelerate LMFP and higher-energy-density product roadmap</p>
-                  <p style="margin-top: 10px;">3. Strengthen supply security for phosphate and lithium inputs</p>
-                  <p style="margin-top: 10px;">4. Position selectively in ESS where growth is faster and qualification cycles may be more flexible</p>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">应对策略</div>
+                  <div style="font-size: 12px; color: var(--primary-light);">突出差异化产品、强化OEM关系、推进LMFP创新</div>
                 </div>
               </div>
             </div>
 
             <div class="card">
               <div class="card-header">
-                <div class="card-title">Competitive Response Map</div>
+                <div>
+                  <div class="card-title">🟡 比亚迪</div>
+                  <div class="card-subtitle">中国 | 一线头部 | 全球第二</div>
+                </div>
+                <span class="badge badge-primary">强劲</span>
               </div>
-              <div class="card-content">
-                <p><strong>Against CATL:</strong> avoid direct cost battle; focus on niche, premium, and agility.</p>
-                <p style="margin-top: 10px;"><strong>Against BYD:</strong> differentiate on external customer service and non-captive market flexibility.</p>
-                <p style="margin-top: 10px;"><strong>Against Gotion / SVOLT:</strong> compete on technical consistency, regional partnership depth, and strategic customer access.</p>
-                <p style="margin-top: 10px;"><strong>Against emerging EU players:</strong> leverage cost advantage while preparing a localized/sustainability narrative for Europe.</p>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">产能与市场</div>
+                  <div>620k 吨 | 全球份额21% | 与OEM垂直整合</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">竞争优势</div>
+                  <div>垂直一体化、成本优势、180Wh/kg高能量密度</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">战略动作</div>
+                  <div>武汉扩产、墨西哥规划、积极定价、LMFP研发</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">威胁级别</div>
+                  <div style="font-weight: 700; color: var(--warning);">🟡 高 | 定价策略压缩利润</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">应对策略</div>
+                  <div style="font-size: 12px; color: var(--primary-light);">聚焦技术与服务、加强OEM合作、优化成本</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🟢 国轩高科</div>
+                  <div class="card-subtitle">中国 | 二线挑战者 | 全球第三</div>
+                </div>
+                <span class="badge badge-success">稳健</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">产能与市场</div>
+                  <div>380k 吨 | 全球份额13% | ESS为主</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">竞争优势</div>
+                  <div>成本效率、ESS经验、利用率稳定、欧洲扩张</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">战略动作</div>
+                  <div>匈牙利工厂、ESS市场、成本优化、区域扩张</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">威胁级别</div>
+                  <div style="font-weight: 700; color: var(--accent);">🟡 中等 | ESS增长增强竞争力</div>
+                </div>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">应对策略</div>
+                  <div style="font-size: 12px; color: var(--primary-light);">强化ESS差异化、深耕区域合作、实现成本平衡</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🔵 Northvolt</div>
+                  <div class="card-subtitle">瑞典 | 三线新锐 | 高端玩家</div>
+                </div>
+                <span class="badge badge-primary">关注</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">全球产能：220M 吨/年</div>
+                  <ul style="padding-left: 16px;">
+                    <li>摩洛哥 OCP: 30% 全球供应 | ↓ -5% 风险</li>
+                    <li>中国国内: 35% | ↑ +8.3% 扩张</li>
+                    <li>美国、俄罗斯、其他: 35%</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>风险：</strong> 摩洛哥供应集中带来风险
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">⚫ SVOLT</div>
+                  <div class="card-subtitle">中国 | 二线承压 | 发展受限</div>
+                </div>
+                <span class="badge badge-warning">下行</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">关键来源：中、智、澳</div>
+                  <ul style="padding-left: 16px;">
+                    <li>赣州(中国)：60% 供应 | 库存压力</li>
+                    <li>阿塔卡马(智利)：20% | 长期稳定</li>
+                    <li>皮尔布拉(澳大利亚)：15% | 扩张中</li>
+                    <li>其他：5%</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>当前：</strong> 库存仅12-15天，价格波动风险上升
+                </div>
               </div>
             </div>
           </div>
 
+          <h2 class="section-title" style="margin-top: 32px; margin-bottom: 16px;">竞争定位矩阵</h2>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 成本与创新定位</div>
+            </div>
+            <div class="chart-placeholder" style="height: 320px;">
+              <div class="chart-placeholder-icon">⚔️</div>
+              <div class="chart-placeholder-text">X轴：生产成本 | Y轴：技术创新 | 宁德时代(顶左) | 比亚迪(中左) | Northvolt(中右)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UPSTREAM SUPPLIERS -->
+        <div id="upstream-analysis" class="tab-content">
+          <h2 class="section-title" style="margin-bottom: 16px;">⬆️ 上游供应商与原料</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">磷矿成本</div>
+              <div class="metric-value">$112.80</div>
+              <div class="metric-change positive">↑ +5.1% 环比</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">碳酸锂</div>
+              <div class="metric-value">$52,000</div>
+              <div class="metric-change positive">↑ +1.8% 环比</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">磷酸</div>
+              <div class="metric-value">$380/吨</div>
+              <div class="metric-change positive">↑ +3.2% 环比</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">供应链健康</div>
+              <div class="metric-value">7.2/10</div>
+              <div class="metric-change negative">↓ -0.6</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">关键上游玩家与风险</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🪨 磷矿开采企业</div>
+                <div class="card-subtitle">采购风险：高</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">全球产量：2.2 亿吨/年</div>
+                  <ul style="padding-left: 16px;">
+                    <li>摩洛哥 OCP：全球30% | ↓ -5% 风险</li>
+                    <li>中国国内：全球35% | ↑ +8.3% 扩张</li>
+                    <li>美国、俄罗斯、其他：35%</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>风险：</strong> 摩洛哥集中度高，供给集中风险明显
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚡ 碳酸锂供应商</div>
+                <div class="card-subtitle">采购风险：中</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">关键来源：中、智、澳</div>
+                  <ul style="padding-left: 16px;">
+                    <li>赣州（中国）：60% 供应 | 库存压力</li>
+                    <li>阿塔卡马（智利）：20% | 稳定</li>
+                    <li>皮尔布拉（澳洲）：15% | 扩张中</li>
+                    <li>其他：5%</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>当前：</strong> 库存12-15天，价格波动风险高
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🏭 磷酸加工厂</div>
+                <div class="card-subtitle">采购风险：低-中</div>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">加工能力：2000 万吨/年（中国）</div>
+                  <ul style="padding-left: 16px;">
+                    <li>云南：40% 能力</li>
+                    <li>贵州：35% 能力</li>
+                    <li>四川：25% 能力</li>
+                  </ul>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>状态：</strong> 供应充足，典型交货期2-3周
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">风险评估与应对</h3>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>原材料</th>
+                  <th>当前风险</th>
+                  <th>价格趋势</th>
+                  <th>库存健康</th>
+                  <th>应对措施</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>磷矿</strong></td>
+                  <td><span class="badge badge-warning">高</span></td>
+                  <td>↑ +5.1%</td>
+                  <td>摩洛哥下降5%，紧张</td>
+                  <td>多源供应；锁定长期协议</td>
+                </tr>
+                <tr>
+                  <td><strong>碳酸锂</strong></td>
+                  <td><span class="badge badge-warning">中</span></td>
+                  <td>↑ +1.8%</td>
+                  <td>12-15天，紧张</td>
+                  <td>多源协议；对冲策略</td>
+                </tr>
+                <tr>
+                  <td><strong>磷酸</strong></td>
+                  <td><span class="badge badge-success">低</span></td>
+                  <td>↑ +3.2%</td>
+                  <td>充足</td>
+                  <td>维持合作关系</td>
+                </tr>
+                <tr>
+                  <td><strong>电力</strong></td>
+                  <td><span class="badge badge-warning">中</span></td>
+                  <td>↑（季节性）</td>
+                  <td>区域差异</td>
+                  <td>锁定长期电力合同；提高效率</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DOWNSTREAM CUSTOMERS -->
+        <div id="downstream-analysis" class="tab-content">
+          <h2 class="section-title" style="margin-bottom: 16px;">⬇️ 下游客户与市场需求</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">全球电动车销量 (2023)</div>
+              <div class="metric-value">13.6M</div>
+              <div class="metric-change positive">↑ +35% YoY</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">LFP采用率</div>
+              <div class="metric-value">42%</div>
+              <div class="metric-change positive">↑ +12% YoY</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">储能市场增长</div>
+              <div class="metric-value">3倍 EV</div>
+              <div class="metric-change positive">增长迅速</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">客户集中度</div>
+              <div class="metric-value">前5名=60%</div>
+              <div class="metric-change negative">↑</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 700; margin-top: 24px; margin-bottom: 16px;">一线OEM与电池需求</h3>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🚗 特斯拉</div>
+                  <div class="card-subtitle">美国 | EV主力 | 高端定位</div>
+                </div>
+                <span class="badge badge-primary">关键客户</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">LFP需求：80万+ 单位/年</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Model 3/Y低端版本&新市场</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">当前供应商</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">宁德时代为主，部分由比亚迪供应</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">采购策略</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">多供应商配置；美国本地化布局</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>📊 机遇：</strong> 高端LFP和能量密度优化
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">🏎️ 蔚来 / 小鹏 / 理想</div>
+                  <div class="card-subtitle">中国 | 高端EV | LFP增长</div>
+                </div>
+                <span class="badge badge-primary">增长客户</span>
+              </div>
+              <div class="card-content" style="font-size: 13px;">
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">合计LFP需求：200万+ 单位/年</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">LFP在高端车型中的渗透率提升</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">主要供应商</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">宁德时代、比亚迪、国轩高科</div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <div style="font-weight: 700;">买方议价力</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">高，谈判要求强</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px;">
+                  <strong>📊 机遇：</strong> 规模增长与技术差异化
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+              <div class="card-title">下游需求影响</div>
+            </div>
+            <div class="card-content">
+              <p><strong>电动车需求仍是主要拉动因素</strong>，而储能则成为增长最快的增量市场。</p>
+              <p style="margin-top: 10px;"><strong>客户集中度上升</strong>，加剧议价压力，要求供应商具备更强交付和服务能力。</p>
+              <p style="margin-top: 10px;"><strong>战略建议：</strong> 供应商需要差异化LFP产品、稳定交付绩效、并明确终端应用定位。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- POSITIONING & STRATEGY -->
+        <div id="competitive-positioning" class="tab-content">
+          <h2 class="section-title" style="margin-bottom: 16px;">🎯 定位与策略</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">推荐定位</div>
+              <div class="metric-value">高端+</div>
+              <div class="metric-change positive">超越价格竞争</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">优先领域</div>
+              <div class="metric-value">EV + 储能</div>
+              <div class="metric-change positive">均衡曝光</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">主要威胁</div>
+              <div class="metric-value">供过于求</div>
+              <div class="metric-change negative">利润压缩风险</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">核心应对</div>
+              <div class="metric-value">LMFP</div>
+              <div class="metric-change positive">技术升级路径</div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">战略定位建议</div>
+              </div>
+              <div class="card-content">
+                <p><strong>避免与宁德时代、比亚迪进行纯粹价格战</strong>，它们的规模和整合优势构成结构性成本壁垒。</p>
+                <p style="margin-top: 10px;"><strong>通过差异化价值竞争：</strong> 提供高端LFP、可靠性、OEM定制服务、快速技术响应。</p>
+                <p style="margin-top: 10px;"><strong>重点布局：</strong> 欧洲高端本地化、国内规模对标、储能快速增长市场。</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">优先战略行动</div>
+              </div>
+              <div class="card-content">
+                <p>1. 强化OEM与电池厂合作关系</p>
+                <p style="margin-top: 10px;">2. 加速LMFP与高能密度产品路线</p>
+                <p style="margin-top: 10px;">3. 强化磷矿与锂资源供应稳定性</p>
+                <p style="margin-top: 10px;">4. 选择性布局储能市场，缩短准入周期</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">竞争应对图谱</div>
+            </div>
+            <div class="card-content">
+              <p><strong>针对宁德时代：</strong> 避免直接成本战，聚焦细分高端与灵活性。</p>
+              <p style="margin-top: 10px;"><strong>针对比亚迪：</strong> 差异化服务和非闭环市场灵活性。</p>
+              <p style="margin-top: 10px;"><strong>针对国轩高科/杉杉：</strong> 以技术一致性、区域伙伴关系、客户准入为竞争点。</p>
+              <p style="margin-top: 10px;"><strong>针对欧洲新锐：</strong> 利用成本优势，同时准备欧洲本地化与可持续性叙事。</p>
+            </div>
+          </div>
+        </div>
       </div>
-
+     
       <!-- NEWS -->
       <div id="page-news" class="page">
           <div class="section-header">
