@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EU-CHEM INTEL — European Chemical Industry Intelligence Platform | Week 17–27 Apr 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0b0f1a;
+    --bg2:      #0f1421;
+    --bg3:      #151c2e;
+    --card:     #161d2f;
+    --border:   #1e2a42;
+    --border2:  #253047;
+    --text:     #e2e8f0;
+    --text2:    #94a3b8;
+    --text3:    #64748b;
+    --text4:    #475569;
+    --cyan:     #22d3ee;
+    --cyan2:    #67e8f9;
+    --red:      #f87171;
+    --amber:    #fbbf24;
+    --green:    #34d399;
+    --blue:     #60a5fa;
+    --purple:   #a78bfa;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--mono); overflow: hidden; }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 220px; min-width: 220px; background: var(--bg2);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    transition: width .2s, min-width .2s;
+  }
+  #sidebar.collapsed { width: 52px; min-width: 52px; }
+
+  .sidebar-logo { padding: 16px; border-bottom: 1px solid var(--border); }
+  .logo-full .logo-title { color: var(--cyan); font-weight: 700; font-size: 13px; letter-spacing: .15em; }
+  .logo-full .logo-sub   { color: var(--text3); font-size: 10px; letter-spacing: .15em; margin-top: 2px; }
+  .logo-icon { color: var(--cyan); font-weight: 700; font-size: 11px; text-align: center; }
+  #sidebar.collapsed .logo-full { display: none; }
+  #sidebar:not(.collapsed) .logo-icon { display: none; }
+
+  nav { flex: 1; padding: 8px; overflow-y: auto; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 8px 8px; border-radius: 6px; border: 1px solid transparent;
+    background: none; color: var(--text3); font-family: var(--mono);
+    font-size: 11px; font-weight: 500; letter-spacing: .04em;
+    cursor: pointer; text-align: left; transition: all .15s; white-space: nowrap;
+    margin-bottom: 2px;
+  }
+  .nav-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
+  .nav-btn.active {
+    background: rgba(34,211,238,.08); color: var(--cyan2);
+    border-color: rgba(34,211,238,.2);
+  }
+  .nav-icon { font-size: 15px; flex-shrink: 0; width: 18px; text-align: center; }
+  .nav-label { overflow: hidden; }
+  #sidebar.collapsed .nav-label { display: none; }
+
+  .sidebar-footer { padding: 10px; border-top: 1px solid var(--border); }
+  #toggle-btn {
+    width: 100%; background: none; border: none; color: var(--text4);
+    font-family: var(--mono); font-size: 11px; cursor: pointer; padding: 4px;
+    transition: color .15s;
+  }
+  #toggle-btn:hover { color: var(--text2); }
+
+  /* ── MAIN ── */
+  #main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  #topbar {
+    background: rgba(15,20,33,.9); border-bottom: 1px solid var(--border);
+    padding: 10px 24px; display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0; backdrop-filter: blur(8px);
+  }
+  #page-title { color: var(--text); font-size: 13px; font-weight: 500; }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .live-label { color: var(--text2); font-size: 11px; display: flex; align-items: center; gap: 6px; }
+
+  #content { flex: 1; overflow-y: auto; padding: 24px; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block; font-size: 10px; font-family: var(--mono);
+    padding: 2px 7px; border-radius: 4px; border: 1px solid; white-space: nowrap;
+    font-weight: 500; letter-spacing: .04em;
+  }
+  .badge-red    { background: rgba(127,29,29,.5);  color: #fca5a5; border-color: rgba(185,28,28,.4); }
+  .badge-amber  { background: rgba(120,53,15,.5);  color: #fcd34d; border-color: rgba(180,83,9,.4); }
+  .badge-green  { background: rgba(6,78,59,.5);    color: #6ee7b7; border-color: rgba(4,120,87,.4); }
+  .badge-blue   { background: rgba(30,58,138,.5);  color: #93c5fd; border-color: rgba(37,99,235,.4); }
+  .badge-gray   { background: rgba(51,65,85,.6);   color: #cbd5e1; border-color: rgba(71,85,105,.5); }
+  .badge-purple { background: rgba(88,28,135,.5);  color: #c4b5fd; border-color: rgba(124,58,237,.4); }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title { margin-bottom: 16px; }
+  .section-title-row { display: flex; align-items: center; gap: 8px; }
+  .section-bar { width: 3px; height: 20px; background: var(--cyan); border-radius: 2px; flex-shrink: 0; }
+  .section-title h2 { color: var(--text); font-size: 15px; font-weight: 600; }
+  .section-title p  { color: var(--text2); font-size: 12px; margin-top: 4px; padding-left: 11px; }
+
+  /* ── GRIDS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+  .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) {
+    .grid-3, .grid-4, .grid-3-1 { grid-template-columns: 1fr 1fr; }
+    .grid-2-1 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* ── SPACING UTILS ── */
+  .space-y > * + * { margin-top: 12px; }
+  .space-y-lg > * + * { margin-top: 20px; }
+  .mt-4 { margin-top: 16px; }
+  .mt-3 { margin-top: 12px; }
+  .mt-2 { margin-top: 8px; }
+  .mt-1 { margin-top: 4px; }
+  .mb-3 { margin-bottom: 12px; }
+  .mb-2 { margin-bottom: 8px; }
+  .gap-2 { gap: 8px; }
+
+  /* ── HEADER BANNER ── */
+  .page-header {
+    border-radius: 8px; padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; border: 1px solid;
+  }
+  .page-header .label { font-size: 10px; font-family: var(--mono); letter-spacing: .15em; font-weight: 600; }
+  .page-header h1 { font-size: 18px; font-weight: 600; color: var(--text); margin-top: 3px; font-family: var(--sans); }
+  .page-header-cyan  { background: linear-gradient(135deg, rgba(14,116,144,.2), rgba(21,28,46,.4)); border-color: rgba(14,116,144,.3); }
+  .page-header-amber { background: linear-gradient(135deg, rgba(120,53,15,.2), rgba(21,28,46,.4)); border-color: rgba(180,83,9,.3); }
+  .page-header-blue  { background: linear-gradient(135deg, rgba(30,58,138,.2), rgba(21,28,46,.4)); border-color: rgba(37,99,235,.3); }
+  .page-header-green { background: linear-gradient(135deg, rgba(6,78,59,.2),  rgba(21,28,46,.4)); border-color: rgba(4,120,87,.3); }
+  .page-header-purple{ background: linear-gradient(135deg, rgba(88,28,135,.2),rgba(21,28,46,.4)); border-color: rgba(109,40,217,.3); }
+  .page-header-orange{ background: linear-gradient(135deg, rgba(124,45,18,.2),rgba(21,28,46,.4)); border-color: rgba(194,65,12,.3); }
+  .page-header-slate { background: linear-gradient(135deg, rgba(51,65,85,.2), rgba(21,28,46,.4)); border-color: rgba(71,85,105,.3); }
+
+  /* ── SIGNAL CARDS ── */
+  .signal-card { padding: 16px; }
+  .signal-card .s-label { color: var(--text3); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .signal-card .s-value { color: var(--text); font-size: 24px; font-weight: 700; margin-top: 4px; font-family: var(--sans); }
+  .signal-card .s-badge { margin-top: 8px; }
+
+  /* ── NEWS CARD ── */
+  .news-item { padding: 12px; display: flex; gap: 12px; align-items: flex-start; }
+  .news-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .news-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap; }
+  .news-date { color: var(--text4); font-size: 10px; }
+  .news-headline { color: #cbd5e1; font-size: 12px; line-height: 1.5; font-family: var(--sans); }
+
+  /* ── ALERT CARD ── */
+  .alert-item { padding: 12px 14px; }
+  .alert-row { display: flex; justify-content: space-between; align-items: center; }
+  .alert-name { color: var(--text); font-size: 13px; font-weight: 500; font-family: var(--sans); }
+  .alert-status { color: var(--text3); font-size: 11px; margin-top: 4px; }
+
+  /* ── METRIC CARD ── */
+  .metric-card { padding: 12px; }
+  .metric-label { color: var(--text3); font-size: 10px; }
+  .metric-val { color: var(--text); font-size: 15px; font-weight: 600; margin-top: 3px; font-family: var(--sans); display: flex; align-items: center; gap: 5px; }
+  .trend-up   { color: var(--red);   font-size: 11px; }
+  .trend-down { color: var(--green); font-size: 11px; }
+
+  /* ── TAB BAR ── */
+  .tab-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    font-family: var(--mono); cursor: pointer; transition: all .15s;
+    background: none; border: 1px solid var(--border2); color: var(--text2);
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { background: rgba(34,211,238,.1); color: var(--cyan2); border-color: rgba(34,211,238,.3); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── FEED CARD ── */
+  .feed-card { padding: 20px; }
+  .feed-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .feed-headline { color: var(--text); font-size: 14px; font-weight: 600; font-family: var(--sans); line-height: 1.4; margin-bottom: 8px; }
+  .feed-body { color: var(--text2); font-size: 12px; line-height: 1.65; font-family: var(--sans); }
+  .impl-list { margin-top: 12px; }
+  .impl-label { color: var(--text4); font-size: 10px; letter-spacing: .1em; margin-bottom: 6px; }
+  .impl-item { display: flex; gap: 8px; font-size: 12px; color: var(--text2); font-family: var(--sans); margin-bottom: 4px; }
+  .impl-arrow { color: var(--cyan); flex-shrink: 0; }
+  .source-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .source-label { color: var(--text4); font-size: 10px; letter-spacing: .1em; }
+  .source-link { color: var(--cyan); font-size: 11px; text-decoration: underline; text-underline-offset: 3px; word-break: break-all; }
+  .source-link:hover { color: var(--cyan2); }
+
+  /* ── BRIEF ── */
+  .brief-card { padding: 24px; }
+  .brief-label { color: var(--cyan); font-size: 10px; letter-spacing: .15em; margin-bottom: 12px; }
+  .brief-title { color: var(--text); font-size: 17px; font-weight: 600; font-family: var(--sans); margin-bottom: 16px; }
+  .brief-para { color: var(--text2); font-size: 13px; line-height: 1.7; font-family: var(--sans); margin-bottom: 16px; }
+  .brief-block { border-left: 2px solid; padding-left: 14px; margin-bottom: 16px; }
+  .brief-block.cyan-block  { border-color: rgba(34,211,238,.4); }
+  .brief-block.red-block   { border-color: rgba(248,113,113,.4); }
+  .brief-block.amber-block { border-color: rgba(251,191,36,.4); }
+  .brief-block.blue-block  { border-color: rgba(96,165,250,.4); }
+  .brief-block-title { color: var(--text); font-size: 13px; font-weight: 600; font-family: var(--sans); margin-bottom: 6px; }
+  .brief-block-body  { color: var(--text2); font-size: 12px; line-height: 1.65; font-family: var(--sans); }
+  .watch-box { background: rgba(30,42,66,.5); border: 1px solid var(--border2); border-radius: 6px; padding: 12px 14px; margin-top: 16px; }
+  .watch-title { color: var(--text); font-size: 12px; font-weight: 600; font-family: var(--sans); margin-bottom: 8px; }
+  .watch-item { display: flex; gap: 8px; font-size: 12px; color: var(--text2); font-family: var(--sans); margin-bottom: 5px; }
+
+  /* ── ACTION TRACKER ── */
+  .action-card { padding: 16px; }
+  .action-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .action-title { color: var(--text); font-size: 13px; font-weight: 500; font-family: var(--sans); }
+  .action-rationale { color: var(--text3); font-size: 11px; margin-top: 5px; font-family: var(--sans); }
+
+  /* ── REGULATION ── */
+  .reg-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .reg-btn {
+    padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    font-family: var(--mono); cursor: pointer; transition: all .15s;
+    background: none; border: 1px solid var(--border2); color: var(--text2);
+  }
+  .reg-btn:hover { color: var(--text); }
+  .reg-btn.active { background: rgba(251,191,36,.1); color: #fcd34d; border-color: rgba(251,191,36,.3); }
+  .reg-detail { display: none; }
+  .reg-detail.active { display: block; }
+  .reg-overview { padding: 20px; }
+  .reg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .reg-name { color: var(--text); font-size: 15px; font-weight: 600; font-family: var(--sans); }
+  .reg-body { color: var(--text2); font-size: 12px; line-height: 1.65; font-family: var(--sans); }
+  .timeline { padding: 16px; }
+  .tl-label { color: var(--text3); font-size: 10px; letter-spacing: .1em; margin-bottom: 14px; }
+  .tl-item { display: flex; gap: 12px; margin-bottom: 0; }
+  .tl-track { display: flex; flex-direction: column; align-items: center; }
+  .tl-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .tl-dot.milestone { background: var(--cyan); }
+  .tl-dot.current   { background: var(--amber); }
+  .tl-dot.process   { background: #475569; }
+  .tl-dot.future    { background: #334155; border: 1px solid #475569; }
+  .tl-line { width: 1px; flex: 1; background: var(--border2); margin-top: 2px; min-height: 20px; }
+  .tl-content { padding-bottom: 14px; }
+  .tl-date { font-size: 10px; font-family: var(--mono); }
+  .tl-date.milestone { color: var(--cyan); }
+  .tl-date.current   { color: var(--amber); }
+  .tl-date.process, .tl-date.future { color: var(--text4); }
+  .tl-text { color: var(--text2); font-size: 12px; font-family: var(--sans); margin-top: 2px; line-height: 1.5; }
+  .substance-list { padding: 16px; }
+  .substance-item { background: rgba(30,42,66,.6); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; font-size: 11px; color: var(--text2); font-family: var(--sans); margin-bottom: 6px; }
+  .impl-section { padding: 16px; }
+
+  /* ── COMPANY RADAR ── */
+  .company-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  @media(max-width:700px) { .company-grid { grid-template-columns: 1fr 1fr; } }
+  .company-btn {
+    text-align: left; padding: 12px; border-radius: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    cursor: pointer; transition: all .15s;
+  }
+  .company-btn:hover { border-color: var(--border2); }
+  .company-btn.active { background: rgba(30,58,138,.2); border-color: rgba(37,99,235,.4); }
+  .co-name { color: var(--text); font-size: 13px; font-weight: 600; font-family: var(--sans); }
+  .co-country { color: var(--text3); font-size: 11px; margin-top: 2px; }
+  .co-signal { margin-top: 8px; }
+  .company-detail { display: none; }
+  .company-detail.active { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  @media(max-width:800px) { .company-detail.active { grid-template-columns: 1fr; } }
+  .dev-item { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+  .dev-type { flex-shrink: 0; }
+  .dev-date { color: var(--text4); font-size: 10px; }
+  .dev-text { color: var(--text2); font-size: 12px; font-family: var(--sans); margin-top: 3px; line-height: 1.5; }
+
+  /* ── TABLE ── */
+  .intel-table { width: 100%; border-collapse: collapse; }
+  .intel-table tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+  .intel-table tr:hover { background: rgba(255,255,255,.02); }
+  .intel-table td { padding: 12px 14px; vertical-align: top; }
+  .td-title { color: var(--text); font-size: 12px; font-weight: 500; font-family: var(--sans); line-height: 1.4; }
+  .td-meta { color: var(--text3); font-size: 11px; margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; font-family: var(--sans); }
+  .td-date { color: var(--text4); font-size: 11px; white-space: nowrap; }
+
+  /* ── DB FILTER ── */
+  .db-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .db-btn {
+    padding: 5px 12px; border-radius: 5px; font-size: 11px; font-weight: 500;
+    font-family: var(--mono); cursor: pointer; transition: all .15s;
+    background: none; border: 1px solid var(--border2); color: var(--text3);
+  }
+  .db-btn:hover { color: var(--text); }
+  .db-btn.active { background: rgba(51,65,85,.8); color: var(--text); border-color: #475569; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1e2a42; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #253047; }
+
+  /* ── MISC ── */
+  .text-cyan  { color: var(--cyan);   }
+  .text-red   { color: var(--red);    }
+  .text-amber { color: var(--amber);  }
+  .text-green { color: var(--green);  }
+  .text-blue  { color: var(--blue);   }
+  .text-muted { color: var(--text3);  }
+  .text-dim   { color: var(--text4);  }
+  .font-sans  { font-family: var(--sans); }
+  .font-mono  { font-family: var(--mono); }
+  .fw-600 { font-weight: 600; }
+  .separator { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+  .flex { display: flex; }
+  .flex-wrap { flex-wrap: wrap; }
+  .items-center { align-items: center; }
+  .items-start  { align-items: flex-start; }
+  .justify-between { justify-content: space-between; }
+  .gap-8  { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .small  { font-size: 11px; }
+  .xs     { font-size: 10px; letter-spacing:.06em; }
+  .summary-text { color: var(--text2); font-size: 12px; font-family: var(--sans); line-height: 1.65; }
+
+  /* caution signal */
+  .signal-caution { color: var(--red); font-size: 22px; font-weight: 700; font-family: var(--sans); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
+  <div id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-full">
+        <div class="logo-title">EU-CHEM</div>
+        <div class="logo-sub">INTEL PLATFORM</div>
+      </div>
+      <div class="logo-icon">EC</div>
+    </div>
+    <nav id="nav">
+      <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">▪</span><span class="nav-label">Dashboard</span></button>
+      <button class="nav-btn" data-page="weekly"><span class="nav-icon">📋</span><span class="nav-label">Weekly Intelligence</span></button>
+      <button class="nav-btn" data-page="regulation"><span class="nav-icon">⚖️</span><span class="nav-label">Regulation Monitor</span></button>
+      <button class="nav-btn" data-page="company"><span class="nav-icon">🏭</span><span class="nav-label">Company Radar</span></button>
+      <button class="nav-btn" data-page="capacity"><span class="nav-icon">📊</span><span class="nav-label">Capacity Tracker</span></button>
+      <button class="nav-btn" data-page="technology"><span class="nav-icon">🔬</span><span class="nav-label">Technology Radar</span></button>
+      <button class="nav-btn" data-page="market"><span class="nav-icon">📈</span><span class="nav-label">Market Signals</span></button>
+      <button class="nav-btn" data-page="database"><span class="nav-icon">🗄️</span><span class="nav-label">Intelligence Database</span></button>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="toggle-btn">← Collapse</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ MAIN ═══════════════════════════ -->
+  <div id="main">
+    <div id="topbar">
+      <span id="page-title">Dashboard</span>
+      <div class="topbar-right">
+        <span class="live-label"><span class="live-dot"></span>Live · 17–27 April 2026</span>
+        <span class="badge badge-gray">EU R&amp;D CENTER</span>
+      </div>
+    </div>
+
+    <div id="content">
+
+      <!-- ═══ 1. DASHBOARD ═══ -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header page-header-cyan">
+          <div>
+            <div class="label text-cyan">EXECUTIVE OVERVIEW</div>
+            <h1>EU Chemical Industry — Week 17–27 April 2026</h1>
+          </div>
+          <div style="text-align:right">
+            <div class="xs text-muted">Overall Industry Signal</div>
+            <div class="signal-caution">CAUTION</div>
+          </div>
+        </div>
+
+        <!-- Key Signals -->
+        <div class="section-title">
+          <div class="section-title-row"><div class="section-bar"></div><h2>Key Industry Signals</h2></div>
+          <p>Real-time indicators across strategy, financials and regulation</p>
+        </div>
+        <div class="grid-3 mb-3">
+          <div class="card signal-card" style="background:rgba(127,29,29,.12)"><div class="s-label">TTF Gas (Week Range)</div><div class="s-value" style="color:var(--amber)">€42–47/MWh</div><div class="s-badge"><span class="badge badge-amber">▲▼ Volatile; blockade re-escalation</span></div></div>
+          <div class="card signal-card"><div class="s-label">EU Power Price (avg)</div><div class="s-value">~€78/MWh</div><div class="s-badge"><span class="badge badge-amber">▲ Still 35% above pre-war</span></div></div>
+          <div class="card signal-card"><div class="s-label">Ifo Chemical Confidence</div><div class="s-value" style="color:var(--red)">−25.0</div><div class="s-badge"><span class="badge badge-red">▼ March 2026 low</span></div></div>
+          <div class="card signal-card"><div class="s-label">Near-term Earnings Outlook</div><div class="s-value" style="color:var(--red)">Falling</div><div class="s-badge"><span class="badge badge-red">▼ Full sector under pressure</span></div></div>
+          <div class="card signal-card"><div class="s-label">EU Gas Storage</div><div class="s-value" style="color:var(--red)">~28%</div><div class="s-badge"><span class="badge badge-red">▼ Summer refill at risk</span></div></div>
+          <div class="card signal-card"><div class="s-label">SVHC Candidate List</div><div class="s-value">253</div><div class="s-badge"><span class="badge badge-blue">Feb 2026 update</span></div></div>
+        </div>
+
+        <div class="grid-2 mt-4">
+          <!-- News -->
+          <div>
+            <div class="section-title"><div class="section-title-row"><div class="section-bar"></div><h2>Latest Chemical News</h2></div></div>
+            <div class="space-y">
+              <div class="card news-item"><div class="news-dot" style="background:#f87171"></div><div><div class="news-meta"><span class="badge badge-red">ENERGY</span><span class="news-date">22 Apr 2026</span></div><p class="news-headline">EU to present fertiliser strategy on 19 May as Iran conflict raises costs and trade disruption</p></div></div>
+              <div class="card news-item"><div class="news-dot" style="background:#60a5fa"></div><div><div class="news-meta"><span class="badge badge-blue">POLICY</span><span class="news-date">22 Apr 2026</span></div><p class="news-headline">EU energy response: electricity-tax reform, gas-storage coordination and temporary state-aid flexibility</p></div></div>
+              <div class="card news-item"><div class="news-dot" style="background:#fbbf24"></div><div><div class="news-meta"><span class="badge badge-amber">ENERGY</span><span class="news-date">22 Apr 2026</span></div><p class="news-headline">EU countries deploy national energy-relief measures — site competitiveness may diverge by country</p></div></div>
+              <div class="card news-item"><div class="news-dot" style="background:#34d399"></div><div><div class="news-meta"><span class="badge badge-green">GOVERNANCE</span><span class="news-date">17 Apr 2026</span></div><p class="news-headline">Evonik extends CEO Christian Kullmann to 2030 and appoints Michael Rauch as CFO</p></div></div>
+              <div class="card news-item"><div class="news-dot" style="background:#34d399"></div><div><div class="news-meta"><span class="badge badge-green">SPECIALTY</span><span class="news-date">15 Apr 2026</span></div><p class="news-headline">Nouryon launches new Expancel® microsphere grade for paperboard lightweighting and fiber reduction</p></div></div>
+              <div class="card news-item"><div class="news-dot" style="background:#60a5fa"></div><div><div class="news-meta"><span class="badge badge-blue">REG-SCIENCE</span><span class="news-date">22 Apr 2026</span></div><p class="news-headline">European Commission highlights AI toxicity predictions across 1,250+ species</p></div></div>
+              <div class="card news-item"><div class="news-dot" style="background:#fbbf24"></div><div><div class="news-meta"><span class="badge badge-amber">EARNINGS</span><span class="news-date">30 Apr 2026</span></div><p class="news-headline">BASF Q1 statement is the next key test for pricing power and margin pressure</p></div></div>
+            </div>
+          </div>
+
+          <!-- Alerts + Metrics -->
+          <div>
+            <div class="section-title"><div class="section-title-row"><div class="section-bar"></div><h2>Regulation Alerts</h2></div></div>
+            <div class="space-y mb-3">
+              <div class="card alert-item" style="background:rgba(127,29,29,.12)"><div class="alert-row"><span class="alert-name font-sans">EU Fertiliser Strategy</span><span class="badge badge-red">CRITICAL</span></div><p class="alert-status">Commission plan due 19 May; urea +55% since conflict began</p></div>
+              <div class="card alert-item"><div class="alert-row"><span class="alert-name font-sans">EU Energy-Relief Package</span><span class="badge badge-red">HIGH</span></div><p class="alert-status">Electricity-tax reform, 80% gas-storage refill coordination, temporary state-aid flexibility</p></div>
+              <div class="card alert-item"><div class="alert-row"><span class="alert-name font-sans">PFAS Restriction</span><span class="badge badge-red">HIGH</span></div><p class="alert-status">ECHA draft opinion consultation expected spring 2026</p></div>
+              <div class="card alert-item"><div class="alert-row"><span class="alert-name font-sans">AI Toxicology / REACH Science</span><span class="badge badge-amber">DEADLINE</span></div><p class="alert-status">Commission highlights 16M AI toxicity predictions across 1,250+ species</p></div>
+              <div class="card alert-item"><div class="alert-row"><span class="alert-name font-sans">BASF Q1 Watch</span><span class="badge badge-blue">NEW</span></div><p class="alert-status">Q1 statement due 30 Apr; watch margins, pricing power and Europe site pressure</p></div>
+              <div class="card alert-item"><div class="alert-row"><span class="alert-name font-sans">SVHC Candidate List</span><span class="badge badge-blue">MONITOR</span></div><p class="alert-status">253 substances — updated 4 Feb 2026</p></div>
+            </div>
+
+            <div class="section-title mt-4"><div class="section-title-row"><div class="section-bar"></div><h2>Industry Metrics</h2></div></div>
+            <div class="grid-2">
+              <div class="card metric-card"><div class="metric-label">EU Gas Price (TTF)</div><div class="metric-val">€48.5/MWh <span class="trend-up">▲▲</span></div></div>
+              <div class="card metric-card"><div class="metric-label">EU Power Price</div><div class="metric-val">€98.4/MWh <span class="trend-up">▲</span></div></div>
+              <div class="card metric-card"><div class="metric-label">Ethylene Spread</div><div class="metric-val">€180/t <span class="trend-down">▼</span></div></div>
+              <div class="card metric-card"><div class="metric-label">Auto Production EU</div><div class="metric-val">−4.2% YoY <span class="trend-down">▼</span></div></div>
+              <div class="card metric-card"><div class="metric-label">Construction Output</div><div class="metric-val">−2.8% YoY <span class="trend-down">▼</span></div></div>
+              <div class="card metric-card"><div class="metric-label">Industrial Production</div><div class="metric-val">−0.9% YoY <span class="trend-down">▼</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 2. WEEKLY INTELLIGENCE ═══ -->
+      <div id="page-weekly" class="page">
+        <div class="page-header page-header-cyan" style="margin-bottom:16px">
+          <div>
+            <div class="label text-cyan">WEEKLY INTELLIGENCE REPORT</div>
+            <h1>Week of 17–27 April 2026</h1>
+          </div>
+          <span class="badge badge-green">7 INTELLIGENCE ITEMS</span>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="weekly" data-panel="w-feed">Intelligence Feed</button>
+          <button class="tab-btn" data-tab="weekly" data-panel="w-brief">Executive Brief</button>
+          <button class="tab-btn" data-tab="weekly" data-panel="w-actions">Action Tracker</button>
+        </div>
+
+        <!-- Feed -->
+        <div id="w-feed" class="tab-panel active space-y-lg">
+
+          <div class="card feed-card" style="border-color:rgba(248,113,113,.35);background:rgba(127,29,29,.08)">
+            <div class="feed-meta"><span class="badge badge-red">ENERGY / FERTILISER</span><span class="badge badge-gray">EU Commission</span><span class="xs text-dim">22 Apr 2026</span></div>
+            <div class="feed-headline">EU to present fertiliser strategy on 19 May as Iran conflict raises costs</div>
+            <div class="feed-body">Reuters reported that the European Commission will present a fertiliser action plan on 19 May 2026 in response to rising costs and supply disruption linked to the Iran conflict and near-closure of the Strait of Hormuz. Reuters said the Strait handles around one-third of global fertiliser trade and that urea prices have risen 55% since the war began. EU farmers have so far avoided immediate shortages because of earlier purchases, but the policy signal is significant for chemicals, ammonia and agriculture-linked value chains.</div>
+            <div class="impl-list"><div class="impl-label">STRATEGIC IMPLICATIONS</div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Fertilisers are becoming a central stress point linking chemicals, agriculture, energy security and industrial policy.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Potential upside for domestic fertiliser resilience, low-fossil ammonia, circular nutrients and fertiliser decarbonisation projects.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>19 May plan should be monitored for concrete production, import, subsidy or strategic-reserve measures.</span></div>
+            </div>
+            <div class="source-row"><span class="source-label">SOURCE</span><a class="source-link" href="https://www.reuters.com/business/energy/eu-present-fertiliser-strategy-may-19-iran-conflict-raises-costs-2026-04-22/" target="_blank">Reuters – 22 Apr 2026</a></div>
+          </div>
+
+          <div class="card feed-card" style="border-color:rgba(96,165,250,.25)">
+            <div class="feed-meta"><span class="badge badge-blue">POLICY</span><span class="badge badge-gray">Energy / State Aid</span><span class="xs text-dim">22 Apr 2026</span></div>
+            <div class="feed-headline">EU energy-crisis response moves toward electricity-tax reform, gas-storage coordination and temporary aid</div>
+            <div class="feed-body">Reuters reported that the EU response includes measures to reduce fossil-fuel dependence, amend tax rules to favor electricity over gas, coordinate gas-storage refilling to 80%, and prepare temporary state-aid rules for sectors exposed to fuel and fertiliser cost increases. Higher aid levels may also be allowed for industries facing elevated power bills.</div>
+            <div class="impl-list"><div class="impl-label">STRATEGIC IMPLICATIONS</div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Europe is moving beyond crisis subsidy toward structural electrification of industrial energy use.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Chemical sites may benefit from electricity-tax changes, but eligibility and country implementation will determine real impact.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Supports R&amp;D and capex logic for industrial heat pumps, electric steam, power-to-chemicals and low-carbon process routes.</span></div>
+            </div>
+            <div class="source-row"><span class="source-label">SOURCE</span><a class="source-link" href="https://www.reuters.com/business/energy/europes-response-iran-war-energy-crunch-2026-04-22/" target="_blank">Reuters – 22 Apr 2026</a></div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-amber">ENERGY RELIEF</span><span class="badge badge-gray">Member States</span><span class="xs text-dim">22 Apr 2026</span></div>
+            <div class="feed-headline">EU countries deploy national energy-relief measures — support becoming fragmented</div>
+            <div class="feed-body">Reuters summarized national measures including tax cuts, fuel price caps, direct subsidies, sectoral aid and reserve releases. Spain proposed a €5 billion package including VAT cuts on electricity and sector-specific fuel subsidies, while France, Italy, Poland, Romania, Hungary and Ireland also moved with different relief tools.</div>
+            <div class="impl-list"><div class="impl-label">STRATEGIC IMPLICATIONS</div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Cost relief may differ materially by country, influencing short-term production economics and asset competitiveness.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Companies with multi-country European footprints may adjust operating rates toward more supported sites.</span></div>
+            </div>
+            <div class="source-row"><span class="source-label">SOURCE</span><a class="source-link" href="https://www.reuters.com/sustainability/boards-policy-regulation/what-are-eu-countries-doing-counter-energy-price-rises-2026-04-22/" target="_blank">Reuters – 22 Apr 2026</a></div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-green">GOVERNANCE</span><span class="badge badge-gray">Evonik</span><span class="xs text-dim">17 Apr 2026</span></div>
+            <div class="feed-headline">Evonik extends CEO Christian Kullmann to 2030 and appoints Michael Rauch as CFO</div>
+            <div class="feed-body">Evonik announced that Christian Kullmann will remain CEO until 2030 and that Michael Rauch has been appointed Chief Financial Officer. The decision indicates leadership continuity during a period of cost pressure, portfolio optimization and transformation in European specialty chemicals.</div>
+            <div class="impl-list"><div class="impl-label">STRATEGIC IMPLICATIONS</div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Evonik is likely to maintain continuity in portfolio-management and specialty transformation priorities.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Continue monitoring Evonik in biosurfactants, rhamnolipids, advanced materials, catalysts and animal nutrition.</span></div>
+            </div>
+            <div class="source-row"><span class="source-label">SOURCE</span><a class="source-link" href="https://www.evonik.com/en.html" target="_blank">Evonik Press Release – 17 Apr 2026</a></div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-green">SPECIALTY / PACKAGING</span><span class="badge badge-gray">Nouryon</span><span class="xs text-dim">15 Apr 2026</span></div>
+            <div class="feed-headline">Nouryon launches Expancel® microsphere grade for paperboard lightweighting</div>
+            <div class="feed-body">Nouryon introduced a new Expancel® microsphere grade to boost bulk and reduce fiber use in paperboard production. Although published just before the formal period, it is the most recent relevant Nouryon product signal entering this week.</div>
+            <div class="impl-list"><div class="impl-label">STRATEGIC IMPLICATIONS</div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Lightweighting and resource-efficiency additives remain key packaging innovation routes under EU circularity pressure.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Relevant watch area for packaging materials, paperboard substitution and fiber-efficiency technologies.</span></div>
+            </div>
+            <div class="source-row"><span class="source-label">SOURCE</span><a class="source-link" href="https://www.nouryon.com/news-and-events/news-overview/" target="_blank">Nouryon Press Release – 15 Apr 2026</a></div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-blue">REGULATORY SCIENCE</span><span class="badge badge-gray">European Commission</span><span class="xs text-dim">22 Apr 2026</span></div>
+            <div class="feed-headline">AI-based toxicity prediction emerges as regulatory-science signal</div>
+            <div class="feed-body">The European Commission highlighted a new AI approach that generated 16 million toxicity predictions across more than 1,250 species. The Commission said this data could help inform policies to reduce chemical pollution impacts on biodiversity.</div>
+            <div class="impl-list"><div class="impl-label">STRATEGIC IMPLICATIONS</div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>Digital toxicology may become increasingly relevant for REACH, product stewardship and early molecule screening.</span></div>
+              <div class="impl-item"><span class="impl-arrow">→</span><span>R&amp;D teams should monitor AI-enabled risk assessment for additives, surfactants, monomers and specialty ingredients.</span></div>
+            </div>
+            <div class="source-row"><span class="source-label">SOURCE</span><a class="source-link" href="https://environment.ec.europa.eu/news_en" target="_blank">European Commission – 22 Apr 2026</a></div>
+          </div>
+
+        </div>
+        <!-- Brief -->
+        <div id="w-brief" class="tab-panel">
+          <div class="card brief-card">
+            <div class="brief-label">EXECUTIVE BRIEF — WEEK 17–27 APRIL 2026</div>
+            <div class="brief-title">European Chemical Sector: Policy Support Expands, But Energy and Feedstock Pressure Remain the Core Constraint</div>
+            <p class="brief-para"><strong style="color:var(--text)">Overall Assessment:</strong> The current signal set suggests the European chemical industry is moving further into a policy-supported but cost-constrained model. Energy and feedstock shocks are still driving short-term earnings pressure, while EU and national governments are increasingly using tax, subsidy, storage coordination and state-aid tools to stabilize exposed sectors. However, these tools are defensive and do not fully restore Europe’s structural cost competitiveness against the U.S., Middle East or Asia.</p>
+            <div class="brief-block red-block"><div class="brief-block-title">1. Fertiliser Becomes a Strategic Stress Point</div><div class="brief-block-body">The Commission will present a fertiliser strategy on 19 May after the Iran conflict disrupted trade flows and pushed urea prices up 55%. Fertilisers now sit at the intersection of chemicals, agriculture, energy security and industrial policy. This may accelerate EU support for domestic fertiliser capacity, circular nutrients and low-fossil ammonia.</div></div>
+            <div class="brief-block cyan-block"><div class="brief-block-title">2. EU Energy Policy Moves Toward Electrification and Targeted Aid</div><div class="brief-block-body">The EU response includes electricity-favoring tax reform, 80% gas-storage refilling coordination and temporary state-aid rules for fuel- and fertiliser-exposed sectors. For chemical producers, this supports long-term electrification strategies but may create uneven near-term relief depending on national implementation.</div></div>
+            <div class="brief-block blue-block"><div class="brief-block-title">3. Regulatory Science Is Becoming Digital</div><div class="brief-block-body">The European Commission’s AI toxicity prediction signal is important for R&amp;D and product stewardship. If these tools become integrated into regulatory workflows, early-stage chemical design and screening may need to incorporate digital toxicology much earlier.</div></div>
+            <div class="brief-block amber-block"><div class="brief-block-title">4. Specialty Innovation Remains Selective But Active</div><div class="brief-block-body">This week did not show major new capacity announcements, but Nouryon’s Expancel® paperboard grade reinforces resource efficiency, lightweighting and packaging circularity. Evonik’s leadership continuity also suggests that specialty transformation and portfolio optimization remain intact.</div></div>
+            <div class="watch-box"><div class="watch-title">Key Watch Points — Late April / May 2026</div>
+              <div class="watch-item"><span class="text-cyan">→</span><span>EU fertiliser strategy on 19 May — watch ammonia, low-fossil fertilisers and domestic production measures</span></div>
+              <div class="watch-item"><span class="text-cyan">→</span><span>BASF Q1 statement on 30 April — important test for pricing power, margins and European site pressure</span></div>
+              <div class="watch-item"><span class="text-cyan">→</span><span>EU energy-relief package implementation — electricity-tax reform and state-aid scope for chemical sites</span></div>
+              <div class="watch-item"><span class="text-cyan">→</span><span>AI toxicology and regulatory-science developments — potential implications for REACH data and R&amp;D screening</span></div>
+              <div class="watch-item"><span class="text-cyan">→</span><span>Packaging lightweighting and material-efficiency additives — watch Nouryon, BASF, Amcor and paperboard value chains</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- Actions -->
+        <div id="w-actions" class="tab-panel space-y">
+          <div class="card action-card"><div class="action-meta"><span class="badge badge-red">HIGH</span><span class="badge badge-blue">Policy / Fertiliser</span><span class="badge badge-gray">19 May 2026</span></div><div class="action-title font-sans">Monitor EU fertiliser strategy — domestic capacity, ammonia and circular nutrient measures</div><div class="action-rationale">Reuters reports the Commission will present the plan on 19 May; urea prices have risen 55% since the conflict began and fertiliser security is becoming a chemical-policy priority.</div></div>
+          <div class="card action-card"><div class="action-meta"><span class="badge badge-red">HIGH</span><span class="badge badge-blue">Energy / Competitiveness</span><span class="badge badge-gray">Ongoing</span></div><div class="action-title font-sans">Track EU energy-relief package implementation — electricity-tax reform, gas-storage coordination and state-aid flexibility</div><div class="action-rationale">These measures directly affect energy-intensive chemical-site cost positions and may create country-level divergence across European assets.</div></div>
+          <div class="card action-card"><div class="action-meta"><span class="badge badge-red">HIGH</span><span class="badge badge-blue">Finance / Commercial</span><span class="badge badge-gray">30 Apr 2026</span></div><div class="action-title font-sans">Monitor BASF Q1 2026 statement — pricing power, margin protection and European site pressure</div><div class="action-rationale">BASF remains the most important bellwether for whether price increases are offsetting the current energy and feedstock shock.</div></div>
+          <div class="card action-card"><div class="action-meta"><span class="badge badge-amber">MEDIUM</span><span class="badge badge-blue">R&amp;D / Regulatory Science</span><span class="badge badge-gray">Ongoing</span></div><div class="action-title font-sans">Follow AI toxicology tools — assess implications for REACH dossiers and early molecule screening</div><div class="action-rationale">The Commission highlighted 16M AI toxicity predictions; this may influence future chemical risk assessment and product stewardship practice.</div></div>
+          <div class="card action-card"><div class="action-meta"><span class="badge badge-gray">WATCH</span><span class="badge badge-blue">Packaging / Additives</span><span class="badge badge-gray">Ongoing</span></div><div class="action-title font-sans">Continue monitoring lightweighting and packaging resource-efficiency additives</div><div class="action-rationale">Nouryon’s Expancel® paperboard launch reinforces resource efficiency as a packaging innovation theme under EU circularity pressure.</div></div>
+        </div>
+      </div>
+
+      <!-- ═══ 3. REGULATION MONITOR ═══ -->
+      <div id="page-regulation" class="page">
+        <div class="page-header page-header-amber">
+          <div>
+            <div class="label text-amber">REGULATION MONITOR</div>
+            <h1>EU Chemical Regulatory Tracker</h1>
+          </div>
+        </div>
+
+        <div class="reg-selector">
+          <button class="reg-btn active" data-reg="pfas">PFAS Restriction</button>
+          <button class="reg-btn" data-reg="bpa">BPA Regulation</button>
+          <button class="reg-btn" data-reg="svhc">REACH / SVHC</button>
+          <button class="reg-btn" data-reg="6ppd">6PPD / Tire Chemicals</button>
+        </div>
+
+        <!-- PFAS -->
+        <div id="reg-pfas" class="reg-detail active">
+          <div class="grid-2-1">
+            <div class="space-y-lg">
+              <div class="card reg-overview"><div class="reg-header"><span class="reg-name">PFAS Comprehensive Restriction</span><span class="badge badge-amber">UNDER EVALUATION</span></div><p class="reg-body">The EU is evaluating a comprehensive restriction on per- and polyfluoroalkyl substances (PFAS) under REACH — potentially the largest chemical restriction in history, covering more than 10,000 substances submitted by 5 European countries.</p></div>
+              <div class="card timeline"><div class="tl-label">REGULATORY TIMELINE</div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot milestone"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date milestone">Jan 2023</div><div class="tl-text">5-country restriction proposal submitted (DE, NL, DK, SE, NO)</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot process"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date process">2023–2025</div><div class="tl-text">ECHA public consultation and scientific assessment</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot current"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date current">2025–2026</div><div class="tl-text">RAC (Risk Assessment Committee) evaluation ongoing</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot current"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date current">2025–2026</div><div class="tl-text">SEAC (Socio-Economic Committee) evaluation ongoing</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot future"></div></div><div class="tl-content"><div class="tl-date future">~2027</div><div class="tl-text">Final regulatory decision expected</div></div></div>
+              </div>
+              <div class="card impl-section"><div class="impl-label">IMPLICATIONS FOR CHEMICAL COMPANIES</div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Fluorinated polymers: PTFE, PVDF may be affected with use-specific exemptions</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Surfactants: fluorosurfactants face broad restriction</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Semiconductor / medical devices: likely temporary exemptions (5–12 yr)</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Battery materials: fluorinated binders (PVDF) under scrutiny</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Companies must begin substitution R&amp;D now given 2027 timeline</span></div>
+              </div>
+            </div>
+            <div class="space-y-lg">
+              <div class="card substance-list"><div class="impl-label mb-2">KEY SUBSTANCES</div>
+                <div class="substance-item">PFOA</div><div class="substance-item">PFOS</div><div class="substance-item">PFHxS</div><div class="substance-item">PFNA</div><div class="substance-item">GenX</div><div class="substance-item">PFBA</div><div class="substance-item">10,000+ total PFAS</div>
+              </div>
+              <div class="card substance-list"><div class="impl-label mb-2">OFFICIAL SOURCES</div>
+                <a class="source-link" href="https://echa.europa.eu/hot-topics/perfluoroalkyl-chemicals-pfas" target="_blank">ECHA PFAS restriction proposal</a>
+                <div class="text-dim xs mt-3">echa.europa.eu</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BPA -->
+        <div id="reg-bpa" class="reg-detail">
+          <div class="grid-2-1">
+            <div class="space-y-lg">
+              <div class="card reg-overview"><div class="reg-header"><span class="reg-name">BPA Food Contact Materials Ban</span><span class="badge badge-amber">PHASE-IN ACTIVE</span></div><p class="reg-body">The EU passed legislation in 2025 banning BPA in food contact materials, following EFSA's 2023 risk assessment. Applies to packaging, can coatings, beverage containers and kitchenware. Transition periods range from 18 to 36 months depending on application.</p></div>
+              <div class="card timeline"><div class="tl-label">REGULATORY TIMELINE</div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot milestone"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date milestone">2023</div><div class="tl-text">EFSA risk assessment — BPA poses immune system risks</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot milestone"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date milestone">2025</div><div class="tl-text">European Commission formally bans BPA in food contact materials</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot current"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date current">2026</div><div class="tl-text">Phase-out begins for general products (18-month transition)</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot future"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date future">2027–2028</div><div class="tl-text">Full phase-out including industrial applications (36-month transition)</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot process"></div></div><div class="tl-content"><div class="tl-date process">Ongoing</div><div class="tl-text">ECHA evaluating group restriction on Bisphenols (BPS, BPF, BPAF)</div></div></div>
+              </div>
+              <div class="card impl-section"><div class="impl-label">IMPLICATIONS FOR CHEMICAL COMPANIES</div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Epoxy resin producers: BPA is key raw material for can coatings</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Polycarbonate: restricted in food-contact applications</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Group restriction risk: BPS/BPF substitutes may also face restriction</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Packaging industry: urgent need for BPA-free coating solutions</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>BPA already on REACH SVHC candidate list (endocrine disruptor, reproductive toxin)</span></div>
+              </div>
+            </div>
+            <div class="space-y-lg">
+              <div class="card substance-list"><div class="impl-label mb-2">KEY SUBSTANCES</div>
+                <div class="substance-item">BPA (Bisphenol A)</div><div class="substance-item">BPS</div><div class="substance-item">BPF</div><div class="substance-item">BPAF</div>
+              </div>
+              <div class="card substance-list"><div class="impl-label mb-2">OFFICIAL SOURCES</div>
+                <a class="source-link" href="https://food.ec.europa.eu/safety/chemical-safety/food-contact-materials/bisphenol_en" target="_blank">European Commission — BPA food contact</a>
+                <br><br>
+                <a class="source-link" href="https://www.efsa.europa.eu/en/topics/topic/bisphenol" target="_blank">EFSA risk assessment</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SVHC -->
+        <div id="reg-svhc" class="reg-detail">
+          <div class="grid-2-1">
+            <div class="space-y-lg">
+              <div class="card reg-overview"><div class="reg-header"><span class="reg-name">REACH / SVHC Candidate List</span><span class="badge badge-red">ACTIVE — UPDATED JAN 2026</span></div><p class="reg-body">ECHA updated the REACH SVHC Candidate List in January 2026. The list now contains 240+ substances of very high concern. Group restriction is becoming the dominant regulatory approach, targeting chemical classes rather than individual substances to avoid regrettable substitution.</p></div>
+              <div class="card timeline"><div class="tl-label">REGULATORY TIMELINE</div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot current"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date current">Jan 2026</div><div class="tl-text">ECHA updates SVHC Candidate List — now 240+ substances</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot milestone"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date milestone">2024</div><div class="tl-text">~2,500 REACH registration dossiers re-evaluated (Cefic annual report)</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot milestone"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date milestone">2024</div><div class="tl-text">73% of dossiers require updated toxicology/environment data</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot process"></div></div><div class="tl-content"><div class="tl-date process">Ongoing</div><div class="tl-text">Shift from single-substance to group restriction (PFAS, Bisphenols, Phthalates)</div></div></div>
+              </div>
+              <div class="card impl-section"><div class="impl-label">IMPLICATIONS FOR CHEMICAL COMPANIES</div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>SVHC listing triggers: ECHA notification, SCIP database registration, supply chain disclosure</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Companies must audit supply chain for candidate list substances</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Group restriction trend increases regulatory risk for entire chemical families</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>73% of REACH dossiers need costly toxicological updates (Annex IX/X testing)</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Regrettable substitution risk: replacing one SVHC with structurally similar substance</span></div>
+              </div>
+            </div>
+            <div class="space-y-lg">
+              <div class="card substance-list"><div class="impl-label mb-2">KEY SUBSTANCE GROUPS</div>
+                <div class="substance-item">Flame retardants (new 2026)</div><div class="substance-item">PFAS-related substances</div><div class="substance-item">Industrial intermediates</div><div class="substance-item">Endocrine disruptors</div>
+              </div>
+              <div class="card substance-list"><div class="impl-label mb-2">OFFICIAL SOURCES</div>
+                <a class="source-link" href="https://echa.europa.eu/candidate-list-table" target="_blank">ECHA SVHC Candidate List</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6PPD -->
+        <div id="reg-6ppd" class="reg-detail">
+          <div class="grid-2-1">
+            <div class="space-y-lg">
+              <div class="card reg-overview"><div class="reg-header"><span class="reg-name">6PPD / Tire Anti-Ozonant Regulation</span><span class="badge badge-blue">EARLY STAGE</span></div><p class="reg-body">6PPD is a widely used tire anti-ozonant. Its transformation product 6PPD-quinone has been identified as highly toxic to aquatic species. ECHA launched a Call for Evidence in late 2025, with the consultation closing 13 February 2026.</p></div>
+              <div class="card timeline"><div class="tl-label">REGULATORY TIMELINE</div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot milestone"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date milestone">Late 2025</div><div class="tl-text">ECHA launches Call for Evidence on 6PPD under REACH</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot current"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date current">13 Feb 2026</div><div class="tl-text">ECHA consultation on 6PPD closes</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot future"></div><div class="tl-line"></div></div><div class="tl-content"><div class="tl-date future">2026–2027</div><div class="tl-text">ECHA evaluates evidence; potential restriction proposal preparation</div></div></div>
+                <div class="tl-item"><div class="tl-track"><div class="tl-dot future"></div></div><div class="tl-content"><div class="tl-date future">TBD</div><div class="tl-text">Possible formal restriction proposal under REACH</div></div></div>
+              </div>
+              <div class="card impl-section"><div class="impl-label">IMPLICATIONS FOR CHEMICAL COMPANIES</div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Tire manufacturers must accelerate alternative anti-ozonant development</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Potential market for substitute anti-ozonant chemical systems</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Covestro, Lanxess and rubber chemical producers should monitor closely</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>Aquatic toxicity concerns may accelerate regulatory timeline</span></div>
+                <div class="impl-item"><span class="impl-arrow">→</span><span>R&amp;D opportunity: novel anti-ozonant systems for tire applications</span></div>
+              </div>
+            </div>
+            <div class="space-y-lg">
+              <div class="card substance-list"><div class="impl-label mb-2">KEY SUBSTANCES</div>
+                <div class="substance-item">6PPD (N-(1,3-dimethylbutyl)-N'-phenyl-p-phenylenediamine)</div><div class="substance-item">6PPD-quinone (transformation product)</div>
+              </div>
+              <div class="card substance-list"><div class="impl-label mb-2">OFFICIAL SOURCES</div>
+                <a class="source-link" href="https://echa.europa.eu/calls-for-comments-and-evidence" target="_blank">ECHA Call for Evidence</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 4. COMPANY RADAR ═══ -->
+      <div id="page-company" class="page">
+        <div class="page-header page-header-blue">
+          <div>
+            <div class="label text-blue">COMPANY RADAR</div>
+            <h1>Top 20 European Chemical Competitors — Strategic Intelligence</h1>
+          </div>
+          <span class="badge badge-blue">20 COMPANIES</span>
+        </div>
+
+        <div class="section-title">
+          <div class="section-title-row"><div class="section-bar"></div><h2>Competitor Monitoring Universe</h2></div>
+          <p>Priority competitors and benchmark companies across PU, petrochemicals, advanced materials, specialties, nutrition and circular polymers.</p>
+        </div>
+
+        <div class="company-grid">
+          <button class="company-btn active" data-co="BASF"><div class="co-name">BASF</div><div class="co-country">Germany</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="Covestro"><div class="co-name">Covestro</div><div class="co-country">Germany</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="Evonik"><div class="co-name">Evonik</div><div class="co-country">Germany</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="Arkema"><div class="co-name">Arkema</div><div class="co-country">France</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="Lanxess"><div class="co-name">Lanxess</div><div class="co-country">Germany</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="INEOS"><div class="co-name">INEOS</div><div class="co-country">United Kingdom</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="Solvay"><div class="co-name">Solvay</div><div class="co-country">Belgium</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="Syensqo"><div class="co-name">Syensqo</div><div class="co-country">Belgium</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="Clariant"><div class="co-name">Clariant</div><div class="co-country">Switzerland</div><div class="co-signal"><span class="badge badge-amber">CAUTION</span></div></button>
+          <button class="company-btn" data-co="Croda-International"><div class="co-name">Croda International</div><div class="co-country">United Kingdom</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="DSM-Firmenich"><div class="co-name">DSM-Firmenich</div><div class="co-country">Netherlands / Switzerland</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="Givaudan"><div class="co-name">Givaudan</div><div class="co-country">Switzerland</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="Avantium"><div class="co-name">Avantium</div><div class="co-country">Netherlands</div><div class="co-signal"><span class="badge badge-green">INNOVATION WATCH</span></div></button>
+          <button class="company-btn" data-co="Neste"><div class="co-name">Neste</div><div class="co-country">Finland</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="Borealis"><div class="co-name">Borealis</div><div class="co-country">Austria</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="TotalEnergies"><div class="co-name">TotalEnergies</div><div class="co-country">France</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+          <button class="company-btn" data-co="SABIC"><div class="co-name">SABIC</div><div class="co-country">Saudi Arabia / Europe</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="LyondellBasell"><div class="co-name">LyondellBasell</div><div class="co-country">Netherlands / US</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="OMV"><div class="co-name">OMV</div><div class="co-country">Austria</div><div class="co-signal"><span class="badge badge-red">HIGH WATCH</span></div></button>
+          <button class="company-btn" data-co="Repsol"><div class="co-name">Repsol</div><div class="co-country">Spain</div><div class="co-signal"><span class="badge badge-blue">MONITOR</span></div></button>
+        </div>
+
+        <!-- BASF -->
+        <div id="co-BASF" class="company-detail active">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">BASF</div><div class="xs text-muted mt-1">Germany · Diversified chemicals / PU / intermediates</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Europe cost pressure, Ludwigshafen decarbonisation, China growth and portfolio restructuring.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Diversified chemicals / PU / intermediates</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Energy/feedstock pressure; Q1 margin and pricing; European capacity rationalisation; lower-PCF intermediates; China Zhanjiang execution.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Q1/Q2 pricing power vs cost inflation</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Further Ludwigshafen restructuring or asset exits</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Industrial heat pump and electrification milestones</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>China Zhanjiang ramp-up and global allocation strategy</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, BASF, ICIS, FT</div>
+          </div>
+        </div>
+
+        <!-- Covestro -->
+        <div id="co-Covestro" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Covestro</div><div class="xs text-muted mt-1">Germany · Polyurethanes / polycarbonates / coatings</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Direct competitor in MDI/TDI, polyols and PC; key signal for PU cycle, BPA pressure and ADNOC ownership strategy.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Polyurethanes / polycarbonates / coatings</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Weak PU demand; BPA food-contact restrictions for PC; investment decisions under ADNOC ownership; circular PU recycling pilots.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>ADNOC integration and European asset strategy</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>PU operating rates and pricing discipline</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>BPA-related PC product requalification</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Chemical recycling / smart pyrolysis scale-up</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, Covestro, ICIS</div>
+          </div>
+        </div>
+
+        <!-- Evonik -->
+        <div id="co-Evonik" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Evonik</div><div class="xs text-muted mt-1">Germany · Specialty chemicals / animal nutrition / biosurfactants</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Important benchmark for specialty transformation, rhamnolipids, methionine and personal-care innovation.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Specialty chemicals / animal nutrition / biosurfactants</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">CEO continuity to 2030; CFO change; specialty innovation in PEEK, biosurfactants and beauty ingredients; methionine pricing discipline.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Animal nutrition / MetAMINO pricing</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Rhamnolipid commercialization progress</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Personal-care ingredient launches</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Portfolio simplification and margin guidance</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, Evonik, C&EN</div>
+          </div>
+        </div>
+
+        <!-- Arkema -->
+        <div id="co-Arkema" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Arkema</div><div class="xs text-muted mt-1">France · Specialty materials / adhesives / advanced polymers</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Relevant competitor in specialty polymers, PEBA, PVDF, adhesives and battery-related materials.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Specialty materials / adhesives / advanced polymers</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Advanced materials positioning; data-center and infrastructure demand; battery binder/PVDF exposure to PFAS debate.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>PEBA and high-performance polymer demand</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Battery materials and PVDF strategy</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Adhesives and coatings M&A moves</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>EU advanced-materials project participation</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Arkema, Reuters, ICIS</div>
+          </div>
+        </div>
+
+        <!-- Lanxess -->
+        <div id="co-Lanxess" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Lanxess</div><div class="xs text-muted mt-1">Germany · Specialty chemicals / additives / intermediates</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Useful restructuring signal for German specialty chemicals and rubber/additive value chains.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Specialty chemicals / additives / intermediates</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Weak outlook; job cuts and price increases; portfolio simplification after Envalior stake-sale uncertainty.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Cost-reduction and job-cut execution</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Additives/intermediates pricing actions</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Envalior / engineering plastics exposure</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Rubber chemical regulation signals including PPDs/6PPD</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, Lanxess, ICIS</div>
+          </div>
+        </div>
+
+        <!-- INEOS -->
+        <div id="co-INEOS" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">INEOS</div><div class="xs text-muted mt-1">United Kingdom · Petrochemicals / PVC / polyolefins</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Major European petrochemical competitor with strong counter-cyclical capacity strategy and debt watchpoints.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Petrochemicals / PVC / polyolefins</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Project One Antwerp progresses; Inovyn/PVC asset review; feedstock strategy based on advantaged ethane.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Project One timeline and commissioning risk</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Inovyn/PVC sale or restructuring</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Debt refinancing and asset disposals</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Polyolefin pricing vs Middle East/US competition</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, company reports, FT</div>
+          </div>
+        </div>
+
+        <!-- Solvay -->
+        <div id="co-Solvay" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Solvay</div><div class="xs text-muted mt-1">Belgium · Essential chemicals / soda ash / peroxide / silica</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Post-spin Solvay is important for upstream essential chemicals, soda ash, peroxide and industrial cost exposure.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Essential chemicals / soda ash / peroxide / silica</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Focus on essential chemistry, cash generation and energy-intensive European assets.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Soda ash pricing and energy exposure</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Peroxide/silica portfolio moves</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>European site competitiveness</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Decarbonisation investment needs</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Solvay, Reuters, ICIS</div>
+          </div>
+        </div>
+
+        <!-- Syensqo -->
+        <div id="co-Syensqo" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Syensqo</div><div class="xs text-muted mt-1">Belgium · Specialty polymers / composites / battery materials</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">High-value specialty player to track for PVDF, composites, specialty surfactants and low-carbon feedstocks.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Specialty polymers / composites / battery materials</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Leadership transformation; Shell low-carbon EO collaboration; UV stabilizer and advanced-material launches.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>PVDF and PFAS-related regulatory exposure</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Low-carbon EO/feedstock partnerships</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Battery and electronics materials strategy</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Composites and aerospace demand recovery</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Syensqo, Reuters, ICIS</div>
+          </div>
+        </div>
+
+        <!-- Clariant -->
+        <div id="co-Clariant" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Clariant</div><div class="xs text-muted mt-1">Switzerland · Catalysts / care chemicals / additives</div></div><span class="badge badge-amber">CAUTION</span></div><p class="summary-text">Important specialty benchmark in catalysts, personal care, additives and margin-protection programs.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Catalysts / care chemicals / additives</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Flat sales outlook and efficiency program show pressure on specialty demand; catalysts remain strategic.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>CHF efficiency-program execution</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Catalysts order book and hydrogen/CO2 projects</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Care chemicals and natural ingredients demand</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Possible portfolio exits</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, Clariant, ICIS</div>
+          </div>
+        </div>
+
+        <!-- Croda International -->
+        <div id="co-Croda-International" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Croda International</div><div class="xs text-muted mt-1">United Kingdom · Life sciences / personal care / specialty ingredients</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Relevant for premium personal-care, bio-based ingredients, pharma excipients and specialty formulation trends.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Life sciences / personal care / specialty ingredients</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Watch for natural, bio-based and high-functionality ingredient innovation.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Personal-care active ingredient pipeline</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Bio-based ingredient claims and certifications</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Life-science margin recovery</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>EU formulation trends after in-cosmetics</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Croda, Reuters, C&EN</div>
+          </div>
+        </div>
+
+        <!-- DSM-Firmenich -->
+        <div id="co-DSM-Firmenich" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">DSM-Firmenich</div><div class="xs text-muted mt-1">Netherlands / Switzerland · Nutrition / fragrance / specialty ingredients</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Key for nutrition, feed additives, ingredients and high-value health/wellness positioning.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Nutrition / fragrance / specialty ingredients</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Animal Nutrition & Health divestment reshapes portfolio; Vitafoods/healthy-aging positioning remains relevant.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>ANH divestment execution and CVC transition</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Human nutrition and healthy-aging solutions</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Feed-additive market and methionine adjacent signals</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Fragrance/beauty ingredient innovation</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: DSM-Firmenich, Reuters</div>
+          </div>
+        </div>
+
+        <!-- Givaudan -->
+        <div id="co-Givaudan" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Givaudan</div><div class="xs text-muted mt-1">Switzerland · Flavors / fragrances / beauty actives</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Relevant for specialty chemicals trends in beauty, wellbeing, natural ingredients and high-value formulation.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Flavors / fragrances / beauty actives</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Track premium ingredient claims, biotechnology, fragrance encapsulation and beauty-actives expansion.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Beauty and wellbeing growth strategy</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Natural and biotech ingredient launches</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Fragrance encapsulation/material innovation</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Margin impact from raw-material inflation</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Givaudan, Reuters, C&EN</div>
+          </div>
+        </div>
+
+        <!-- Avantium -->
+        <div id="co-Avantium" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Avantium</div><div class="xs text-muted mt-1">Netherlands · Bio-based polymers / FDCA / PEF</div></div><span class="badge badge-green">INNOVATION WATCH</span></div><p class="summary-text">Critical European signal for bio-based polymer commercialization and PEF packaging adoption.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Bio-based polymers / FDCA / PEF</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">FDCA/PEF commercialization remains the key watchpoint; execution risk high but strategic relevance strong.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Delfzijl FDCA plant ramp-up</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>PEF customer offtake and licensing</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Cash runway and financing needs</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Packaging qualification vs PET/EVOH alternatives</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Avantium, company releases, C&EN</div>
+          </div>
+        </div>
+
+        <!-- Neste -->
+        <div id="co-Neste" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Neste</div><div class="xs text-muted mt-1">Finland · Renewable feedstocks / chemical recycling / circular polymers</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Important for renewable hydrocarbons, waste-plastic upgrading and circular polymers feedstock strategies.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Renewable feedstocks / chemical recycling / circular polymers</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Liquefied waste plastic upgrading and renewable feedstock integration are key circular-chemistry signals.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Waste-plastic upgrading utilization</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Partnerships with polymer producers</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Renewable feedstock pricing and availability</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Policy incentives for circular carbon</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Neste, Reuters, ICIS</div>
+          </div>
+        </div>
+
+        <!-- Borealis -->
+        <div id="co-Borealis" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Borealis</div><div class="xs text-muted mt-1">Austria · Polyolefins / circular polymers</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Core Europe-linked polyolefin competitor and part of new Borouge Group International structure.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Polyolefins / circular polymers</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Borouge Group International creates scale and feedstock-advantaged competition in polyolefins.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Integration into Borouge Group International</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>European polyolefin asset strategy</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Circular polyolefin and recycling investments</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Premium polyolefin pricing power</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, Borealis, OMV</div>
+          </div>
+        </div>
+
+        <!-- TotalEnergies -->
+        <div id="co-TotalEnergies" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">TotalEnergies</div><div class="xs text-muted mt-1">France · Energy / petrochemicals / polymers</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Integrated energy-chemical player important for polymers, recycling and transition-linked chemical investments.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Energy / petrochemicals / polymers</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Net-zero pathway reassessment shows capital discipline; chemicals remain linked to refining and circular plastics.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Polymer margins and cracker economics</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Chemical recycling scale-up</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Biofuels/renewables allocation vs chemicals</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>European asset rationalisation risk</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, TotalEnergies</div>
+          </div>
+        </div>
+
+        <!-- SABIC -->
+        <div id="co-SABIC" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">SABIC</div><div class="xs text-muted mt-1">Saudi Arabia / Europe · Petrochemicals / engineering plastics / polyolefins</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Non-European origin but major competitor in Europe with feedstock advantage and specialty plastics overlap.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Petrochemicals / engineering plastics / polyolefins</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Middle East feedstock position and European footprint make it a critical competitive benchmark.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>European commercial pricing strategy</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Engineering plastics portfolio moves</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Circular polymers partnerships</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Impact of Middle East supply disruption</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: SABIC, Reuters, ICIS</div>
+          </div>
+        </div>
+
+        <!-- LyondellBasell -->
+        <div id="co-LyondellBasell" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">LyondellBasell</div><div class="xs text-muted mt-1">Netherlands / US · Polyolefins / intermediates / recycling</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Major Europe-based global polyolefin competitor and key signal for circular polymers and cracker rationalisation.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Polyolefins / intermediates / recycling</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Track European asset competitiveness, polyolefin margins and circular/advanced recycling investments.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>European cracker/polyolefin operating rates</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Recycling JV and circular polymer output</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Asset closures or divestments</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Naphtha vs US ethane cost gap</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, LyondellBasell, ICIS</div>
+          </div>
+        </div>
+
+        <!-- OMV -->
+        <div id="co-OMV" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">OMV</div><div class="xs text-muted mt-1">Austria · Energy / chemicals / Borealis / Borouge</div></div><span class="badge badge-red">HIGH WATCH</span></div><p class="summary-text">Strategic because OMV controls Borealis exposure and is central to Borouge Group International.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Energy / chemicals / Borealis / Borouge</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Completion of Borouge Group International strengthens global scale, advantaged feedstock and premium polyolefin strategy.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Borouge Group International integration</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Vienna listing / IPO steps</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Borealis European asset decisions</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Polyolefin premium-product strategy</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Reuters, OMV</div>
+          </div>
+        </div>
+
+        <!-- Repsol -->
+        <div id="co-Repsol" class="company-detail">
+          <div class="space-y-lg">
+            <div class="card reg-overview"><div class="reg-header"><div><div class="reg-name">Repsol</div><div class="xs text-muted mt-1">Spain · Integrated energy / chemicals / circular plastics</div></div><span class="badge badge-blue">MONITOR</span></div><p class="summary-text">Important Spanish competitor and potential ecosystem player for circular plastics and polyolefins.</p></div>
+            <div class="card impl-section"><div class="impl-label mb-3">RECENT / STRATEGIC SIGNALS</div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-blue">PROFILE</span></div><div><div class="dev-date">Strategic relevance</div><div class="dev-text">Integrated energy / chemicals / circular plastics</div></div></div>
+              <div class="dev-item"><div class="dev-type"><span class="badge badge-amber">SIGNAL</span></div><div><div class="dev-date">2026 monitoring</div><div class="dev-text">Refinery integration gives feedstock flexibility; chemical recycling and circular plastics remain strategic.</div></div></div>
+            </div>
+          </div>
+          <div class="card substance-list"><div class="impl-label mb-2">KEY WATCH POINTS</div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Spanish energy relief impact on sites</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Chemical recycling investment scale-up</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Polyolefin margins and demand</span></div>
+            <div class="impl-item"><span class="text-blue">·</span><span>Partnerships in circular plastics value chain</span></div>
+            <hr class="separator">
+            <div class="xs text-dim">SOURCES: Repsol, Reuters, ICIS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 5. CAPACITY TRACKER ═══ -->
+      <div id="page-capacity" class="page">
+        <div class="page-header page-header-green">
+          <div>
+            <div class="label text-green">CAPACITY TRACKER</div>
+            <h1>European Chemical Capacity Intelligence</h1>
+          </div>
+        </div>
+        <div class="grid-3 mb-3">
+          <div class="card metric-card"><div class="metric-label">Naphtha Cracker Utilisation</div><div class="metric-val">72% <span class="trend-down">▼</span></div><div class="xs text-dim mt-1">Below breakeven for many assets</div></div>
+          <div class="card metric-card"><div class="metric-label">PVC Operating Rate EU</div><div class="metric-val">68% <span class="trend-down">▼</span></div><div class="xs text-dim mt-1">Structural overcapacity</div></div>
+          <div class="card metric-card"><div class="metric-label">Polyurethane Demand</div><div class="metric-val">−3.5% YoY <span class="trend-down">▼</span></div><div class="xs text-dim mt-1">Auto &amp; construction weakness</div></div>
+          <div class="card metric-card"><div class="metric-label">Ethylene Capacity (new)</div><div class="metric-val">+1Mt <span style="color:var(--green);font-size:11px">▲</span></div><div class="xs text-dim mt-1">INEOS Project One by ~2028</div></div>
+          <div class="card metric-card"><div class="metric-label">Plant Closures 2024–2026</div><div class="metric-val">15+ sites <span class="trend-down">▼</span></div><div class="xs text-dim mt-1">Across EU chemical sector</div></div>
+          <div class="card metric-card"><div class="metric-label">Investment Announcements</div><div class="metric-val">€6B+ <span style="color:var(--green);font-size:11px">▲</span></div><div class="xs text-dim mt-1">Selective counter-cyclical capex</div></div>
+        </div>
+
+        <div class="card">
+          <div style="padding:12px 16px; border-bottom: 1px solid var(--border)"><span class="summary-text fw-600" style="color:var(--text)">Capacity Event Log — 2024–2026</span></div>
+          <table class="intel-table">
+            <tr><td><span class="badge badge-red">CLOSURE</span></td><td><div class="td-title">BASF — Multiple downstream units (Ludwigshafen)</div><div class="td-meta"><span>Specialty chemicals</span><span>Germany</span></div></td><td class="td-date">2024–2026</td></tr>
+            <tr><td><span class="badge badge-green">INVESTMENT</span></td><td><div class="td-title">INEOS — Project One Steam Cracker (Antwerp)</div><div class="td-meta"><span>Ethylene from US ethane · ~1Mt/yr</span><span>Belgium</span></div></td><td class="td-date">2026–2029</td></tr>
+            <tr><td><span class="badge badge-amber">REVIEW / SALE</span></td><td><div class="td-title">INEOS — Inovyn PVC Division (under review)</div><div class="td-meta"><span>PVC / Chlor-alkali · Large-scale</span><span>Pan-European</span></div></td><td class="td-date">2026</td></tr>
+            <tr><td><span class="badge badge-amber">RESTRUCTURING</span></td><td><div class="td-title">Clariant — Multiple production sites under review</div><div class="td-meta"><span>Specialty chemicals · Partial closures</span><span>Europe</span></div></td><td class="td-date">2025–2026</td></tr>
+            <tr><td><span class="badge badge-green">INVESTMENT</span></td><td><div class="td-title">Repsol — Chemical recycling units</div><div class="td-meta"><span>Circular plastics · Growing capacity</span><span>Spain</span></div></td><td class="td-date">2025–2027</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ 6. TECHNOLOGY RADAR ═══ -->
+      <div id="page-technology" class="page">
+        <div class="page-header page-header-purple">
+          <div>
+            <div class="label text-purple" style="color:var(--purple)">TECHNOLOGY RADAR</div>
+            <h1>Emerging Technologies — European Chemical Industry</h1>
+          </div>
+        </div>
+
+        <div class="space-y-lg">
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-green">SCALING</span><span class="fw-600 font-sans" style="color:var(--text);font-size:14px">Chemical Recycling</span></div>
+            <div class="feed-body">Mechanical recycling reaches limits; chemical recycling (pyrolysis, gasification, solvolysis) gains momentum. Multiple European projects targeting 2026–2028 commercial scale-up. EU packaging regulation is a key regulatory driver.</div>
+            <div class="watch-box mt-3"><div class="xs text-muted mb-1">TREND SIGNAL</div><div class="brief-block-body">Strong investment momentum; regulatory tailwinds from EU packaging regulation. Repsol, BASF and Covestro all have active chemical recycling programmes.</div></div>
+            <div class="impl-label mt-3 mb-1">KEY PLAYERS</div>
+            <div class="flex flex-wrap gap-8">
+              <span class="badge badge-gray">Repsol</span><span class="badge badge-gray">BASF</span><span class="badge badge-gray">Covestro</span><span class="badge badge-gray">LyondellBasell</span>
+            </div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-amber">EARLY COMMERCIAL</span><span class="fw-600 font-sans" style="color:var(--text);font-size:14px">Green Hydrogen</span></div>
+            <div class="feed-body">Hydrogen as chemical feedstock and energy carrier is central to European industrial decarbonisation. Cost reduction is the critical barrier: current green H₂ at €4–6/kg vs grey H₂ at €1–2/kg. The EU industrial electrification strategy will accelerate policy support.</div>
+            <div class="watch-box mt-3"><div class="xs text-muted mb-1">TREND SIGNAL</div><div class="brief-block-body">EU industrial electrification strategy will accelerate policy support and investment decisions for hydrogen in chemicals and steel.</div></div>
+            <div class="impl-label mt-3 mb-1">KEY PLAYERS</div>
+            <div class="flex flex-wrap gap-8">
+              <span class="badge badge-gray">BASF</span><span class="badge badge-gray">Air Liquide</span><span class="badge badge-gray">Linde</span><span class="badge badge-gray">Repsol</span>
+            </div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-green">GROWING</span><span class="fw-600 font-sans" style="color:var(--text);font-size:14px">Battery Materials</span></div>
+            <div class="feed-body">Electrolyte solvents, binders (PVDF), separators and cathode materials are high-growth segments. PFAS restrictions create risk for fluorinated battery materials; alternatives are in active development across European producers.</div>
+            <div class="watch-box mt-3"><div class="xs text-muted mb-1">TREND SIGNAL</div><div class="brief-block-body">EV demand growth despite short-term auto market softness; PFAS substitution R&amp;D is urgent for PVDF-based binders.</div></div>
+            <div class="impl-label mt-3 mb-1">KEY PLAYERS</div>
+            <div class="flex flex-wrap gap-8">
+              <span class="badge badge-gray">Solvay</span><span class="badge badge-gray">Arkema</span><span class="badge badge-gray">BASF</span><span class="badge badge-gray">Lanxess</span>
+            </div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-blue">ESTABLISHED + EVOLVING</span><span class="fw-600 font-sans" style="color:var(--text);font-size:14px">Advanced Catalysis</span></div>
+            <div class="feed-body">Catalysis underpins chemical transformation efficiency. New directions: CO₂ utilisation catalysts, electrochemical catalysis, enzyme-based processes. These are key enablers of net-zero chemical production routes for 2030+.</div>
+            <div class="watch-box mt-3"><div class="xs text-muted mb-1">TREND SIGNAL</div><div class="brief-block-body">CO₂-to-chemicals catalysis is a major research frontier for 2026–2030. BASF and Clariant are both active in next-generation catalyst development.</div></div>
+            <div class="impl-label mt-3 mb-1">KEY PLAYERS</div>
+            <div class="flex flex-wrap gap-8">
+              <span class="badge badge-gray">BASF</span><span class="badge badge-gray">Clariant</span><span class="badge badge-gray">Johnson Matthey</span><span class="badge badge-gray">Umicore</span>
+            </div>
+          </div>
+
+          <div class="card feed-card">
+            <div class="feed-meta"><span class="badge badge-gray">EARLY STAGE</span><span class="fw-600 font-sans" style="color:var(--text);font-size:14px">Circular Materials</span></div>
+            <div class="feed-body">Bio-based feedstocks, biodegradable polymers and circular design are reshaping materials strategy. EU packaging regulation and extended producer responsibility (EPR) schemes are key policy drivers accelerating industry adoption.</div>
+            <div class="watch-box mt-3"><div class="xs text-muted mb-1">TREND SIGNAL</div><div class="brief-block-body">Regulatory pressure (EU packaging regulation) is accelerating industry adoption beyond voluntary commitments.</div></div>
+            <div class="impl-label mt-3 mb-1">KEY PLAYERS</div>
+            <div class="flex flex-wrap gap-8">
+              <span class="badge badge-gray">BASF</span><span class="badge badge-gray">Covestro</span><span class="badge badge-gray">Corbion</span><span class="badge badge-gray">TotalEnergies</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 7. MARKET SIGNALS ═══ -->
+      <div id="page-market" class="page">
+        <div class="page-header page-header-orange">
+          <div>
+            <div class="label" style="color:#fb923c">MARKET SIGNALS</div>
+            <h1>Macro Indicators — European Chemical Industry</h1>
+          </div>
+        </div>
+
+        <div class="grid-2 mb-3">
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-red">ENERGY</span></div><div class="metric-label">TTF Natural Gas (Europe)</div><div class="metric-val" style="font-size:20px">€48.5/MWh <span class="trend-up">▲▲ +28% MoM</span></div><div class="xs text-dim mt-2">Spiked on Middle East supply disruption (Hormuz) — EU storage ~29–31%, well below prior-year 40%</div></div>
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-red">ENERGY</span></div><div class="metric-label">EU Electricity (Wholesale avg)</div><div class="metric-val" style="font-size:20px">€98.4/MWh <span class="trend-up">▲ +8% YoY</span></div><div class="xs text-dim mt-2">Major disadvantage vs US ($40/MWh) and Middle East (&lt;$30/MWh)</div></div>
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-amber">CHEMICALS</span></div><div class="metric-label">Ethylene Margin (NWE)</div><div class="metric-val" style="font-size:20px">€180/t <span class="trend-down">▼ −22% YoY</span></div><div class="xs text-dim mt-2">Naphtha-based cracker margins below breakeven for many operators</div></div>
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-amber">CHEMICALS</span></div><div class="metric-label">Chemical Demand Index EU</div><div class="metric-val" style="font-size:20px">94.1 <span class="trend-down">▼ −1.2% MoM</span></div><div class="xs text-dim mt-2">Broad-based weakness; no clear recovery signal</div></div>
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-red">AUTOMOTIVE</span></div><div class="metric-label">EU Auto Production</div><div class="metric-val" style="font-size:20px">−4.2% YoY <span class="trend-down">▼</span></div><div class="xs text-dim mt-2">Key end market for adhesives, coatings, engineering plastics</div></div>
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-amber">CONSTRUCTION</span></div><div class="metric-label">EU Construction Output</div><div class="metric-val" style="font-size:20px">−2.8% YoY <span class="trend-down">▼</span></div><div class="xs text-dim mt-2">Affects insulation materials, PVC pipes, coatings</div></div>
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-amber">INDUSTRIAL</span></div><div class="metric-label">EU Industrial Production</div><div class="metric-val" style="font-size:20px">−0.9% YoY <span class="trend-down">▼</span></div><div class="xs text-dim mt-2">Broad manufacturing weakness weighing on chemical demand</div></div>
+          <div class="card metric-card" style="padding:16px"><div class="flex items-center gap-8 mb-2"><span class="badge badge-blue">FEEDSTOCKS</span></div><div class="metric-label">Crude Oil (Brent)</div><div class="metric-val" style="font-size:20px">~$98/bbl <span class="trend-up">▲ +41% YoY</span></div><div class="xs text-dim mt-2">Surged on Hormuz disruption — intraday high $101.6; Goldman Sachs raised Q4 forecast to $71/bbl WTI</div></div>
+        </div>
+
+        <div class="card brief-card">
+          <div class="brief-label">MARKET OUTLOOK — Q1/Q2 2026</div>
+          <div class="brief-block red-block"><div class="brief-block-title">Energy — Acute Spike on Middle East Disruption (12 Mar update)</div><div class="brief-block-body">Brent crude surged to ~$98/bbl (intraday high $101.6) and TTF natural gas rose to ~€48.5/MWh on 12 March, driven by the Hormuz Strait disruption cutting ~6M bbl/day of Middle East supply. EU gas storage stands at ~29–31%, well below last year's 40%. The EU is now exploring direct gas-price subsidies or a cap (Reuters, 11 Mar) — a stronger intervention than earlier energy-tax relief discussions. High energy costs remain the primary driver of European chemical plant closures and VCI's 12 March outlook downgrade.</div></div>
+    <div class="brief-block amber-block"><div class="brief-block-title">Energy Prices Table — Key Commodities (12 March 2026)</div><div class="brief-block-body">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono);margin-top:8px">
+        <thead><tr style="color:var(--cyan);border-bottom:1px solid var(--border2)">
+          <th style="text-align:left;padding:4px 8px">COMMODITY</th>
+          <th style="text-align:right;padding:4px 8px">PRICE</th>
+          <th style="text-align:right;padding:4px 8px">1D CHG</th>
+          <th style="text-align:right;padding:4px 8px">YTD CHG</th>
+        </tr></thead>
+        <tbody style="color:var(--text2)">
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">WTI Crude Oil</td><td style="text-align:right;padding:4px 8px">~$93.0/bbl</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+6.5%</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+39%</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">Brent Crude</td><td style="text-align:right;padding:4px 8px">~$98.3/bbl</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+6.8%</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+41%</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">TTF Natural Gas</td><td style="text-align:right;padding:4px 8px">~€48.5/MWh</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+8–10%</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+11%</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">UK NBP Gas</td><td style="text-align:right;padding:4px 8px">~133 p/therm</td><td style="text-align:right;padding:4px 8px;color:var(--green)">elevated</td><td style="text-align:right;padding:4px 8px">above prior yr</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">US Henry Hub Gas</td><td style="text-align:right;padding:4px 8px">~$3.16/MMBtu</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+4.7%</td><td style="text-align:right;padding:4px 8px;color:var(--red)">−22.9%</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">Naphtha (ARA)</td><td style="text-align:right;padding:4px 8px">~$715/t</td><td style="text-align:right;padding:4px 8px;color:var(--red)">−3.4%</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+46%</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">Propane</td><td style="text-align:right;padding:4px 8px">~$0.73/gal</td><td style="text-align:right;padding:4px 8px;color:var(--red)">−5.1%</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+12%</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">Methanol</td><td style="text-align:right;padding:4px 8px">~2,700 CNY/t</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+8.0%</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+23% YTD</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">Ethanol</td><td style="text-align:right;padding:4px 8px">~$1.83/gal</td><td style="text-align:right;padding:4px 8px;color:var(--red)">−3.4%</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+13%</td></tr>
+          <tr style="background:rgba(255,255,255,.02)"><td style="padding:4px 8px">Uranium</td><td style="text-align:right;padding:4px 8px">~$87/lb</td><td style="text-align:right;padding:4px 8px">±0</td><td style="text-align:right;padding:4px 8px;color:var(--green)">+34%</td></tr>
+        </tbody>
+      </table>
+    </div></div>
+    <div class="brief-block blue-block"><div class="brief-block-title">Industrial Electricity Prices — EU Country Comparison (2025-H1, €/kWh excl. tax, 2500–4999 MWh band)</div><div class="brief-block-body">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono);margin-top:8px">
+        <thead><tr style="color:var(--cyan);border-bottom:1px solid var(--border2)">
+          <th style="text-align:left;padding:4px 8px">COUNTRY</th>
+          <th style="text-align:right;padding:4px 8px">2024-H1</th>
+          <th style="text-align:right;padding:4px 8px">2024-H2</th>
+          <th style="text-align:right;padding:4px 8px">2025-H1</th>
+        </tr></thead>
+        <tbody style="color:var(--text2)">
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">🇩🇪 Germany</td><td style="text-align:right;padding:4px 8px">0.2806</td><td style="text-align:right;padding:4px 8px">0.2797</td><td style="text-align:right;padding:4px 8px;color:var(--amber)">0.2598</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">🇫🇷 France</td><td style="text-align:right;padding:4px 8px">0.2219</td><td style="text-align:right;padding:4px 8px">0.2223</td><td style="text-align:right;padding:4px 8px;color:var(--green)">0.1897</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">🇮🇹 Italy</td><td style="text-align:right;padding:4px 8px">0.2451</td><td style="text-align:right;padding:4px 8px">0.2232</td><td style="text-align:right;padding:4px 8px;color:var(--amber)">0.2458</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">🇪🇸 Spain</td><td style="text-align:right;padding:4px 8px">0.1841</td><td style="text-align:right;padding:4px 8px">0.1882</td><td style="text-align:right;padding:4px 8px;color:var(--green)">0.1807</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">🇳🇱 Netherlands</td><td style="text-align:right;padding:4px 8px">0.2900</td><td style="text-align:right;padding:4px 8px">0.2544</td><td style="text-align:right;padding:4px 8px;color:var(--amber)">0.2660</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">🇧🇪 Belgium</td><td style="text-align:right;padding:4px 8px">0.2405</td><td style="text-align:right;padding:4px 8px">0.2465</td><td style="text-align:right;padding:4px 8px;color:var(--red)">0.2758</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">🇦🇹 Austria</td><td style="text-align:right;padding:4px 8px">0.2946</td><td style="text-align:right;padding:4px 8px">0.2678</td><td style="text-align:right;padding:4px 8px;color:var(--amber)">0.2578</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">🇵🇱 Poland</td><td style="text-align:right;padding:4px 8px">0.1035</td><td style="text-align:right;padding:4px 8px">0.1399</td><td style="text-align:right;padding:4px 8px;color:var(--green)">0.1480</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">🇮🇪 Ireland</td><td style="text-align:right;padding:4px 8px">0.3856</td><td style="text-align:right;padding:4px 8px">0.3729</td><td style="text-align:right;padding:4px 8px;color:var(--green)">0.3492</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">🇫🇮 Finland</td><td style="text-align:right;padding:4px 8px">0.1782</td><td style="text-align:right;padding:4px 8px">0.1629</td><td style="text-align:right;padding:4px 8px;color:var(--green)">0.1564</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 8px">🇸🇪 Sweden</td><td style="text-align:right;padding:4px 8px">0.1571</td><td style="text-align:right;padding:4px 8px">0.1507</td><td style="text-align:right;padding:4px 8px;color:var(--amber)">0.1727</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)"><td style="padding:4px 8px">🇳🇴 Norway</td><td style="text-align:right;padding:4px 8px">0.1579</td><td style="text-align:right;padding:4px 8px">0.1462</td><td style="text-align:right;padding:4px 8px;color:var(--amber)">0.1603</td></tr>
+          <tr><td style="padding:4px 8px">🇹🇷 Türkiye</td><td style="text-align:right;padding:4px 8px">0.0434</td><td style="text-align:right;padding:4px 8px">0.0554</td><td style="text-align:right;padding:4px 8px;color:var(--green)">0.0552</td></tr>
+        </tbody>
+      </table>
+      <div style="color:var(--text4);font-size:10px;margin-top:6px">Source: Eurostat. 2025-H2 / 2026-H1 data pending next Eurostat release.</div>
+    </div></div>
+          <div class="brief-block amber-block"><div class="brief-block-title">Demand</div><div class="brief-block-body">No clear recovery signal across key end markets (auto, construction, industrial). Chemical demand likely to remain subdued through H1 2026 with any recovery dependent on downstream market improvement.</div></div>
+          <div class="brief-block blue-block"><div class="brief-block-title">Feedstocks</div><div class="brief-block-body">Moderate oil prices provide partial offset to cost pressures. US ethane-based crackers (INEOS Project One) will have a significant cost advantage vs European naphtha crackers upon commissioning.</div></div>
+          <div class="brief-block cyan-block"><div class="brief-block-title">Structural Outlook</div><div class="brief-block-body">The industry is restructuring through a combination of capacity exits, cost programmes and selective investment in future-oriented assets (recycling, hydrogen, specialties). This is a multi-year transition, not a short-term cycle.</div></div>
+        </div>
+      </div>
+
+      <!-- ═══ 8. INTELLIGENCE DATABASE ═══ -->
+      <div id="page-database" class="page">
+        <div class="page-header page-header-slate">
+          <div>
+            <div class="label text-muted">INTELLIGENCE DATABASE</div>
+            <h1>Long-Term Industry Intelligence Archive</h1>
+          </div>
+        </div>
+
+        <div class="db-filters" id="db-filters">
+          <button class="db-btn active" data-filter="ALL">ALL</button>
+          <button class="db-btn" data-filter="M&A">M&amp;A</button>
+          <button class="db-btn" data-filter="INVESTMENT">INVESTMENT</button>
+          <button class="db-btn" data-filter="RESTRUCTURING">RESTRUCTURING</button>
+          <button class="db-btn" data-filter="REGULATORY">REGULATORY</button>
+          <button class="db-btn" data-filter="INDUSTRY TREND">INDUSTRY TREND</button>
+          <button class="db-btn" data-filter="POLICY">POLICY</button>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <table class="intel-table" id="db-table">
+            <tbody id="db-body"></tbody>
+          </table>
+        </div>
+
+        <div class="grid-4">
+          <div class="card" style="padding:16px;text-align:center"><div class="xs text-muted">M&amp;A</div><div style="font-size:28px;font-weight:700;color:var(--text);margin-top:4px;font-family:var(--sans)">3</div><div class="xs text-dim mt-1">entries</div></div>
+          <div class="card" style="padding:16px;text-align:center"><div class="xs text-muted">INVESTMENT</div><div style="font-size:28px;font-weight:700;color:var(--text);margin-top:4px;font-family:var(--sans)">2</div><div class="xs text-dim mt-1">entries</div></div>
+          <div class="card" style="padding:16px;text-align:center"><div class="xs text-muted">RESTRUCTURING</div><div style="font-size:28px;font-weight:700;color:var(--text);margin-top:4px;font-family:var(--sans)">2</div><div class="xs text-dim mt-1">entries</div></div>
+          <div class="card" style="padding:16px;text-align:center"><div class="xs text-muted">REGULATORY</div><div style="font-size:28px;font-weight:700;color:var(--text);margin-top:4px;font-family:var(--sans)">4</div><div class="xs text-dim mt-1">entries</div></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DB_ENTRIES = [
+  { cat:"M&A",          date:"Feb 2026",    company:"INEOS",                  title:"Exploring Inovyn PVC sale to reduce £18B group debt",                           region:"Europe",      source:"The Guardian", url:"https://www.theguardian.com/business/2026/feb/25/ineos-in-talks-to-sell-parts-of-business-rising-debt-jim-ratcliffe-report" },
+  { cat:"M&A",          date:"2024",        company:"Covestro / ADNOC",       title:"ADNOC acquires Covestro for €11.7B — completed 2024",                           region:"Germany",     source:"ICIS",         url:"#" },
+  { cat:"M&A",          date:"Mar 2026",    company:"Lanxess / Envalior",     title:"Advent abandons purchase of Lanxess ~41% Envalior stake amid market instability", region:"Germany",   source:"Reuters",      url:"https://www.reuters.com/business/lanxess-shares-plunge-after-advent-calls-off-envalior-share-purchase-2026-03-06/" },
+  { cat:"M&A",          date:"Mar–Apr 2026",company:"OMV / ADNOC / Borouge",  title:"Borouge Group International completed — 25% EBITDA margin, 70% low-cost feedstock, Vienna IPO planned", region:"Global/Europe", source:"Reuters", url:"https://www.reuters.com/business/omv-plastics-giant-will-greatly-boost-profits-ceo-says-2026-03-31/" },
+  { cat:"INVESTMENT",   date:"2026",        company:"INEOS",                  title:"Project One €4B steam cracker — Antwerp, Belgium",                              region:"Belgium",     source:"The Times",    url:"https://www.thetimes.com/business/economics/article/jim-ratcliffes-4bn-gamble-on-cash-strapped-ineos-gf3x2t7gf" },
+  { cat:"INVESTMENT",   date:"Mar 2026",    company:"Amcor",                  title:"New recycle-ready high-barrier film line at Lugo di Vicenza, Italy — PPWR compliance driver", region:"Italy", source:"Amcor", url:"https://www.amcor.com/media/news/amcor-plant-expansion-recycle-ready-packaging" },
+  { cat:"INVESTMENT",   date:"Apr 2026",    company:"BASF",                   title:"Industrial heat pump core installed at Ludwigshafen — electrifying steam generation at Europe's largest chemical site", region:"Germany", source:"BASF", url:"https://www.basf.com/global/en/media/news-releases/2026/04/p-26-068" },
+  { cat:"INVESTMENT",   date:"Apr 2026",    company:"Nouryon",                title:"Colloidal silica manufacturing expansion in China for catalysts and advanced coatings", region:"Asia/Europe", source:"Nouryon", url:"https://www.nouryon.com/news-and-events/news-overview/2026/nouryon-expands-china-manufacturing-to-meet-growing-demand-for-premium-colloidal-silica-in-catalysts-and-advanced-coatings" },
+  { cat:"RESTRUCTURING",date:"Feb 2026",    company:"BASF",                   title:"Cost-saving programme raised to €2.3B; EBITDA guidance €6.2–7.0B",              region:"Germany",     source:"Reuters",      url:"https://www.reuters.com/business/basf-says-2026-adjusted-profit-could-slip-or-gain-2026-02-27/" },
+  { cat:"RESTRUCTURING",date:"Feb 2026",    company:"Clariant",               title:"CHF 80M efficiency programme; flat 2026 sales guidance",                        region:"Switzerland", source:"Reuters",      url:"https://www.reuters.com/business/swiss-chemicals-group-clariant-sees-flat-sales-2026-2026-02-26/" },
+  { cat:"RESTRUCTURING",date:"Mar 2026",    company:"VCI / Germany",          title:"VCI cuts 2025 chemical outlook — production to stagnate, sales -1%, no recovery before 2026", region:"Germany", source:"Reuters", url:"https://www.reuters.com/markets/europe/industry-lobby-vci-lowers-german-chemicals-outlook-2025-2025-03-12/" },
+  { cat:"RESTRUCTURING",date:"Mar 2026",    company:"IGBCE / German employers",title:"Chemical union IGBCE defers wage hikes to Jan 2027 — job-security fund established", region:"Germany", source:"Reuters", url:"https://www.reuters.com/business/world-at-work/german-chemical-union-delays-wage-hikes-war-worsens-business-outlook-2026-03-25/" },
+  { cat:"RESTRUCTURING",date:"Apr 2026",    company:"Sector-wide",            title:"Q1 2026 earnings warning: BASF, Brenntag, Evonik, Lanxess, Wacker raising prices; falling Q1 earnings expected", region:"Europe", source:"Reuters", url:"https://www.reuters.com/business/european-chemical-firms-hit-hard-by-iran-war-report-falling-q1-earnings-2026-04-13/" },
+  { cat:"REGULATORY",   date:"Feb 2026",    company:"ECHA",                   title:"SVHC Candidate List updated to 253 entries — 4 Feb 2026",                       region:"EU",          source:"ECHA",         url:"https://echa.europa.eu/candidate-list-table" },
+  { cat:"REGULATORY",   date:"Feb 2026",    company:"ECHA",                   title:"6PPD: Netherlands & Austria preparing Annex XV restriction proposal for PPDs/PDs", region:"EU",        source:"ECHA",         url:"https://echa.europa.eu/calls-for-comments-and-evidence" },
+  { cat:"REGULATORY",   date:"2025",        company:"European Commission",    title:"BPA ban in food contact materials adopted — transition period 2026–2028",        region:"EU",          source:"Eur. Commission",url:"https://food.ec.europa.eu/safety/chemical-safety/food-contact-materials/bisphenol_en" },
+  { cat:"REGULATORY",   date:"2023–2027",   company:"ECHA / 5 countries",     title:"PFAS comprehensive restriction — ECHA draft opinion consultation expected spring 2026", region:"EU",  source:"ECHA",         url:"https://echa.europa.eu/hot-topics/perfluoroalkyl-chemicals-pfas" },
+  { cat:"INDUSTRY TREND",date:"Apr 2026",   company:"Europe / Hormuz",        title:"US blockade of Hormuz from 13 Apr after failed Islamabad talks — TTF volatile €42–47/MWh; 35% above pre-war", region:"Global/Europe", source:"Atlantic Council / Reuters", url:"https://www.atlanticcouncil.org/dispatches/15-charts-that-explain-why-the-strait-of-hormuz-shutdown-matters-for-the-global-economy/" },
+  { cat:"INDUSTRY TREND",date:"Apr 2026",   company:"Arkema",                 title:"Advanced materials for data-center infrastructure — digital infra emerges as specialty growth theme", region:"Europe", source:"Arkema", url:"https://www.arkema.com/global/en/" },
+  { cat:"INDUSTRY TREND",date:"Mar 2026",   company:"Covestro / Fraunhofer",  title:"Smart-pyrolysis 2 kt/year PU recycling pilot — aniline/MDI from rigid foam waste; operational 2028", region:"Germany", source:"Covestro", url:"https://www.covestro.com/press/covestro-and-fraunhofer-umsicht-sign-contract-for-groundbreaking-smart-pyrolysis-recycling-pilot-plant/" },
+  { cat:"POLICY",       date:"Apr 2026",    company:"EU Commission",          title:"EU electricity package draft: electricity-tax cuts, gas-storage coordination, electrification target — expected before summer", region:"EU", source:"Reuters", url:"https://www.reuters.com/sustainability/boards-policy-regulation/war-spurs-eu-plan-electricity-tax-cuts-faster-shift-fossil-fuels-draft-shows-2026-04-14/" },
+  { cat:"POLICY",       date:"Apr 2026",    company:"EU Commission / REsourceEU",title:"EU critical minerals procurement platform launches — rare earths, battery & defence materials first matching round; results Sep 2026", region:"EU", source:"Reuters", url:"https://www.reuters.com/sustainability/climate-energy/eu-launches-operations-critical-minerals-procurement-platform-2026-04-13/" },
+  { cat:"POLICY",       date:"Apr 2026",    company:"5 EU Countries",         title:"DE, IT, ES, PT, AT call for EU-wide windfall tax on energy companies — Commission assessing", region:"EU", source:"Reuters", url:"https://www.reuters.com/sustainability/boards-policy-regulation/five-eu-finance-ministers-call-windfall-profit-tax-energy-companies-2026-04-04/" },
+  { cat:"POLICY",       date:"Mar 2026",    company:"European Commission",    title:"Industrial Accelerator Act proposed — Made-in-EU low-carbon procurement requirements", region:"EU",   source:"Eur. Commission",url:"https://commission.europa.eu/news-and-media/news/commission-proposes-new-measures-boost-eu-industry-and-jobs-2026-03-04_en" },
+  { cat:"POLICY",       date:"Apr 2026",    company:"EU Commission / CINEA",  title:"AI Toxicology / REACH Science Net-Zero Technologies call — €2.9B budget, deadline 23 Apr 2026", region:"EU", source:"CINEA",        url:"https://cinea.ec.europa.eu/funding-opportunities/calls-proposals/innovation-fund-2025-net-zero-technologies-call_en" },
+
+  { cat:"POLICY",       date:"Apr 2026",    company:"EU Commission",          title:"EU fertiliser strategy due 19 May — urea +55% since Iran conflict; Hormuz disruption exposes fertiliser trade risk", region:"EU", source:"Reuters", url:"https://www.reuters.com/business/energy/eu-present-fertiliser-strategy-may-19-iran-conflict-raises-costs-2026-04-22/" },
+  { cat:"POLICY",       date:"Apr 2026",    company:"EU Commission",          title:"Europe energy response: electricity-tax reform, 80% gas-storage coordination and temporary state-aid flexibility", region:"EU", source:"Reuters", url:"https://www.reuters.com/business/energy/europes-response-iran-war-energy-crunch-2026-04-22/" },
+  { cat:"INDUSTRY TREND",date:"Apr 2026",   company:"European Commission",    title:"AI-based toxicity prediction: 16M predictions across 1,250+ species — emerging regulatory-science signal", region:"EU", source:"European Commission", url:"https://environment.ec.europa.eu/news_en" },
+  { cat:"INVESTMENT",   date:"Apr 2026",    company:"Nouryon",                title:"Expancel® microsphere grade for paperboard lightweighting and fiber reduction", region:"Europe / Packaging", source:"Nouryon", url:"https://www.nouryon.com/news-and-events/news-overview/" },
+  { cat:"RESTRUCTURING",date:"Apr 2026",    company:"Evonik",                 title:"CEO Christian Kullmann extended to 2030; Michael Rauch appointed CFO — continuity in specialty transformation agenda", region:"Germany", source:"Evonik", url:"https://www.evonik.com/en.html" },
+];
+
+const CAT_COLOR = {
+  "M&A":"badge-green","INVESTMENT":"badge-blue","RESTRUCTURING":"badge-red",
+  "REGULATORY":"badge-amber","INDUSTRY TREND":"badge-gray","POLICY":"badge-purple"
+};
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+const pageTitles = {
+  dashboard:"Dashboard", weekly:"Weekly Intelligence", regulation:"Regulation Monitor",
+  company:"Company Radar", capacity:"Capacity Tracker", technology:"Technology Radar",
+  market:"Market Signals", database:"Intelligence Database"
+};
+
+document.getElementById("nav").addEventListener("click", e => {
+  const btn = e.target.closest(".nav-btn");
+  if (!btn) return;
+  const page = btn.dataset.page;
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-" + page).classList.add("active");
+  document.getElementById("page-title").textContent = pageTitles[page];
+});
+
+// ── SIDEBAR TOGGLE ────────────────────────────────────────────────────────────
+document.getElementById("toggle-btn").addEventListener("click", () => {
+  const sb = document.getElementById("sidebar");
+  sb.classList.toggle("collapsed");
+  document.getElementById("toggle-btn").textContent = sb.classList.contains("collapsed") ? "→" : "← Collapse";
+});
+
+// ── WEEKLY TABS ───────────────────────────────────────────────────────────────
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".tab-btn");
+  if (!btn) return;
+  const group = btn.dataset.tab;
+  const panel = btn.dataset.panel;
+  btn.closest(".tab-bar").querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  // hide all panels in this section
+  document.querySelectorAll("#page-" + group + " .tab-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById(panel).classList.add("active");
+});
+
+// ── REGULATION SELECTOR ───────────────────────────────────────────────────────
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".reg-btn");
+  if (!btn) return;
+  const reg = btn.dataset.reg;
+  document.querySelectorAll(".reg-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".reg-detail").forEach(d => d.classList.remove("active"));
+  document.getElementById("reg-" + reg).classList.add("active");
+});
+
+// ── COMPANY SELECTOR ──────────────────────────────────────────────────────────
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".company-btn");
+  if (!btn) return;
+  const co = btn.dataset.co;
+  document.querySelectorAll(".company-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".company-detail").forEach(d => d.classList.remove("active"));
+  document.getElementById("co-" + co).classList.add("active");
+});
+
+// ── DATABASE ──────────────────────────────────────────────────────────────────
+function renderDB(filter) {
+  const rows = filter === "ALL" ? DB_ENTRIES : DB_ENTRIES.filter(e => e.cat === filter);
+  const tbody = document.getElementById("db-body");
+  tbody.innerHTML = rows.map(e => `
+    <tr>
+      <td style="width:140px;padding:12px 14px"><span class="badge ${CAT_COLOR[e.cat]||'badge-gray'}">${e.cat}</span></td>
+      <td style="padding:12px 14px">
+        <div class="td-title">${e.title}</div>
+        <div class="td-meta">
+          <span>${e.company}</span><span>·</span><span>${e.region}</span><span>·</span>
+          <a class="source-link" href="${e.url}" target="_blank">${e.source}</a>
+        </div>
+      </td>
+      <td class="td-date" style="padding:12px 14px;white-space:nowrap">${e.date}</td>
+    </tr>`).join("");
+}
+
+document.getElementById("db-filters").addEventListener("click", e => {
+  const btn = e.target.closest(".db-btn");
+  if (!btn) return;
+  document.querySelectorAll(".db-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderDB(btn.dataset.filter);
+});
+
+renderDB("ALL");
+</script>
+</body>
+</html>
