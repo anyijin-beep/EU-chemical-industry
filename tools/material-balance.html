@@ -109,7 +109,8 @@ table.bal td.name{font-weight:600}
 <div id="tabc-input" class="tabc active">
   <div class="hint">
     <b>计算逻辑（与Excel一致）：</b>各装置以「基准主产品」的目标年产量为基准，材料/动力的 <b>目标耗量 = 基准单耗 × 主产品年产量</b>（填写「自定耗量」则直接取该值）；小时量 = 年量 ÷ 年操作小时；综合单耗 = 同名物料总耗量 ÷ 全部装置主产品总产量。<br>
-    <b>上下游联动：</b>若某装置的<b>原料名称</b>与另一装置的<b>产品名称</b>相同，系统自动识别为内部转供（产业链图中自动连线），总平衡中自动抵扣：净采购 = 总消耗 − 内部供应，净外销 = 总产量 − 内部消耗。装置可任意增加，形成串联（上下游）或并联（并列）结构。
+    <b>上下游联动：</b>若某装置的<b>原料名称</b>与另一装置的<b>产品名称</b>相同，系统自动识别为内部转供（产业链图中自动连线），总平衡中自动抵扣：净采购 = 总消耗 − 内部供应，净外销 = 总产量 − 内部消耗。装置可任意增加，形成串联（上下游）或并联（并列）结构。<br>
+    <b>Excel批量粘贴：</b>在Excel中框选多行多列（列顺序与表格一致，如：名称 | 单位 | 单耗 | 自定耗量）复制后，点击表格中任一单元格 <b>Ctrl+V</b>，即自动按行列展开填入，行数不够会自动加行；「⧉ 复制表」可将整表复制回Excel。
   </div>
   <div style="margin-bottom:14px"><button class="btn2" onclick="addPlant()">＋ 添加装置</button></div>
   <div class="plant-grid" id="plantGrid"></div>
@@ -124,7 +125,7 @@ table.bal td.name{font-weight:600}
   <div class="dia-wrap">
     <div class="dia-toolbar">
       <button class="btn2" onclick="downloadSVG()">⇩ 下载SVG图</button>
-      <span style="font-size:12px;color:var(--ink3)">仅显示原料与产品（不含燃料动力）· 同名物料自动连线</span>
+      <span style="font-size:12px;color:var(--ink3)">仅显示原料与产品（不含燃料动力）· 同名物料自动连线 · 数量标注：液/固体按万吨/年，气体按Nm3/h</span>
       <div class="legend">
         <span><span class="lg-line flow"></span>内部转供（上游产品 → 下游原料）</span>
         <span><span class="lg-line"></span>外购原料 / 外销产品</span>
@@ -272,6 +273,8 @@ function computeBalance(){
 
 /* ============ 工具 ============ */
 function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function parseNum(v){ if(v===null||v===undefined) return null;
+  const n = parseFloat(String(v).replace(/[,，\s]/g,"")); return isNaN(n)?null:n; }
 function fmt(n,d=2){ if(!isFinite(n)) return "-"; const r = Math.round(n*10**d)/10**d;
   return r.toLocaleString("zh-CN",{maximumFractionDigits:d}); }
 function fmtU(n){ return fmt(n,4); }
@@ -285,23 +288,23 @@ function renderInput(){
   const linkedNames = linkedMaterialNames();
   g.innerHTML = state.plants.map(p=>{
     const ma = mainAmount(p);
-    const prodRows = p.products.map(r=>`
+    const cell = (kind,ri,ci)=>`data-p="${p.id}" data-k="${kind}" data-r="${ri}" data-c="${ci}"`;
+    const prodRows = p.products.map((r,ri)=>`
       <tr>
-        <td><input value="${esc(r.name)}" placeholder="产品名称" oninput="upd(${p.id},'products',${r.id},'name',this.value)"></td>
-        <td style="width:64px"><input value="${esc(r.unit)}" placeholder="单位" oninput="upd(${p.id},'products',${r.id},'unit',this.value)"></td>
-        <td style="width:58px"><select onchange="upd(${p.id},'products',${r.id},'type',this.value);renderInput()">
+        <td><input class="cell" ${cell("products",ri,0)} value="${esc(r.name)}" placeholder="产品名称" oninput="upd(${p.id},'products',${r.id},'name',this.value)"></td>
+        <td style="width:64px"><input class="cell" ${cell("products",ri,1)} value="${esc(r.unit)}" placeholder="单位" oninput="upd(${p.id},'products',${r.id},'unit',this.value)"></td>
+        <td style="width:58px"><select class="cell" ${cell("products",ri,2)} onchange="upd(${p.id},'products',${r.id},'type',this.value);renderInput()">
           <option ${r.type==="主"?"selected":""}>主</option><option ${r.type==="副"?"selected":""}>副</option></select></td>
-        <td style="width:110px"><input class="num" type="number" step="any" value="${r.amount??""}" placeholder="年产量" oninput="upd(${p.id},'products',${r.id},'amount',+this.value||0)"></td>
+        <td style="width:110px"><input class="num cell" ${cell("products",ri,3)} type="text" inputmode="decimal" value="${r.amount??""}" placeholder="年产量" oninput="upd(${p.id},'products',${r.id},'amount',parseNum(this.value)||0)"></td>
         <td class="rm"><button title="删除" onclick="rmRow(${p.id},'products',${r.id})">✕</button></td>
       </tr>`).join("");
-    const matRows = (kind)=>p[kind].map(r=>{
+    const matRows = (kind)=>p[kind].map((r,ri)=>{
       const cons = rowConsumption(r,p);
-      const isLink = kind==="materials" && linkedNames.has(r.name);
       return `<tr>
-        <td><input value="${esc(r.name)}" placeholder="名称" oninput="upd(${p.id},'${kind}',${r.id},'name',this.value)">${isLink?'':''}</td>
-        <td style="width:60px"><input value="${esc(r.unit)}" placeholder="单位" oninput="upd(${p.id},'${kind}',${r.id},'unit',this.value)"></td>
-        <td style="width:92px"><input class="num" type="number" step="any" value="${r.perUnit??""}" placeholder="单耗" oninput="upd(${p.id},'${kind}',${r.id},'perUnit',this.value===''?0:+this.value)"></td>
-        <td style="width:104px"><input class="num" type="number" step="any" value="${r.override??""}" placeholder="（可选）" oninput="upd(${p.id},'${kind}',${r.id},'override',this.value===''?null:+this.value)"></td>
+        <td><input class="cell" ${cell(kind,ri,0)} value="${esc(r.name)}" placeholder="名称" oninput="upd(${p.id},'${kind}',${r.id},'name',this.value)"></td>
+        <td style="width:60px"><input class="cell" ${cell(kind,ri,1)} value="${esc(r.unit)}" placeholder="单位" oninput="upd(${p.id},'${kind}',${r.id},'unit',this.value)"></td>
+        <td style="width:92px"><input class="num cell" ${cell(kind,ri,2)} type="text" inputmode="decimal" value="${r.perUnit??""}" placeholder="单耗" oninput="upd(${p.id},'${kind}',${r.id},'perUnit',parseNum(this.value)||0)"></td>
+        <td style="width:104px"><input class="num cell" ${cell(kind,ri,3)} type="text" inputmode="decimal" value="${r.override??""}" placeholder="（可选）" oninput="upd(${p.id},'${kind}',${r.id},'override',this.value===''?null:parseNum(this.value))"></td>
         <td class="calc" id="calc-${p.id}-${kind}-${r.id}">${fmt(cons)}</td>
         <td class="rm"><button title="删除" onclick="rmRow(${p.id},'${kind}',${r.id})">✕</button></td>
       </tr>`;}).join("");
@@ -314,19 +317,22 @@ function renderInput(){
       </div>
       <div class="plant-body">
         <div class="sec-title">一、产品 <span class="tag">主产品年产量 = 计算基准${ma?`：${fmt(ma)}`:""}</span>
-          <button class="icon-btn add" onclick="addRow(${p.id},'products')">＋ 行</button></div>
+          <button class="icon-btn add" id="copy-${p.id}-products" onclick="copyTable(${p.id},'products')">⧉ 复制表</button>
+          <button class="icon-btn" onclick="addRow(${p.id},'products')">＋ 行</button></div>
         <table class="inp">
           <tr><th>产品名称</th><th>单位</th><th>主/副</th><th>目标产量/年</th><th></th></tr>
           ${prodRows}
         </table>
         <div class="sec-title">二、原材料
-          <button class="icon-btn add" onclick="addRow(${p.id},'materials')">＋ 行</button></div>
+          <button class="icon-btn add" id="copy-${p.id}-materials" onclick="copyTable(${p.id},'materials')">⧉ 复制表</button>
+          <button class="icon-btn" onclick="addRow(${p.id},'materials')">＋ 行</button></div>
         <table class="inp">
           <tr><th>材料名称</th><th>单位</th><th>基准单耗<br>(单位/单位主产品)</th><th>自定耗量/年<br>(覆盖单耗)</th><th>目标耗量/年</th><th></th></tr>
           ${matRows("materials")}
         </table>
         <div class="sec-title">三、燃料与动力
-          <button class="icon-btn add" onclick="addRow(${p.id},'utilities')">＋ 行</button></div>
+          <button class="icon-btn add" id="copy-${p.id}-utilities" onclick="copyTable(${p.id},'utilities')">⧉ 复制表</button>
+          <button class="icon-btn" onclick="addRow(${p.id},'utilities')">＋ 行</button></div>
         <table class="inp">
           <tr><th>名称</th><th>单位</th><th>基准单耗</th><th>自定耗量/年</th><th>目标耗量/年</th><th></th></tr>
           ${matRows("utilities")}
@@ -382,6 +388,64 @@ function rmPlant(pid){
   state.plants = state.plants.filter(x=>x.id!==pid); save(); renderInput();
 }
 
+/* ===== Excel式批量复制 / 粘贴 ===== */
+const FIELD_MAP = {
+  products:["name","unit","type","amount"],
+  materials:["name","unit","perUnit","override"],
+  utilities:["name","unit","perUnit","override"]
+};
+function newRowOf(kind){
+  return kind==="products"
+    ? {id:nid(),name:"",unit:"吨",type:"副",amount:0}
+    : {id:nid(),name:"",unit:"吨",perUnit:0,override:null};
+}
+function setField(row,kind,field,raw){
+  const v = String(raw).trim();
+  if(field==="name"||field==="unit"){ row[field]=v; return; }
+  if(field==="type"){ if(v.includes("主"))row.type="主"; else if(v.includes("副")||v!=="")row.type="副"; return; }
+  if(field==="amount"){ row.amount = parseNum(v)??0; return; }
+  if(field==="perUnit"){ row.perUnit = parseNum(v)??0; return; }
+  if(field==="override"){ row.override = v===""?null:parseNum(v); return; }
+}
+document.addEventListener("paste",(e)=>{
+  const t = e.target;
+  if(!t || !t.classList || !t.classList.contains("cell")) return;
+  const text = (e.clipboardData||window.clipboardData).getData("text/plain");
+  if(!text || (!text.includes("\t") && !/\r?\n./.test(text))) return; /* 单格粘贴走默认行为 */
+  e.preventDefault();
+  const pid = +t.dataset.p, kind = t.dataset.k, r0 = +t.dataset.r, c0 = +t.dataset.c;
+  const plant = findPlant(pid); if(!plant) return;
+  const fields = FIELD_MAP[kind];
+  const grid = text.replace(/\r/g,"").split("\n").filter((row,i,arr)=>!(i===arr.length-1&&row===""))
+                   .map(row=>row.split("\t"));
+  grid.forEach((rowCells,dr)=>{
+    const ri = r0+dr;
+    while(plant[kind].length<=ri) plant[kind].push(newRowOf(kind));
+    rowCells.forEach((val,dc)=>{
+      const ci = c0+dc;
+      if(ci>=fields.length) return;
+      setField(plant[kind][ri],kind,fields[ci],val);
+    });
+  });
+  save(); renderInput();
+  /* 粘贴后回到原单元格 */
+  const back = document.querySelector(`.cell[data-p="${pid}"][data-k="${kind}"][data-r="${r0}"][data-c="${c0}"]`);
+  if(back) back.focus();
+});
+function copyTable(pid,kind){
+  const p = findPlant(pid);
+  const fields = FIELD_MAP[kind];
+  const tsv = p[kind].map(r=>fields.map(f=>{
+    const v = r[f]; return v===null||v===undefined?"":v;
+  }).join("\t")).join("\n");
+  const ta = document.createElement("textarea");
+  ta.value = tsv; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+  const btn = document.getElementById(`copy-${pid}-${kind}`);
+  if(btn){ const old=btn.textContent; btn.textContent="✓ 已复制"; setTimeout(()=>btn.textContent=old,1200); }
+}
+
 /* ============ 总物料平衡表 ============ */
 function renderBalance(){
   const B = computeBalance();
@@ -435,6 +499,18 @@ function renderBalance(){
 
 /* ============ 产业链图（PPT风格 SVG） ============ */
 const PALETTE = ["#1f5fa8","#2e8b57","#b98a2f","#8e44ad","#c0504d","#16808c","#b8860b","#5b6ee1"];
+/* 数量标注：气体(单位含Nm3/m3)按 Nm3/h；吨→万吨/年；Kg→吨/年；其他按原单位/年 */
+function qtyText(unit, annual){
+  const H = +state.hours||8000;
+  const u = String(unit||"").toLowerCase();
+  if(u.includes("nm3")||u.includes("m3")||u.includes("m³")) return fmt(annual/H,0)+" "+(unit||"Nm3")+"/h";
+  if(u==="吨"||u==="t"){ const w=annual/10000;
+    return w>=0.01 ? fmt(w, w<1?3:2)+" 万吨/年" : fmt(annual,1)+" 吨/年"; }
+  if(u==="kg"||u==="千克"||u==="公斤") return fmt(annual/1000,2)+" 吨/年";
+  return fmt(annual,0)+(unit?" "+unit:"")+"/年";
+}
+/* 估算文本像素宽（中文全宽、其他半宽） */
+function textW(s, fs){ let w=0; for(const ch of String(s)) w += ch.charCodeAt(0)>255 ? fs : fs*0.58; return w; }
 function renderDiagram(){
   const plants = state.plants.filter(p=>p.name);
   /* 连线：上游产品 → 下游原料（仅原料，不含动力，同名匹配，排除自身） */
@@ -460,7 +536,7 @@ function renderDiagram(){
   plants.forEach(p=>calcTier(p.id,new Set()));
 
   /* 布局参数 */
-  const rowH=26, boxW=46, lineW=42, labW=118, padY=16;
+  const rowH=38, boxW=46, lineW=42, labW=150, padY=14;
   const blockW = labW+lineW+boxW+lineW+labW;   /* 单装置区块宽 */
   const gapX=110, gapY=46, x0=20, y0=20;
 
@@ -509,14 +585,18 @@ function renderDiagram(){
       <text x="${boxX+boxW/2}" y="${nameY}" font-size="${fs}" font-weight="700" fill="#1f5fa8" text-anchor="middle" dominant-baseline="middle">${nameT}</text>`;
     mats.forEach((m,i)=>{
       const y = g.matY(i);
-      out += `<text x="${bx+labW-6}" y="${y}" font-size="12" fill="#44576b" text-anchor="end" dominant-baseline="middle">${esc(m.name)}</text>
+      const qty = qtyText(m.unit, rowConsumption(m,p));
+      out += `<text x="${bx+labW-6}" y="${y-6}" font-size="12" fill="#44576b" text-anchor="end" dominant-baseline="middle">${esc(m.name)}</text>
+        <text x="${bx+labW-6}" y="${y+9}" font-size="10" fill="#8a97a8" text-anchor="end" dominant-baseline="middle">${esc(qty)}</text>
         <line x1="${bx+labW}" y1="${y}" x2="${boxX-2}" y2="${y}" stroke="#8a97a8" stroke-width="1.3" marker-end="url(#arrG)"/>`;
     });
     prods.forEach((r,i)=>{
       const y = g.prodY(i);
       const xr = boxX+boxW;
+      const qty = qtyText(r.unit, +r.amount||0);
       out += `<line x1="${xr}" y1="${y}" x2="${xr+lineW-2}" y2="${y}" stroke="#8a97a8" stroke-width="1.3" marker-end="url(#arrG)"/>
-        <text x="${xr+lineW+4}" y="${y}" font-size="12" fill="#1c2733" font-weight="${r.type==="主"?"700":"400"}" dominant-baseline="middle">${esc(r.name)}</text>`;
+        <text x="${xr+lineW+4}" y="${y-6}" font-size="12" fill="#1c2733" font-weight="${r.type==="主"?"700":"400"}" dominant-baseline="middle">${esc(r.name)}</text>
+        <text x="${xr+lineW+4}" y="${y+9}" font-size="10" fill="#8a97a8" dominant-baseline="middle">${esc(qty)}</text>`;
     });
   });
   /* 内部转供连线 */
@@ -526,9 +606,12 @@ function renderDiagram(){
     const pi = gu.prods.findIndex(r=>r.name===l.name);
     const mi = gd.mats.findIndex(r=>r.name===l.name);
     if(pi<0||mi<0) return;
-    const x1 = gu.boxX+boxW+lineW+4 + l.name.length*12 + 6;   /* 产品标签末端 */
+    const pr = gu.prods[pi], mr = gd.mats[mi];
+    const prW = Math.max(textW(pr.name,12), textW(qtyText(pr.unit,+pr.amount||0),10));
+    const mrW = Math.max(textW(mr.name,12), textW(qtyText(mr.unit,rowConsumption(mr,gd.p)),10));
+    const x1 = gu.boxX+boxW+lineW+4 + prW + 8;   /* 产品标签末端 */
     const y1 = gu.prodY(pi);
-    const x2 = gd.bx + labW - 6 - l.name.length*12 - 6;        /* 原料标签起点 */
+    const x2 = gd.bx + labW - 6 - mrW - 8;        /* 原料标签起点 */
     const y2 = gd.matY(mi);
     const c = PALETTE[li%PALETTE.length];
     const midX = (x1+x2)/2;
