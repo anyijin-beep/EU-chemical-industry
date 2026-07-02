@@ -494,6 +494,7 @@
   .senschip button{border:none;background:#d7deea;color:#5a6b85;width:16px;height:16px;border-radius:50%;cursor:pointer;font-size:10px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center}
   .senschip button:hover{background:var(--bad);color:#fff}
   .itbl .nmin{min-width:96px} .itbl .unin{width:54px;text-align:center}
+  .itbl .ownin{width:78px} .itbl .lgin{min-width:96px}
   /* 物料平衡工具（内嵌覆盖层） */
   .mbalwrap{position:fixed;inset:0 0 0 226px;background:var(--paper);display:none;flex-direction:column;z-index:60}
   @media(max-width:880px){.mbalwrap{left:0}}
@@ -992,13 +993,12 @@ function itemTable(title,arr,key,priceMode,noPrice){
   var head='<th>名称</th><th>单位</th><th class="r">基准数量</th>'
     +(noPrice?'':'<th class="r">基准单价(元·不含税)</th>'+(rowPriceMode?'<th>价格方式</th>':''))
     +(fp?'<th class="r">运费</th><th class="r">包装费</th>':'')
-    +'<th class="r">税率</th>'+(resp?'<th>责任</th>':'')+'<th>供销</th><th></th>';
-  var cols=3+(noPrice?0:1)+(rowPriceMode?1:0)+(fp?2:0)+1+(resp?1:0)+1+1;
+    +'<th class="r">税率</th><th>供销</th>'+(resp?'<th>责任人</th><th>取价逻辑</th><th>价格来源</th><th class="r">五年历史最低价</th>':'')+'<th></th>';
+  var cols=3+(noPrice?0:1)+(rowPriceMode?1:0)+(fp?2:0)+1+1+(resp?4:0)+1;
   var body=arr.map(function(it,i){
     var qm=it.qMode==='manual';
     var pm=it.priceMode==='annual';
     var fl=it.internal===1;
-    var ron=resp?(it[resp.flag]!==false):false;
     var tr='<tr>'
       +'<td><input class="basein txt nmin" data-arr="'+key+'" data-i="'+i+'" data-k="name" value="'+it.name+'"></td>'
       +'<td><input class="basein txt unin" data-arr="'+key+'" data-i="'+i+'" data-k="unit" value="'+it.unit+'"></td>'
@@ -1008,8 +1008,11 @@ function itemTable(title,arr,key,priceMode,noPrice){
       +(fp?'<td><input class="basein fpin" data-k="freight" data-arr="'+key+'" data-i="'+i+'" value="'+fmtNum(it.freight!=null?it.freight:0)+'" title="运费 元/单位"></td>'
           +'<td><input class="basein fpin" data-k="packaging" data-arr="'+key+'" data-i="'+i+'" value="'+fmtNum(it.packaging!=null?it.packaging:0)+'" title="包装费 元/单位"></td>':'')
       +'<td><input class="basein" data-arr="'+key+'" data-i="'+i+'" data-k="vat" value="'+fmtNum(it.vat)+'"></td>'
-      +(resp?'<td><button class="respbtn'+(ron?' on':' off')+'" data-resp="'+key+'" data-i="'+i+'" title="是否需要'+(key==='feeds'?'采购':'销售')+'部填报">'+(ron?resp.on:resp.off)+'</button></td>':'')
       +'<td><button class="flagbtn'+(fl?' int':'')+'" data-flag="'+key+'" data-i="'+i+'">'+(fl?'内供/内销':'外供/外销')+'</button></td>'
+      +(resp?'<td><input class="basein txt ownin" data-ownerfield="1" data-arr="'+key+'" data-i="'+i+'" data-k="owner" value="'+((it.owner!=null&&it.owner!=='')?it.owner:'项目经理')+'" title="责任人（默认项目经理，可改为其他人）"></td>'
+          +'<td><input class="basein txt lgin" data-arr="'+key+'" data-i="'+i+'" data-k="priceLogic" value="'+(it.priceLogic||'')+'" placeholder="如：长约/市场均价" title="取价逻辑"></td>'
+          +'<td><input class="basein txt lgin" data-arr="'+key+'" data-i="'+i+'" data-k="priceSource" value="'+(it.priceSource||'')+'" placeholder="如：卓创/隆众" title="价格来源"></td>'
+          +'<td><input class="basein" data-arr="'+key+'" data-i="'+i+'" data-k="histLow" value="'+(it.histLow!=null?fmtNum(it.histLow):'')+'" title="五年历史最低价（元·不含税）"></td>':'')
       +'<td><button class="delrow" data-del="'+key+'" data-i="'+i+'" title="删除">✕</button></td>'
       +'</tr>';
     var pan=annualPanel(key,i,it);
@@ -1346,7 +1349,7 @@ function pasteAnnual(arr,i0,yk,y0,grid){
 function pasteBase(arr,i0,k,grid){
   var list=STATE[arr];
   var vals=grid.length===1?grid[0]:grid.map(function(r){return r[0];}); // 竖向整列填充各项
-  var txt=(k==='name'||k==='unit');
+  var txt=(k==='name'||k==='unit'||k==='owner'||k==='priceLogic'||k==='priceSource');
   for(var r=0;r<vals.length;r++){var it=list[i0+r];if(!it)break;
     if(txt){it[k]=String(vals[r]);}
     else{var nv=parseFloat(vals[r]); if(!isNaN(nv))it[k]=nv;}}
@@ -1472,7 +1475,8 @@ function wireInput(){
   Array.prototype.forEach.call(c.querySelectorAll('input[data-arr][data-k]'),function(inp){
     inp.addEventListener('input',function(){
       var arr=inp.getAttribute('data-arr'),i=+inp.getAttribute('data-i'),k=inp.getAttribute('data-k');
-      if(k==='name'||k==='unit'){STATE[arr][i][k]=inp.value;liveUpdate();return;}
+      if(k==='name'||k==='unit'||k==='owner'||k==='priceLogic'||k==='priceSource'){STATE[arr][i][k]=inp.value;liveUpdate();return;}
+      if(k==='histLow'&&inp.value.trim()===''){STATE[arr][i][k]=null;return;}
       var v=parseFloat(inp.value); if(isNaN(v))return;
       STATE[arr][i][k]=v; liveUpdate();
     });
@@ -2267,7 +2271,7 @@ function applyGating(){
       Array.prototype.forEach.call(sec.querySelectorAll('input,button,select,textarea'),function(el){
         var i=el.getAttribute&&el.getAttribute('data-i');
         var o='pm';
-        if(el.hasAttribute('data-resp')||el.hasAttribute('data-add')||el.hasAttribute('data-batch')||el.hasAttribute('data-del')) o='pm'; // 结构/责任分配
+        if(el.hasAttribute('data-resp')||el.hasAttribute('data-ownerfield')||el.hasAttribute('data-add')||el.hasAttribute('data-batch')||el.hasAttribute('data-del')) o='pm'; // 结构/责任分配
         else if(i!=null) o=itemOwner(+i);   // 行内值字段/方式/年度
         setEditable(el,canEditOwner(o));
       });
