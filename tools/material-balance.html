@@ -74,8 +74,19 @@ table.bal td.name{font-weight:600}
 .legend span{display:flex;align-items:center;gap:5px}
 .lg-line{display:inline-block;width:26px;height:0;border-top:2px solid #999}
 .lg-line.flow{border-top:2.5px solid var(--blue2)}
+/* project bar & modal */
+.projbar{background:#0e2a47;color:#dce7f3;padding:9px 28px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;border-top:1px solid rgba(255,255,255,.08)}
+.projbar input#projName{width:220px;padding:6px 10px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:4px;font-family:inherit;font-size:13px}
+.btn.small{padding:5px 12px;font-size:12px}
+.modal-mask{position:fixed;inset:0;background:rgba(8,22,40,.5);display:none;z-index:50}
+.modal{position:fixed;top:9%;left:50%;transform:translateX(-50%);width:min(720px,94vw);max-height:80vh;overflow:auto;background:#fff;border-radius:10px;box-shadow:0 24px 70px rgba(0,0,0,.35);z-index:51;display:none}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);font-weight:700;color:var(--ink)}
+.modal-body{padding:16px 20px}
+table.proj{width:100%;border-collapse:collapse;font-size:13px}
+table.proj th{background:#f0f5fa;color:var(--ink2);padding:8px 10px;border:1px solid var(--line);font-size:12px}
+table.proj td{padding:8px 10px;border:1px solid var(--line)}
 @media print{
-  .topbar .toolbar,.tabs,.dia-toolbar,.hint,.icon-btn,.sec-title .add,td.rm{display:none!important}
+  .topbar .toolbar,.tabs,.dia-toolbar,.hint,.icon-btn,.sec-title .add,td.rm,.projbar,.modal,.modal-mask{display:none!important}
   body{background:#fff}
   .tabc{display:block!important;page-break-before:always}
   .page{max-width:none;padding:10px}
@@ -96,6 +107,21 @@ table.bal td.name{font-weight:600}
     <button class="btn" onclick="window.print()">🖨 打印</button>
     <button class="btn" onclick="resetDemo()">↺ 重置示例</button>
   </div>
+</div>
+
+<div class="projbar">
+  <span>📁 当前项目</span>
+  <input id="projName" placeholder="未命名项目">
+  <button class="btn small" onclick="newProject()">＋ 新建项目</button>
+  <button class="btn small" onclick="saveProject()">💾 保存项目</button>
+  <button class="btn small" onclick="openProjList()">🗂 项目列表（<span id="projCount">0</span>）</button>
+  <button class="btn small" onclick="clearData()">🗑 清除数据（不保存）</button>
+  <span id="projStatus" style="opacity:.75;font-size:12px"></span>
+</div>
+<div class="modal-mask" id="projMask" onclick="closeProjList()"></div>
+<div class="modal" id="projModal">
+  <div class="modal-head">🗂 已保存的项目 <button class="icon-btn" onclick="closeProjList()">✕ 关闭</button></div>
+  <div class="modal-body" id="projListBody"></div>
 </div>
 
 <div class="tabs">
@@ -124,6 +150,8 @@ table.bal td.name{font-weight:600}
 <div id="tabc-chain" class="tabc">
   <div class="dia-wrap">
     <div class="dia-toolbar">
+      <button class="btn2" onclick="downloadPPTX()">⇩ 下载PPT（可编辑）</button>
+      <button class="btn2" onclick="downloadXLSX()">⇩ 下载Excel（可编辑）</button>
       <button class="btn2" onclick="downloadSVG()">⇩ 下载SVG图</button>
       <span style="font-size:12px;color:var(--ink3)">仅显示原料与产品（不含燃料动力）· 同名物料自动连线 · 数量标注：液/固体按万吨/年，气体按Nm3/h</span>
       <div class="legend">
@@ -147,6 +175,7 @@ const nid = () => uid++;
 function demoState(){
   return {
     hours: 8000,
+    projectName: "示例项目：醋酸酯类一体化",
     plants: [
       { id:nid(), name:"醋酸装置（示例上游）",
         products:[
@@ -511,7 +540,7 @@ function qtyText(unit, annual){
 }
 /* 估算文本像素宽（中文全宽、其他半宽） */
 function textW(s, fs){ let w=0; for(const ch of String(s)) w += ch.charCodeAt(0)>255 ? fs : fs*0.58; return w; }
-function renderDiagram(){
+function diagramGeometry(){
   const plants = state.plants.filter(p=>p.name);
   /* 连线：上游产品 → 下游原料（仅原料，不含动力，同名匹配，排除自身） */
   const links = [];
@@ -536,9 +565,8 @@ function renderDiagram(){
   plants.forEach(p=>calcTier(p.id,new Set()));
 
   /* 布局参数 */
-  const rowH=38, boxW=46, lineW=42, labW=150, padY=14;
-  const blockW = labW+lineW+boxW+lineW+labW;   /* 单装置区块宽 */
-  const gapX=110, gapY=46, x0=20, y0=20;
+  const P = {rowH:38, boxW:46, lineW:42, labW:150, padY:14, gapX:110, gapY:46, x0:20, y0:20};
+  P.blockW = P.labW+P.lineW+P.boxW+P.lineW+P.labW;   /* 单装置区块宽 */
 
   const cols = new Map();
   plants.forEach(p=>{ const t=tier.get(p.id)||0; if(!cols.has(t)) cols.set(t,[]); cols.get(t).push(p); });
@@ -548,25 +576,30 @@ function renderDiagram(){
   let svgH = 0;
   for(let t=0;t<=maxTier;t++){
     const list = cols.get(t)||[];
-    let y = y0;
+    let y = P.y0;
     list.forEach(p=>{
       const mats = p.materials.filter(r=>r.name);
       const prods = p.products.filter(r=>r.name);
       const rows = Math.max(mats.length, prods.length, 2);
       const nameLen = [...p.name].length;
-      const h = Math.max(rows*rowH + padY*2, nameLen*15 + 26, 96);
-      const bx = x0 + t*(blockW+gapX);
+      const h = Math.max(rows*P.rowH + P.padY*2, nameLen*15 + 26, 96);
+      const bx = P.x0 + t*(P.blockW+P.gapX);
       const by = y;
-      const rowsTop = by + (h - rows*rowH)/2;   /* 行区在框内垂直居中 */
+      const rowsTop = by + (h - rows*P.rowH)/2;   /* 行区在框内垂直居中 */
       geo.set(p.id,{p,bx,by,h,mats,prods,
-        boxX: bx+labW+lineW, boxY:by,
-        matY: i=> rowsTop + i*rowH + rowH/2,
-        prodY:i=> rowsTop + i*rowH + rowH/2 });
-      y += h + gapY;
+        boxX: bx+P.labW+P.lineW, boxY:by,
+        matY: i=> rowsTop + i*P.rowH + P.rowH/2,
+        prodY:i=> rowsTop + i*P.rowH + P.rowH/2 });
+      y += h + P.gapY;
     });
     svgH = Math.max(svgH, y);
   }
-  const svgW = x0 + (maxTier+1)*(blockW+gapX) - gapX + 20;
+  const svgW = P.x0 + (maxTier+1)*(P.blockW+P.gapX) - P.gapX + 20;
+  return {plants, links, geo, svgW, svgH, P};
+}
+function renderDiagram(){
+  const {links, geo, svgW, svgH, P} = diagramGeometry();
+  const {rowH, boxW, lineW, labW} = P;
 
   let defs = PALETTE.map((c,i)=>
     `<marker id="arr${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="${c}"/></marker>`).join("")
@@ -625,12 +658,212 @@ function renderDiagram(){
 }
 function downloadSVG(){
   const el = document.getElementById("chainSvg");
-  if(!el) return;
-  const blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n'+el.outerHTML],{type:"image/svg+xml"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "产业链图.svg"; a.click();
-  URL.revokeObjectURL(a.href);
+  if(!el){ renderDiagram(); }
+  const el2 = document.getElementById("chainSvg");
+  if(!el2) return;
+  dlBlob(new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n'+el2.outerHTML],{type:"image/svg+xml"}), fileBase()+"-产业链图.svg");
 }
+function fileBase(){ return (state.projectName||"物料平衡").replace(/[\\/:*?"<>|]/g,"_"); }
+function dlBlob(blob,name){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+/* ============ ZIP（STORED，无压缩）============ */
+const CRC_T = (()=>{ const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c; }
+  return t; })();
+function crc32(u){ let c=0xFFFFFFFF;
+  for(let i=0;i<u.length;i++) c = CRC_T[(c^u[i])&0xFF]^(c>>>8);
+  return (c^0xFFFFFFFF)>>>0; }
+function zipStore(files){
+  const enc = new TextEncoder(); const parts=[], cds=[]; let off=0;
+  files.forEach(f=>{
+    const nameB = enc.encode(f.name);
+    const data = typeof f.data==="string" ? enc.encode(f.data) : f.data;
+    const crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true);
+    lh.setUint32(14,crc,true); lh.setUint32(18,data.length,true); lh.setUint32(22,data.length,true);
+    lh.setUint16(26,nameB.length,true);
+    parts.push(new Uint8Array(lh.buffer),nameB,data);
+    const cd = new DataView(new ArrayBuffer(46));
+    cd.setUint32(0,0x02014b50,true); cd.setUint16(4,20,true); cd.setUint16(6,20,true); cd.setUint16(8,0x0800,true);
+    cd.setUint32(16,crc,true); cd.setUint32(20,data.length,true); cd.setUint32(24,data.length,true);
+    cd.setUint16(28,nameB.length,true); cd.setUint32(42,off,true);
+    cds.push(new Uint8Array(cd.buffer),nameB);
+    off += 30+nameB.length+data.length;
+  });
+  const cdSize = cds.reduce((s,a)=>s+a.length,0);
+  const eo = new DataView(new ArrayBuffer(22));
+  eo.setUint32(0,0x06054b50,true); eo.setUint16(8,files.length,true); eo.setUint16(10,files.length,true);
+  eo.setUint32(12,cdSize,true); eo.setUint32(16,off,true);
+  return new Blob([...parts,...cds,new Uint8Array(eo.buffer)],{type:"application/zip"});
+}
+
+/* ============ 产业链图 → 可编辑图形描述（PPT/Excel共用）============ */
+function diagramItems(){
+  const {links, geo, svgW, svgH, P} = diagramGeometry();
+  const items = [];
+  geo.forEach(g=>{
+    items.push({k:"box", x:g.boxX, y:g.by, w:P.boxW, h:g.h, text:g.p.name});
+    g.mats.forEach((m,i)=>{
+      const y = g.matY(i);
+      items.push({k:"lab", x:g.bx, y:y-P.rowH/2, w:P.labW-4, h:P.rowH, align:"r",
+        name:m.name, qty:qtyText(m.unit,rowConsumption(m,g.p)), color:"44576B", bold:false});
+      items.push({k:"line", x1:g.bx+P.labW, y1:y, x2:g.boxX-2, y2:y, color:"8A97A8"});
+    });
+    g.prods.forEach((r,i)=>{
+      const y = g.prodY(i); const xr = g.boxX+P.boxW;
+      items.push({k:"line", x1:xr, y1:y, x2:xr+P.lineW-2, y2:y, color:"8A97A8"});
+      items.push({k:"lab", x:xr+P.lineW+4, y:y-P.rowH/2, w:P.labW-4, h:P.rowH, align:"l",
+        name:r.name, qty:qtyText(r.unit,+r.amount||0), color:"1C2733", bold:r.type==="主"});
+    });
+  });
+  links.forEach((l,li)=>{
+    const gu = geo.get(l.up), gd = geo.get(l.dn);
+    if(!gu||!gd) return;
+    const pi = gu.prods.findIndex(r=>r.name===l.name);
+    const mi = gd.mats.findIndex(r=>r.name===l.name);
+    if(pi<0||mi<0) return;
+    const pr = gu.prods[pi], mr = gd.mats[mi];
+    const prW = Math.max(textW(pr.name,12), textW(qtyText(pr.unit,+pr.amount||0),10));
+    const mrW = Math.max(textW(mr.name,12), textW(qtyText(mr.unit,rowConsumption(mr,gd.p)),10));
+    items.push({k:"curve",
+      x1: gu.boxX+P.boxW+P.lineW+4 + prW + 8, y1: gu.prodY(pi),
+      x2: gd.bx + P.labW - 6 - mrW - 8,       y2: gd.matY(mi),
+      color: PALETTE[li%PALETTE.length].slice(1)});
+  });
+  return {items, W:svgW, H:svgH};
+}
+
+/* ============ DrawingML 图形生成（pfx: 'p'=PPT / 'xdr'=Excel）============ */
+function xEsc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function paraXml(t,size,color,bold,align){
+  return `<a:p><a:pPr algn="${align||"l"}"/><a:r><a:rPr lang="zh-CN" sz="${size}" b="${bold?1:0}"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill><a:ea typeface="Microsoft YaHei"/></a:rPr><a:t>${xEsc(t)}</a:t></a:r></a:p>`;
+}
+let _shapeId = 1;
+function shapeXml(pfx, o, T){
+  /* T: px→EMU 变换 {x(v),y(v),len(v)} */
+  const id = ++_shapeId;
+  const nvSp = pfx==="p"
+    ? `<p:nvSpPr><p:cNvPr id="${id}" name="s${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>`
+    : `<xdr:nvSpPr><xdr:cNvPr id="${id}" name="s${id}"/><xdr:cNvSpPr/></xdr:nvSpPr>`;
+  const nvCxn = pfx==="p"
+    ? `<p:nvCxnSpPr><p:cNvPr id="${id}" name="c${id}"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr>`
+    : `<xdr:nvCxnSpPr><xdr:cNvPr id="${id}" name="c${id}"/><xdr:cNvCxnSpPr/></xdr:nvCxnSpPr>`;
+  const xfrm = (x,y,w,h,flipV)=>`<a:xfrm${flipV?' flipV="1"':''}><a:off x="${x}" y="${y}"/><a:ext cx="${Math.max(w,1)}" cy="${Math.max(h,1)}"/></a:xfrm>`;
+
+  if(o.k==="box"){
+    const body = `<${pfx}:txBody><a:bodyPr vert="eaVert" anchor="ctr" anchorCtr="1" lIns="18000" tIns="18000" rIns="18000" bIns="18000"/><a:lstStyle/>${paraXml(o.text,1100,"1F5FA8",true,"ctr")}</${pfx}:txBody>`;
+    return {x:T.x(o.x),y:T.y(o.y),w:T.len(o.w),h:T.len(o.h),
+      xml:`<${pfx}:sp>${nvSp}<${pfx}:spPr>${xfrm(T.x(o.x),T.y(o.y),T.len(o.w),T.len(o.h))}<a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 8000"/></a:avLst></a:prstGeom><a:solidFill><a:srgbClr val="EEF4FB"/></a:solidFill><a:ln w="19050"><a:solidFill><a:srgbClr val="1F5FA8"/></a:solidFill></a:ln></${pfx}:spPr>${body}</${pfx}:sp>`};
+  }
+  if(o.k==="lab"){
+    const body = `<${pfx}:txBody><a:bodyPr anchor="ctr" lIns="0" tIns="0" rIns="0" bIns="0"/><a:lstStyle/>${paraXml(o.name,1000,o.color,o.bold,o.align==="r"?"r":"l")}${paraXml(o.qty,750,"8A97A8",false,o.align==="r"?"r":"l")}</${pfx}:txBody>`;
+    return {x:T.x(o.x),y:T.y(o.y),w:T.len(o.w),h:T.len(o.h),
+      xml:`<${pfx}:sp>${nvSp}<${pfx}:spPr>${xfrm(T.x(o.x),T.y(o.y),T.len(o.w),T.len(o.h))}<a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></${pfx}:spPr>${body}</${pfx}:sp>`};
+  }
+  if(o.k==="line"||o.k==="curve"){
+    const x = Math.min(o.x1,o.x2), y = Math.min(o.y1,o.y2);
+    const w = Math.abs(o.x2-o.x1), h = Math.abs(o.y2-o.y1);
+    const flipV = o.y2<o.y1;
+    const prst = o.k==="line" ? "straightConnector1" : "curvedConnector3";
+    const lw = o.k==="line" ? 12700 : 25400;
+    return {x:T.x(x),y:T.y(y),w:T.len(w),h:T.len(h),
+      xml:`<${pfx}:cxnSp>${nvCxn}<${pfx}:spPr>${xfrm(T.x(x),T.y(y),T.len(w),T.len(h),flipV)}<a:prstGeom prst="${prst}"><a:avLst/></a:prstGeom><a:ln w="${lw}"><a:solidFill><a:srgbClr val="${o.color}"/></a:solidFill><a:tailEnd type="triangle"/></a:ln></${pfx}:spPr></${pfx}:cxnSp>`};
+  }
+}
+
+/* ============ PPT（.pptx）导出 ============ */
+function buildPPTX(){
+  const {items, W, H} = diagramItems();
+  const E = 9525, SW = 12192000, SH = 6858000;
+  const s = Math.min((SW/E-60)/W, (SH/E-110)/H, 1);
+  const T = { x:v=>Math.round((30+v*s)*E), y:v=>Math.round((90+v*s)*E), len:v=>Math.max(1,Math.round(v*s*E)) };
+  _shapeId = 1;
+  const title = `<p:sp><p:nvSpPr><p:cNvPr id="${++_shapeId}" name="title"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="285750" y="171450"/><a:ext cx="11620500" cy="571500"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr anchor="ctr"/><a:lstStyle/>${paraXml((state.projectName||"")+" · 产业链物料平衡图",1600,"173D63",true,"l")}</p:txBody></p:sp>`;
+  const shapes = items.map(o=>shapeXml("p",o,T).xml).join("");
+  const NS = `xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"`;
+  const XH = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`;
+  const emptyTree = `<p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/></p:spTree></p:cSld>`;
+  const theme = XH+`<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="T"><a:themeElements><a:clrScheme name="T"><a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1><a:dk2><a:srgbClr val="44546A"/></a:dk2><a:lt2><a:srgbClr val="E7E6E6"/></a:lt2><a:accent1><a:srgbClr val="4472C4"/></a:accent1><a:accent2><a:srgbClr val="ED7D31"/></a:accent2><a:accent3><a:srgbClr val="A5A5A5"/></a:accent3><a:accent4><a:srgbClr val="FFC000"/></a:accent4><a:accent5><a:srgbClr val="5B9BD5"/></a:accent5><a:accent6><a:srgbClr val="70AD47"/></a:accent6><a:hlink><a:srgbClr val="0563C1"/></a:hlink><a:folHlink><a:srgbClr val="954F72"/></a:folHlink></a:clrScheme><a:fontScheme name="T"><a:majorFont><a:latin typeface="Calibri Light"/><a:ea typeface=""/><a:cs typeface=""/></a:majorFont><a:minorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:minorFont></a:fontScheme><a:fmtScheme name="T"><a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:fillStyleLst><a:lnStyleLst><a:ln w="6350"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln><a:ln w="12700"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln><a:ln w="19050"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln></a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:bgFillStyleLst></a:fmtScheme></a:themeElements></a:theme>`;
+  const files = [
+    {name:"[Content_Types].xml", data:XH+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/><Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/><Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/><Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/></Types>`},
+    {name:"_rels/.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/></Relationships>`},
+    {name:"ppt/presentation.xml", data:XH+`<p:presentation ${NS}><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst><p:sldIdLst><p:sldId id="256" r:id="rId2"/></p:sldIdLst><p:sldSz cx="${SW}" cy="${SH}"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>`},
+    {name:"ppt/_rels/presentation.xml.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="slideMasters/slideMaster1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/></Relationships>`},
+    {name:"ppt/slideMasters/slideMaster1.xml", data:XH+`<p:sldMaster ${NS}>${emptyTree}<p:clrMap bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"/><p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst></p:sldMaster>`},
+    {name:"ppt/slideMasters/_rels/slideMaster1.xml.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="../theme/theme1.xml"/></Relationships>`},
+    {name:"ppt/slideLayouts/slideLayout1.xml", data:XH+`<p:sldLayout ${NS}>${emptyTree}<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>`},
+    {name:"ppt/slideLayouts/_rels/slideLayout1.xml.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="../slideMasters/slideMaster1.xml"/></Relationships>`},
+    {name:"ppt/theme/theme1.xml", data:theme},
+    {name:"ppt/slides/slide1.xml", data:XH+`<p:sld ${NS}><p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/>${title}${shapes}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`},
+    {name:"ppt/slides/_rels/slide1.xml.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/></Relationships>`}
+  ];
+  return zipStore(files);
+}
+function downloadPPTX(){ dlBlob(buildPPTX(), fileBase()+"-产业链图.pptx"); }
+
+/* ============ Excel（.xlsx）导出：Sheet1图形 + Sheet2平衡表 ============ */
+function colRef(c){ let s=""; c++; while(c>0){ s=String.fromCharCode(64+((c-1)%26+1))+s; c=Math.floor((c-1)/26); } return s; }
+function balanceRows(){
+  const B = computeBalance(), H = B.hours;
+  const rd = v=>Math.round(v*10000)/10000;
+  const rows = [];
+  rows.push([`项目：${state.projectName||""}`]);
+  rows.push([`年操作小时：${H}`,"",`主产品总产量（综合单耗基准）：${rd(B.totalMain)}`]);
+  rows.push([]);
+  rows.push(["一、产品平衡"]);
+  rows.push(["序号","产品名称","单位","产量/小时","产量/年","内部消耗/年","净外销/年"]);
+  let i=1; B.prod.forEach(p=>rows.push([i++,p.name,p.unit,rd(p.total/H),rd(p.total),rd(p.internal||0),rd(p.sale)]));
+  rows.push([]);
+  const sec=(map,title)=>{
+    rows.push([title]);
+    rows.push(["序号","名称","单位","耗量/小时","耗量/年","综合单耗(/单位主产品)","内部供应/年","净采购/年"]);
+    let j=1; map.forEach(m=>rows.push([j++,m.name,m.unit,rd(m.total/H),rd(m.total),B.totalMain?rd(m.total/B.totalMain):"",rd(m.internal||0),rd(m.purchase)]));
+    rows.push([]);
+  };
+  sec(B.mat,"二、原材料平衡"); sec(B.util,"三、燃料与动力平衡");
+  return rows;
+}
+function sheetDataXml(rows){
+  return rows.map((r,ri)=>{
+    const cells = r.map((v,ci)=>{
+      if(v===""||v===null||v===undefined) return "";
+      const ref = colRef(ci)+(ri+1);
+      return (typeof v==="number")
+        ? `<c r="${ref}"><v>${v}</v></c>`
+        : `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xEsc(v)}</t></is></c>`;
+    }).join("");
+    return `<row r="${ri+1}">${cells}</row>`;
+  }).join("");
+}
+function buildXLSX(){
+  const {items} = diagramItems();
+  const E = 9525;
+  const T = { x:v=>Math.round((20+v)*E), y:v=>Math.round((20+v)*E), len:v=>Math.max(1,Math.round(v*E)) };
+  _shapeId = 1;
+  const anchors = items.map(o=>{
+    const sh = shapeXml("xdr",o,T);
+    return `<xdr:absoluteAnchor><xdr:pos x="${sh.x}" y="${sh.y}"/><xdr:ext cx="${sh.w}" cy="${sh.h}"/>${sh.xml}<xdr:clientData/></xdr:absoluteAnchor>`;
+  }).join("");
+  const XH = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n`;
+  const files = [
+    {name:"[Content_Types].xml", data:XH+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>`},
+    {name:"_rels/.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {name:"xl/workbook.xml", data:XH+`<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="产业链图" sheetId="1" r:id="rId1"/><sheet name="总物料平衡" sheetId="2" r:id="rId2"/></sheets></workbook>`},
+    {name:"xl/_rels/workbook.xml.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`},
+    {name:"xl/styles.xml", data:XH+`<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="1"><xf/></cellXfs></styleSheet>`},
+    {name:"xl/worksheets/sheet1.xml", data:XH+`<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetData/><drawing r:id="rId1"/></worksheet>`},
+    {name:"xl/worksheets/_rels/sheet1.xml.rels", data:XH+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/></Relationships>`},
+    {name:"xl/worksheets/sheet2.xml", data:XH+`<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetDataXml(balanceRows())}</sheetData></worksheet>`},
+    {name:"xl/drawings/drawing1.xml", data:XH+`<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">${anchors}</xdr:wsDr>`}
+  ];
+  return zipStore(files);
+}
+function downloadXLSX(){ dlBlob(buildXLSX(), fileBase()+"-产业链图.xlsx"); }
 
 /* ============ 页签 / 导入导出 ============ */
 function switchTab(t){
@@ -660,13 +893,103 @@ function importJSON(inp){
 }
 function resetDemo(){
   if(!confirm("将清除当前数据并恢复为示例（醋酸→醋酸乙酯/醋酸丁酯），确认？")) return;
-  state = demoState(); save(); switchTab("input");
+  state = demoState(); save(); syncProjBar(); switchTab("input");
+}
+
+/* ============ 项目管理 ============ */
+const PROJ_KEY = "material-balance-projects-v1";
+function loadProjects(){ try{ return JSON.parse(localStorage.getItem(PROJ_KEY))||[]; }catch(e){ return []; } }
+function saveProjects(list){ try{ localStorage.setItem(PROJ_KEY, JSON.stringify(list)); }catch(e){ alert("保存失败：浏览器存储空间不足"); } }
+function blankState(name){
+  return { hours:8000, projectName:name||"未命名项目", plants:[{id:nid(),name:"装置1",
+    products:[{id:nid(),name:"",unit:"吨",type:"主",amount:0}],
+    materials:[{id:nid(),name:"",unit:"吨",perUnit:0,override:null}],
+    utilities:[{id:nid(),name:"",unit:"吨",perUnit:0,override:null}]}]};
+}
+function syncProjBar(){
+  document.getElementById("projName").value = state.projectName||"";
+  document.getElementById("projCount").textContent = loadProjects().length;
+  document.getElementById("hoursInput").value = state.hours;
+}
+function projStatus(msg){
+  const el = document.getElementById("projStatus");
+  el.textContent = msg;
+  clearTimeout(projStatus._t); projStatus._t = setTimeout(()=>el.textContent="",4000);
+}
+function newProject(){
+  if(!confirm("新建项目将清空当前工作区。\n当前数据如未「保存项目」将丢失，继续？")) return;
+  const name = prompt("请输入新项目名称：","未命名项目");
+  if(name===null) return;
+  state = blankState(name.trim()||"未命名项目"); save(); syncProjBar(); switchTab("input");
+  projStatus("已新建项目「"+state.projectName+"」");
+}
+function saveProject(){
+  const name = (document.getElementById("projName").value||"").trim() || "未命名项目";
+  state.projectName = name; save();
+  const list = loadProjects();
+  const snap = JSON.parse(JSON.stringify(state));
+  const ex = list.find(p=>p.name===name);
+  if(ex){
+    if(!confirm(`项目列表中已存在「${name}」，覆盖保存？`)) return;
+    ex.data = snap; ex.savedAt = new Date().toISOString();
+  }else{
+    list.push({id:Date.now(), name, savedAt:new Date().toISOString(), data:snap});
+  }
+  saveProjects(list); syncProjBar();
+  projStatus("✓ 已保存到项目列表 "+new Date().toLocaleTimeString());
+}
+function openProjList(){
+  renderProjList();
+  document.getElementById("projMask").style.display="block";
+  document.getElementById("projModal").style.display="block";
+}
+function closeProjList(){
+  document.getElementById("projMask").style.display="none";
+  document.getElementById("projModal").style.display="none";
+}
+function renderProjList(){
+  const list = loadProjects();
+  const body = document.getElementById("projListBody");
+  if(!list.length){ body.innerHTML = '<div style="text-align:center;color:#999;padding:26px">暂无已保存的项目。填好数据后点「💾 保存项目」即可存入列表。</div>'; return; }
+  body.innerHTML = `<table class="proj">
+    <tr><th>项目名称</th><th>装置数</th><th>保存时间</th><th style="width:170px">操作</th></tr>
+    ${list.slice().sort((a,b)=>(b.savedAt||"").localeCompare(a.savedAt||"")).map(p=>`
+      <tr>
+        <td style="font-weight:600;color:var(--blue)">${esc(p.name)}</td>
+        <td>${p.data?.plants?.length??0}</td>
+        <td style="font-size:12px;color:var(--ink3)">${p.savedAt?new Date(p.savedAt).toLocaleString():"-"}</td>
+        <td>
+          <button class="icon-btn" onclick="openProject(${p.id})">▶ 打开</button>
+          <button class="icon-btn danger" onclick="deleteProject(${p.id})">✕ 删除</button>
+        </td>
+      </tr>`).join("")}
+  </table>`;
+}
+function openProject(id){
+  const p = loadProjects().find(x=>x.id===id); if(!p) return;
+  if(!confirm(`打开项目「${p.name}」将覆盖当前工作区数据（未保存的修改将丢失），继续？`)) return;
+  state = JSON.parse(JSON.stringify(p.data)); fixUid(state);
+  save(); syncProjBar(); closeProjList(); switchTab("input");
+  projStatus("已打开项目「"+p.name+"」");
+}
+function deleteProject(id){
+  const p = loadProjects().find(x=>x.id===id); if(!p) return;
+  if(!confirm(`从项目列表中删除「${p.name}」？（不影响当前工作区）`)) return;
+  saveProjects(loadProjects().filter(x=>x.id!==id)); renderProjList(); syncProjBar();
+}
+function clearData(){
+  if(!confirm("清除当前工作区全部数据且不保存（项目列表中已保存的项目不受影响），继续？")) return;
+  state = blankState(); save(); syncProjBar(); switchTab("input");
+  projStatus("已清除，当前为空白工作区");
 }
 
 /* ============ 启动 ============ */
 const hi = document.getElementById("hoursInput");
 hi.value = state.hours;
 hi.oninput = ()=>{ state.hours = +hi.value||8000; save(); };
+document.getElementById("projName").oninput = function(){ state.projectName = this.value; save(); };
+if(!state.projectName) state.projectName = "未命名项目";
+syncProjBar();
 renderInput();
 </script>
 </body>
