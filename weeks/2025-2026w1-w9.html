@@ -25,6 +25,7 @@
 <button class="tab-btn active" onclick="switchTab('intelligence',this)">Intelligence Feed</button>
 <button class="tab-btn" onclick="switchTab('brief',this)">Executive Brief</button>
 <button class="tab-btn" onclick="switchTab('tracker',this)">Action Tracker</button>
+<button class="tab-btn" onclick="switchTab('live',this)">◉ Live News</button>
 </div>
 </div>
 </div>
@@ -73,6 +74,24 @@
 </div>
 <div id="tab-tracker" class="tab-content">
 <div id="trackerContent"></div>
+</div>
+<div id="tab-live" class="tab-content">
+<style>
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 6px var(--green);animation:livePulse 1.4s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.25}}
+.live-card{display:block;text-decoration:none;color:inherit}
+.live-card:hover .card-headline{color:var(--gold)}
+.live-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;border:1px solid var(--border2);background:var(--bg3)}
+.live-refresh-btn{padding:6px 14px;background:transparent;border:1px solid var(--gold);color:var(--gold);cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;transition:all .15s}
+.live-refresh-btn:hover{background:#16140E}
+</style>
+<div class="live-bar">
+<span class="live-dot"></span>
+<span class="label-sm" style="color:var(--green);">Live Feed</span>
+<span id="liveStatus" style="font-size:11px;color:var(--text4);flex:1;">Loading live chemical news…</span>
+<button class="live-refresh-btn" onclick="loadLiveNews()">↻ Refresh now</button>
+</div>
+<div id="liveFeed"></div>
 </div>
 </main>
 <footer class="footer">
@@ -135,7 +154,65 @@ function closePanel(){selId=null;document.getElementById("detailPanel").style.di
 function openPanel(id){const item=INTEL.find(i=>i.id===id);if(!item)return;const c=getcat(item.category);const sc=SC[item.signal]||"#888";const pc=PC[item.priority]||"#888";document.getElementById("detailPanel").innerHTML=`<div class="panel-wrap"><div class="panel-head"><div class="panel-head-row"><div style="display:flex;gap:7px;align-items:center;"><span style="color:${c.color};font-size:17px;">${c.icon}</span><span class="label-sm" style="color:${c.color};">${esc(c.label)}</span></div><button class="close-btn" onclick="closePanel()">✕ Close</button></div><div class="panel-headline">${esc(item.headline)}</div><div class="panel-meta">${badge(item.signal,sc)}${badge(item.priority+" Priority",pc)}${mbadge(item.date)}</div></div><div class="panel-body"><div style="margin-bottom:14px;"><div class="section-label">Intelligence Detail</div><div class="section-text">${esc(item.detail)}</div></div><hr class="divider"><div style="margin-bottom:14px;"><div class="section-label" style="color:var(--gold);">⬡ China HQ Strategic Implication</div><div class="implication-box"><div class="implication-text">${esc(item.implication)}</div></div></div><hr class="divider"><div style="margin-bottom:14px;"><div class="section-label" style="color:var(--green);">◈ Recommended Actions</div>${item.actions.map((a,i)=>`<div class="action-item"><span class="action-num">${String(i+1).padStart(2,"0")}</span>${esc(a)}</div>`).join("")}</div><hr class="divider"><div class="two-col"><div><div class="section-label">Sources</div>${item.sources.map(s=>`<div class="source-line">· ${esc(s)}</div>`).join("")}</div><div><div class="section-label">Tags</div>${item.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div></div></div></div>`;document.getElementById("detailPanel").style.display="block";document.getElementById("feedList").classList.add("has-panel");}
 function renderBrief(){const sects=[{title:"🔴 Critical — Immediate HQ Decision Required",f:i=>i.priority==="Critical"},{title:"🟡 High Priority — Monitor and Act",f:i=>i.priority==="High"},{title:"🔵 Background Monitoring",f:i=>i.priority==="Monitor"}];const sHtml=sects.map(({title,f})=>{const items=INTEL.filter(f);if(!items.length)return"";return`<div class="brief-section"><div class="brief-section-title">${esc(title)}</div>${items.map(item=>{const c=getcat(item.category);const sc=SC[item.signal]||"#888";return`<div class="brief-item" style="border-left:2px solid ${c.color}55;"><div class="brief-item-cat"><span style="color:${c.color};font-size:11px;">${c.icon} ${esc(c.label)}</span>${badge(item.signal,sc)}${mbadge(item.date)}</div><div class="brief-item-headline">${esc(item.headline)}</div><div class="brief-item-detail">${esc(item.detail)}</div><div class="brief-implication"><div class="brief-impl-label">China HQ Implication</div><div class="brief-impl-text">${esc(item.implication)}</div></div></div>`}).join("")}</div>`}).join("");const aHtml=INTEL.flatMap(item=>item.actions.map(a=>({a,p:item.priority,catId:item.category}))).map(({a,p,catId})=>{const c=getcat(catId);return`<div class="action-row"><span style="color:${PC[p]||"#888"};font-size:9px;white-space:nowrap;">● ${esc(p)}</span><span style="color:${c.color};font-size:9px;white-space:nowrap;">[${esc(c.label)}]</span><span style="font-size:11px;color:var(--text3);">${esc(a)}</span></div>`}).join("");document.getElementById("briefDoc").innerHTML=`<div class="brief-head"><div class="brief-confidential">Confidential — China HQ Distribution Only</div><div class="brief-title">European Chemical Intelligence Brief</div><div class="brief-week">January 1 – February 24, 2026 · 8-Week Comprehensive Analysis</div><div class="editor-note"><div class="editor-label">Editor's Strategic Assessment — Jan 1 to Feb 24, 2026</div><div class="editor-text">${esc(META.editorNote)}</div></div></div>${sHtml}<div class="action-register"><div class="action-register-title">📋 Complete Action Register — January 1 to February 24, 2026</div>${aHtml}</div>`}
 function renderTracker(){const total=INTEL.reduce((s,i)=>s+i.actions.length,0);const crit=INTEL.filter(i=>i.priority==="Critical").length;const cats=new Set(INTEL.map(i=>i.category)).size;const sHtml=[{label:"Total Actions",value:total,color:"#C8A96E"},{label:"Critical Items",value:crit,color:"#C47E7E"},{label:"Categories Active",value:cats,color:"#7EC49E"}].map(s=>`<div class="tracker-stat"><div class="tracker-stat-val" style="color:${s.color};">${s.value}</div><div class="tracker-stat-label">${esc(s.label)}</div></div>`).join("");const cHtml=CATS.map(c=>{const items=INTEL.filter(i=>i.category===c.id);if(!items.length)return"";const totalActions=items.reduce((s,i)=>s+i.actions.length,0);return`<div class="tracker-cat" style="border:1px solid ${c.color}22;background:var(--bg4);"><div class="tracker-cat-header"><span style="color:${c.color};font-size:15px;">${c.icon}</span><span class="label-sm" style="color:${c.color};">${esc(c.label)}</span><span class="tracker-actions-count">${totalActions} actions</span></div>${items.map(item=>`<div class="tracker-item"><div class="tracker-item-head">${esc(item.headline.substring(0,70))}…</div>${item.actions.map(a=>`<div class="tracker-action"><span style="color:${c.color};font-size:10px;">→</span><span style="font-size:11px;color:var(--text3);">${esc(a)}</span></div>`).join("")}</div>`).join("")}</div>`}).join("");document.getElementById("trackerContent").innerHTML=`<div class="tracker-stats">${sHtml}</div><div class="tracker-grid">${cHtml}</div>`}
+/* ===== LIVE NEWS (auto-fetch) =====
+   Fetches fresh chemical news from Google News and refreshes on a timer.
+   To customise, edit the LIVE settings below:
+     query          : the Google News search terms (supports OR, quotes, etc.)
+     refreshMinutes : how often to auto-refresh (you asked for 5–10)
+     count          : max number of headlines to show
+*/
+const LIVE={
+  query:'EU chemical industry OR European chemicals OR BASF OR INEOS OR petrochemicals Europe',
+  refreshMinutes:5,
+  count:25
+};
+let liveTimer=null,liveBusy=false;
+function liveFeedUrl(){return 'https://news.google.com/rss/search?q='+encodeURIComponent(LIVE.query)+'&hl=en-US&gl=US&ceid=US:en';}
+async function fetchViaAllOrigins(feedUrl){
+  const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(feedUrl),{cache:'no-store'});
+  if(!r.ok)throw new Error('proxy '+r.status);
+  const xml=new DOMParser().parseFromString(await r.text(),'text/xml');
+  if(xml.querySelector('parsererror'))throw new Error('bad xml');
+  return[...xml.querySelectorAll('item')].map(it=>({
+    title:it.querySelector('title')?.textContent||'',
+    link:it.querySelector('link')?.textContent||'',
+    date:it.querySelector('pubDate')?.textContent||'',
+    source:it.querySelector('source')?.textContent||''
+  }));
+}
+async function fetchViaRss2Json(feedUrl){
+  const r=await fetch('https://api.rss2json.com/v1/api.json?count='+LIVE.count+'&rss_url='+encodeURIComponent(feedUrl),{cache:'no-store'});
+  if(!r.ok)throw new Error('rss2json '+r.status);
+  const j=await r.json();
+  if(j.status!=='ok')throw new Error('rss2json '+(j.message||'error'));
+  return(j.items||[]).map(it=>({title:it.title||'',link:it.link||'',date:it.pubDate||'',source:it.author||''}));
+}
+async function loadLiveNews(){
+  if(liveBusy)return;liveBusy=true;
+  const status=document.getElementById('liveStatus'),feed=document.getElementById('liveFeed');
+  if(!feed.innerHTML)feed.innerHTML='<div style="padding:32px;text-align:center;color:var(--text5);">Fetching latest chemical news…</div>';
+  const url=liveFeedUrl();let items=null,err=null;
+  for(const fn of[fetchViaAllOrigins,fetchViaRss2Json]){
+    try{const r=await fn(url);if(r&&r.length){items=r;break;}}catch(e){err=e;}
+  }
+  if(!items||!items.length){
+    status.innerHTML='⚠ Could not load live news ('+esc(err?err.message:'no items')+'). Retrying every '+LIVE.refreshMinutes+' min.';
+    liveBusy=false;return;
+  }
+  items=items.slice(0,LIVE.count);
+  feed.innerHTML=items.map((it,i)=>{
+    let head=it.title,src=(it.source||'').trim();
+    const m=head.match(/^(.*)\s[-–]\s([^-–]+)$/);
+    if(!src&&m){head=m[1];src=m[2];}
+    let dt='';const d=new Date(it.date);if(it.date&&!isNaN(d))dt=d.toLocaleString();
+    return'<a class="intel-card live-card" href="'+esc(it.link)+'" target="_blank" rel="noopener" style="animation-delay:'+(i*.03)+'s"><div class="card-header"><div class="card-cat"><span class="live-dot"></span><span class="label-sm" style="color:var(--green);">LIVE</span>'+(src?'<span class="label-sm" style="color:var(--text4);">· '+esc(src)+'</span>':'')+'</div><span style="font-size:9px;color:var(--text5);">'+esc(dt)+'</span></div><div class="card-headline">'+esc(head.trim())+'</div></a>';
+  }).join('');
+  status.innerHTML='Updated '+esc(new Date().toLocaleTimeString())+' · '+items.length+' headlines · auto-refresh every '+LIVE.refreshMinutes+' min';
+  liveBusy=false;
+}
+function startLive(){loadLiveNews();if(liveTimer)clearInterval(liveTimer);liveTimer=setInterval(loadLiveNews,LIVE.refreshMinutes*60*1000);}
 init();
+startLive();
 </script>
 </body>
 </html>
