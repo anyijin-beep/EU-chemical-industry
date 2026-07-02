@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多装置物料平衡系统 · Multi-Plant Material Balance</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1f5fa8;--blue2:#2d7dd2;--ink:#1c2733;--ink2:#44576b;--ink3:#7a8ba0;--line:#d7dfe8;--bg:#f2f5f8;--card:#fff;--gold:#b98a2f;--green:#2e8b57;--red:#c0504d}
+body{font-family:"Microsoft YaHei","PingFang SC",-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+.topbar{background:linear-gradient(135deg,#173d63,#1f5fa8);color:#fff;padding:16px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.topbar h1{font-size:20px;font-weight:700;letter-spacing:.05em}
+.topbar .sub{font-size:12px;opacity:.75}
+.toolbar{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{padding:7px 14px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:12.5px;border-radius:4px;font-family:inherit;transition:background .15s}
+.btn:hover{background:rgba(255,255,255,.22)}
+.hours-box{display:flex;align-items:center;gap:6px;font-size:12.5px}
+.hours-box input{width:74px;padding:6px 8px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;border-radius:4px;font-family:inherit;font-size:13px}
+.tabs{display:flex;gap:4px;padding:0 28px;background:#fff;border-bottom:2px solid var(--line)}
+.tab{padding:12px 22px;cursor:pointer;font-size:14px;color:var(--ink3);border-bottom:3px solid transparent;margin-bottom:-2px;font-weight:600}
+.tab:hover{color:var(--blue)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.page{max-width:1500px;margin:0 auto;padding:22px 28px 60px}
+.tabc{display:none}.tabc.active{display:block}
+.hint{background:#eef4fb;border:1px solid #cfe0f2;border-left:4px solid var(--blue2);padding:10px 16px;border-radius:4px;font-size:12.5px;color:var(--ink2);margin-bottom:18px}
+.plant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:18px}
+.plant-card{background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(20,40,70,.06);overflow:hidden}
+.plant-head{background:linear-gradient(135deg,#f4f8fc,#e8f0f8);padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.plant-head input.pname{flex:1;font-size:15px;font-weight:700;color:var(--blue);border:1px solid transparent;background:transparent;padding:4px 8px;border-radius:4px;font-family:inherit}
+.plant-head input.pname:hover,.plant-head input.pname:focus{border-color:var(--line);background:#fff;outline:none}
+.icon-btn{border:1px solid var(--line);background:#fff;color:var(--ink3);cursor:pointer;padding:4px 9px;border-radius:4px;font-size:12px;font-family:inherit}
+.icon-btn:hover{color:var(--blue);border-color:var(--blue2)}
+.icon-btn.danger:hover{color:var(--red);border-color:var(--red)}
+.plant-body{padding:12px 16px 16px}
+.sec-title{font-size:12px;font-weight:700;color:var(--ink2);letter-spacing:.08em;margin:12px 0 6px;display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+.sec-title .add{margin-left:auto}
+table.inp{width:100%;border-collapse:collapse;font-size:12.5px}
+table.inp th{background:#f6f9fc;color:var(--ink3);font-weight:600;padding:5px 6px;border:1px solid var(--line);font-size:11.5px;white-space:nowrap}
+table.inp td{border:1px solid var(--line);padding:0}
+table.inp input,table.inp select{width:100%;border:none;padding:6px 7px;font-family:inherit;font-size:12.5px;background:transparent;color:var(--ink)}
+table.inp input:focus,table.inp select:focus{outline:2px solid #bcd4ec;background:#f4f9ff}
+table.inp input.num{text-align:right}
+table.inp td.calc{padding:6px 7px;text-align:right;color:var(--ink3);background:#fafcfe;white-space:nowrap}
+table.inp td.rm{text-align:center;width:30px}
+td.rm button{border:none;background:none;color:#c8b0b0;cursor:pointer;font-size:13px;padding:4px}
+td.rm button:hover{color:var(--red)}
+.tag{display:inline-block;font-size:10.5px;padding:1px 8px;border-radius:10px;background:#e8f0f8;color:var(--blue);border:1px solid #cfe0f2}
+.tag.link{background:#eef8f0;color:var(--green);border-color:#cde5d5}
+/* balance tables */
+.bal-sec{background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(20,40,70,.06);margin-bottom:22px;overflow:hidden}
+.bal-sec h3{background:linear-gradient(135deg,#173d63,#1f5fa8);color:#fff;font-size:14px;padding:10px 18px;letter-spacing:.06em;font-weight:600}
+table.bal{width:100%;border-collapse:collapse;font-size:13px}
+table.bal th{background:#f0f5fa;color:var(--ink2);padding:8px 10px;border:1px solid var(--line);font-size:12px;white-space:nowrap}
+table.bal td{padding:7px 10px;border:1px solid var(--line)}
+table.bal td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.bal tr:nth-child(even){background:#fafcfe}
+table.bal td.name{font-weight:600}
+.pill{display:inline-block;font-size:11px;padding:1px 9px;border-radius:10px;white-space:nowrap}
+.pill.sale{background:#eef8f0;color:var(--green)}
+.pill.buy{background:#fdf3e7;color:var(--gold)}
+.pill.internal{background:#e8f0f8;color:var(--blue)}
+.pill.zero{background:#f0f0f0;color:#999}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 20px;min-width:150px;box-shadow:0 2px 8px rgba(20,40,70,.06)}
+.stat .v{font-size:24px;font-weight:700;color:var(--blue)}
+.stat .l{font-size:11.5px;color:var(--ink3)}
+/* diagram */
+.dia-wrap{background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 2px 8px rgba(20,40,70,.06);padding:18px;overflow:auto}
+.dia-toolbar{display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.btn2{padding:7px 16px;border:1px solid var(--blue2);background:#fff;color:var(--blue);cursor:pointer;font-size:12.5px;border-radius:4px;font-family:inherit}
+.btn2:hover{background:#eef4fb}
+.legend{margin-left:auto;font-size:12px;color:var(--ink3);display:flex;gap:16px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:5px}
+.lg-line{display:inline-block;width:26px;height:0;border-top:2px solid #999}
+.lg-line.flow{border-top:2.5px solid var(--blue2)}
+@media print{
+  .topbar .toolbar,.tabs,.dia-toolbar,.hint,.icon-btn,.sec-title .add,td.rm{display:none!important}
+  body{background:#fff}
+  .tabc{display:block!important;page-break-before:always}
+  .page{max-width:none;padding:10px}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <h1>⬡ 多装置物料平衡系统</h1>
+    <div class="sub">Multi-Plant Material Balance · 基准单耗法 · 支持上下游/并列装置自动联算</div>
+  </div>
+  <div class="toolbar">
+    <div class="hours-box">年操作小时 <input type="number" id="hoursInput" min="1" step="100"></div>
+    <button class="btn" onclick="exportJSON()">⇩ 导出数据</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()">⇧ 导入数据</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+    <button class="btn" onclick="window.print()">🖨 打印</button>
+    <button class="btn" onclick="resetDemo()">↺ 重置示例</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="input" onclick="switchTab('input')">① 装置输入</div>
+  <div class="tab" data-tab="balance" onclick="switchTab('balance')">② 总物料平衡表</div>
+  <div class="tab" data-tab="chain" onclick="switchTab('chain')">③ 产业链图</div>
+</div>
+
+<div class="page">
+
+<div id="tabc-input" class="tabc active">
+  <div class="hint">
+    <b>计算逻辑（与Excel一致）：</b>各装置以「基准主产品」的目标年产量为基准，材料/动力的 <b>目标耗量 = 基准单耗 × 主产品年产量</b>（填写「自定耗量」则直接取该值）；小时量 = 年量 ÷ 年操作小时；综合单耗 = 同名物料总耗量 ÷ 全部装置主产品总产量。<br>
+    <b>上下游联动：</b>若某装置的<b>原料名称</b>与另一装置的<b>产品名称</b>相同，系统自动识别为内部转供（产业链图中自动连线），总平衡中自动抵扣：净采购 = 总消耗 − 内部供应，净外销 = 总产量 − 内部消耗。装置可任意增加，形成串联（上下游）或并联（并列）结构。
+  </div>
+  <div style="margin-bottom:14px"><button class="btn2" onclick="addPlant()">＋ 添加装置</button></div>
+  <div class="plant-grid" id="plantGrid"></div>
+</div>
+
+<div id="tabc-balance" class="tabc">
+  <div class="stats" id="balStats"></div>
+  <div id="balTables"></div>
+</div>
+
+<div id="tabc-chain" class="tabc">
+  <div class="dia-wrap">
+    <div class="dia-toolbar">
+      <button class="btn2" onclick="downloadSVG()">⇩ 下载SVG图</button>
+      <span style="font-size:12px;color:var(--ink3)">仅显示原料与产品（不含燃料动力）· 同名物料自动连线</span>
+      <div class="legend">
+        <span><span class="lg-line flow"></span>内部转供（上游产品 → 下游原料）</span>
+        <span><span class="lg-line"></span>外购原料 / 外销产品</span>
+      </div>
+    </div>
+    <div id="diagram"></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+"use strict";
+/* ============ 数据模型 ============ */
+const LS_KEY = "material-balance-v1";
+let uid = 1;
+const nid = () => uid++;
+
+function demoState(){
+  return {
+    hours: 8000,
+    plants: [
+      { id:nid(), name:"醋酸装置（示例上游）",
+        products:[
+          {id:nid(),name:"醋酸",unit:"吨",type:"主",amount:300000},
+          {id:nid(),name:"醋酸尾气",unit:"Nm3",type:"副",amount:1500000}
+        ],
+        materials:[
+          {id:nid(),name:"甲醇",unit:"吨",perUnit:0.55,override:null},
+          {id:nid(),name:"一氧化碳",unit:"吨",perUnit:0.75,override:null}
+        ],
+        utilities:[
+          {id:nid(),name:"蒸汽",unit:"吨",perUnit:1.2,override:null},
+          {id:nid(),name:"电",unit:"Kwh",perUnit:30,override:null}
+        ]},
+      { id:nid(), name:"醋酸乙酯装置",
+        products:[
+          {id:nid(),name:"醋酸乙酯",unit:"吨",type:"主",amount:400000},
+          {id:nid(),name:"乙酯废水",unit:"吨",type:"副",amount:96000},
+          {id:nid(),name:"乙酯废气",unit:"Nm3",type:"副",amount:3200000},
+          {id:nid(),name:"乙酯废液",unit:"吨",type:"副",amount:80}
+        ],
+        materials:[
+          {id:nid(),name:"醋酸",unit:"吨",perUnit:0.688,override:null},
+          {id:nid(),name:"乙醇",unit:"吨",perUnit:0.568,override:null},
+          {id:nid(),name:"催化剂",unit:"Kg",perUnit:0.1,override:null},
+          {id:nid(),name:"乙酯包装及运费",unit:"吨",perUnit:0.925,override:null}
+        ],
+        utilities:[
+          {id:nid(),name:"蒸汽",unit:"吨",perUnit:1.6,override:null},
+          {id:nid(),name:"循环水",unit:"吨",perUnit:150,override:null},
+          {id:nid(),name:"电",unit:"Kwh",perUnit:35,override:null},
+          {id:nid(),name:"仪表气",unit:"Nm3",perUnit:1.6,override:null},
+          {id:nid(),name:"N2",unit:"Nm3",perUnit:10,override:null}
+        ]},
+      { id:nid(), name:"醋酸丁酯装置",
+        products:[
+          {id:nid(),name:"醋酸丁酯",unit:"吨",type:"主",amount:100000},
+          {id:nid(),name:"丁酯废水",unit:"吨",type:"副",amount:20000},
+          {id:nid(),name:"丁酯废气",unit:"Nm3",type:"副",amount:800000},
+          {id:nid(),name:"丁酯废液",unit:"吨",type:"副",amount:20}
+        ],
+        materials:[
+          {id:nid(),name:"醋酸",unit:"吨",perUnit:0.521,override:null},
+          {id:nid(),name:"正丁醇",unit:"吨",perUnit:0.641,override:null},
+          {id:nid(),name:"催化剂",unit:"Kg",perUnit:0.1,override:null},
+          {id:nid(),name:"丁酯包装及运费",unit:"吨",perUnit:1.0,override:null}
+        ],
+        utilities:[
+          {id:nid(),name:"蒸汽",unit:"吨",perUnit:1.4,override:null},
+          {id:nid(),name:"循环水",unit:"吨",perUnit:150,override:null},
+          {id:nid(),name:"电",unit:"Kwh",perUnit:35,override:null},
+          {id:nid(),name:"仪表气",unit:"Nm3",perUnit:1.6,override:null},
+          {id:nid(),name:"N2",unit:"Nm3",perUnit:10,override:null}
+        ]}
+    ]
+  };
+}
+
+let state = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const s = JSON.parse(raw); fixUid(s); return s; }
+  }catch(e){}
+  return demoState();
+}
+function fixUid(s){
+  let m = 0;
+  s.plants.forEach(p=>{ m=Math.max(m,p.id||0);
+    [...p.products,...p.materials,...p.utilities].forEach(r=>m=Math.max(m,r.id||0)); });
+  uid = m+1;
+}
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+
+/* ============ 计算核心 ============ */
+function mainProduct(p){ return p.products.find(x=>x.type==="主") || null; }
+function mainAmount(p){ const m = mainProduct(p); return m ? (+m.amount||0) : 0; }
+function rowConsumption(row, plant){
+  if(row.override!==null && row.override!=="" && !isNaN(row.override)) return +row.override;
+  return (+row.perUnit||0) * mainAmount(plant);
+}
+/* 汇总：产品按名称合并；材料/动力按名称合并；同名产品↔材料 = 内部转供 */
+function computeBalance(){
+  const prod = new Map(), mat = new Map(), util = new Map();
+  const totalMain = state.plants.reduce((s,p)=>s+mainAmount(p),0);
+  const acc=(map,key)=>{ if(!map.has(key)) map.set(key,{name:key,unit:"",total:0,plants:[]}); return map.get(key); };
+  state.plants.forEach(p=>{
+    p.products.forEach(r=>{
+      if(!r.name) return;
+      const a = acc(prod, r.name); a.unit = a.unit||r.unit;
+      a.total += (+r.amount||0);
+      a.plants.push({plant:p.name, amount:+r.amount||0, type:r.type});
+    });
+    p.materials.forEach(r=>{
+      if(!r.name) return;
+      const c = rowConsumption(r,p);
+      const a = acc(mat, r.name); a.unit = a.unit||r.unit;
+      a.total += c; a.plants.push({plant:p.name, amount:c});
+    });
+    p.utilities.forEach(r=>{
+      if(!r.name) return;
+      const c = rowConsumption(r,p);
+      const a = acc(util, r.name); a.unit = a.unit||r.unit;
+      a.total += c; a.plants.push({plant:p.name, amount:c});
+    });
+  });
+  /* 内部转供抵扣（材料与动力都参与名称匹配） */
+  const net=(consMap)=>{
+    consMap.forEach(m=>{
+      const p = prod.get(m.name);
+      m.internal = p ? Math.min(p.total, m.total) : 0;
+      m.purchase = m.total - m.internal;
+    });
+  };
+  net(mat); net(util);
+  prod.forEach(p=>{
+    const consumed = (mat.get(p.name)?.total||0) + (util.get(p.name)?.total||0);
+    p.internal = Math.min(consumed, p.total);
+    p.sale = p.total - p.internal;
+    p.shortfall = Math.max(0, consumed - p.total); /* 自产不足需外购的量 */
+  });
+  return {prod, mat, util, totalMain, hours: +state.hours||8000};
+}
+
+/* ============ 工具 ============ */
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function fmt(n,d=2){ if(!isFinite(n)) return "-"; const r = Math.round(n*10**d)/10**d;
+  return r.toLocaleString("zh-CN",{maximumFractionDigits:d}); }
+function fmtU(n){ return fmt(n,4); }
+
+/* ============ 装置输入界面 ============ */
+function findPlant(id){ return state.plants.find(p=>p.id===id); }
+function findRow(plant,kind,id){ return plant[kind].find(r=>r.id===id); }
+
+function renderInput(){
+  const g = document.getElementById("plantGrid");
+  const linkedNames = linkedMaterialNames();
+  g.innerHTML = state.plants.map(p=>{
+    const ma = mainAmount(p);
+    const prodRows = p.products.map(r=>`
+      <tr>
+        <td><input value="${esc(r.name)}" placeholder="产品名称" oninput="upd(${p.id},'products',${r.id},'name',this.value)"></td>
+        <td style="width:64px"><input value="${esc(r.unit)}" placeholder="单位" oninput="upd(${p.id},'products',${r.id},'unit',this.value)"></td>
+        <td style="width:58px"><select onchange="upd(${p.id},'products',${r.id},'type',this.value);renderInput()">
+          <option ${r.type==="主"?"selected":""}>主</option><option ${r.type==="副"?"selected":""}>副</option></select></td>
+        <td style="width:110px"><input class="num" type="number" step="any" value="${r.amount??""}" placeholder="年产量" oninput="upd(${p.id},'products',${r.id},'amount',+this.value||0)"></td>
+        <td class="rm"><button title="删除" onclick="rmRow(${p.id},'products',${r.id})">✕</button></td>
+      </tr>`).join("");
+    const matRows = (kind)=>p[kind].map(r=>{
+      const cons = rowConsumption(r,p);
+      const isLink = kind==="materials" && linkedNames.has(r.name);
+      return `<tr>
+        <td><input value="${esc(r.name)}" placeholder="名称" oninput="upd(${p.id},'${kind}',${r.id},'name',this.value)">${isLink?'':''}</td>
+        <td style="width:60px"><input value="${esc(r.unit)}" placeholder="单位" oninput="upd(${p.id},'${kind}',${r.id},'unit',this.value)"></td>
+        <td style="width:92px"><input class="num" type="number" step="any" value="${r.perUnit??""}" placeholder="单耗" oninput="upd(${p.id},'${kind}',${r.id},'perUnit',this.value===''?0:+this.value)"></td>
+        <td style="width:104px"><input class="num" type="number" step="any" value="${r.override??""}" placeholder="（可选）" oninput="upd(${p.id},'${kind}',${r.id},'override',this.value===''?null:+this.value)"></td>
+        <td class="calc" id="calc-${p.id}-${kind}-${r.id}">${fmt(cons)}</td>
+        <td class="rm"><button title="删除" onclick="rmRow(${p.id},'${kind}',${r.id})">✕</button></td>
+      </tr>`;}).join("");
+    return `
+    <div class="plant-card">
+      <div class="plant-head">
+        <input class="pname" value="${esc(p.name)}" oninput="findPlant(${p.id}).name=this.value;save()">
+        <button class="icon-btn" title="复制装置" onclick="copyPlant(${p.id})">⧉ 复制</button>
+        <button class="icon-btn danger" title="删除装置" onclick="rmPlant(${p.id})">✕ 删除</button>
+      </div>
+      <div class="plant-body">
+        <div class="sec-title">一、产品 <span class="tag">主产品年产量 = 计算基准${ma?`：${fmt(ma)}`:""}</span>
+          <button class="icon-btn add" onclick="addRow(${p.id},'products')">＋ 行</button></div>
+        <table class="inp">
+          <tr><th>产品名称</th><th>单位</th><th>主/副</th><th>目标产量/年</th><th></th></tr>
+          ${prodRows}
+        </table>
+        <div class="sec-title">二、原材料
+          <button class="icon-btn add" onclick="addRow(${p.id},'materials')">＋ 行</button></div>
+        <table class="inp">
+          <tr><th>材料名称</th><th>单位</th><th>基准单耗<br>(单位/单位主产品)</th><th>自定耗量/年<br>(覆盖单耗)</th><th>目标耗量/年</th><th></th></tr>
+          ${matRows("materials")}
+        </table>
+        <div class="sec-title">三、燃料与动力
+          <button class="icon-btn add" onclick="addRow(${p.id},'utilities')">＋ 行</button></div>
+        <table class="inp">
+          <tr><th>名称</th><th>单位</th><th>基准单耗</th><th>自定耗量/年</th><th>目标耗量/年</th><th></th></tr>
+          ${matRows("utilities")}
+        </table>
+      </div>
+    </div>`;
+  }).join("");
+}
+function linkedMaterialNames(){
+  const prodNames = new Set();
+  state.plants.forEach(p=>p.products.forEach(r=>r.name&&prodNames.add(r.name)));
+  const s = new Set();
+  state.plants.forEach(p=>p.materials.forEach(r=>{ if(prodNames.has(r.name)) s.add(r.name); }));
+  return s;
+}
+function upd(pid,kind,rid,field,val){
+  const p = findPlant(pid);
+  const r = findRow(p,kind,rid); r[field]=val; save();
+  /* 局部刷新本装置所有计算列（不重绘，避免输入失焦） */
+  ["materials","utilities"].forEach(k=>p[k].forEach(row=>{
+    const td = document.getElementById(`calc-${p.id}-${k}-${row.id}`);
+    if(td) td.textContent = fmt(rowConsumption(row,p));
+  }));
+}
+function addRow(pid,kind){
+  const p = findPlant(pid);
+  p[kind].push(kind==="products"
+    ? {id:nid(),name:"",unit:"吨",type:"副",amount:0}
+    : {id:nid(),name:"",unit:"吨",perUnit:0,override:null});
+  save(); renderInput();
+}
+function rmRow(pid,kind,rid){
+  const p = findPlant(pid);
+  p[kind] = p[kind].filter(r=>r.id!==rid); save(); renderInput();
+}
+function addPlant(){
+  state.plants.push({id:nid(),name:"新装置",
+    products:[{id:nid(),name:"",unit:"吨",type:"主",amount:0}],
+    materials:[{id:nid(),name:"",unit:"吨",perUnit:0,override:null}],
+    utilities:[{id:nid(),name:"",unit:"吨",perUnit:0,override:null}]});
+  save(); renderInput();
+}
+function copyPlant(pid){
+  const p = findPlant(pid);
+  const c = JSON.parse(JSON.stringify(p));
+  c.id = nid(); c.name = p.name+"（副本）";
+  [...c.products,...c.materials,...c.utilities].forEach(r=>r.id=nid());
+  state.plants.splice(state.plants.indexOf(p)+1,0,c); save(); renderInput();
+}
+function rmPlant(pid){
+  const p = findPlant(pid);
+  if(!confirm(`确认删除装置「${p.name}」？`)) return;
+  state.plants = state.plants.filter(x=>x.id!==pid); save(); renderInput();
+}
+
+/* ============ 总物料平衡表 ============ */
+function renderBalance(){
+  const B = computeBalance();
+  const H = B.hours;
+  const stat = document.getElementById("balStats");
+  const nProd = B.prod.size, nMat = B.mat.size;
+  const nLink = [...B.mat.values()].filter(m=>m.internal>0).length + [...B.util.values()].filter(m=>m.internal>0).length;
+  stat.innerHTML = `
+    <div class="stat"><div class="v">${state.plants.length}</div><div class="l">装置数量</div></div>
+    <div class="stat"><div class="v">${fmt(B.totalMain,0)}</div><div class="l">主产品总产量 /年（综合单耗基准）</div></div>
+    <div class="stat"><div class="v">${nProd}</div><div class="l">产品种类</div></div>
+    <div class="stat"><div class="v">${nMat}</div><div class="l">原材料种类</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">${nLink}</div><div class="l">内部转供物料数</div></div>
+    <div class="stat"><div class="v">${fmt(H,0)}</div><div class="l">年操作小时</div></div>`;
+
+  const srcCell = (plants)=>plants.map(x=>`${esc(x.plant)}：${fmt(x.amount)}`).join("<br>");
+
+  const prodRows = [...B.prod.values()].map((p,i)=>`
+    <tr>
+      <td class="n">${i+1}</td><td class="name">${esc(p.name)}</td><td>${esc(p.unit)}</td>
+      <td class="n">${fmt(p.total/H,4)}</td><td class="n">${fmt(p.total)}</td>
+      <td class="n">${p.internal>0?fmt(p.internal):"—"}</td>
+      <td class="n"><b>${fmt(p.sale)}</b></td>
+      <td>${p.internal>0?(p.sale>0?'<span class="pill internal">部分内供</span> <span class="pill sale">余量外销</span>':'<span class="pill internal">全部内供</span>'):'<span class="pill sale">外销</span>'}${p.shortfall>0?' <span class="pill buy">自产不足，缺口外购 '+fmt(p.shortfall)+'</span>':''}</td>
+      <td style="font-size:11.5px;color:var(--ink3)">${srcCell(p.plants)}</td>
+    </tr>`).join("");
+
+  const matSection = (map,title)=>{
+    const rows = [...map.values()].map((m,i)=>`
+      <tr>
+        <td class="n">${i+1}</td><td class="name">${esc(m.name)}</td><td>${esc(m.unit)}</td>
+        <td class="n">${fmt(m.total/H,4)}</td><td class="n">${fmt(m.total)}</td>
+        <td class="n">${B.totalMain?fmtU(m.total/B.totalMain):"-"}</td>
+        <td class="n">${m.internal>0?fmt(m.internal):"—"}</td>
+        <td class="n"><b>${fmt(m.purchase)}</b></td>
+        <td>${m.internal>0?(m.purchase>0?'<span class="pill internal">部分自供</span> <span class="pill buy">缺口采购</span>':'<span class="pill internal">内部自供</span>'):'<span class="pill buy">采购</span>'}</td>
+        <td style="font-size:11.5px;color:var(--ink3)">${srcCell(m.plants)}</td>
+      </tr>`).join("");
+    return `<div class="bal-sec"><h3>${title}</h3><table class="bal">
+      <tr><th>序号</th><th>名称</th><th>单位</th><th>耗量/小时</th><th>耗量/年</th><th>综合单耗<br>(/单位主产品)</th><th>内部供应/年</th><th>净采购/年</th><th>说明</th><th>分装置明细</th></tr>
+      ${rows||'<tr><td colspan="10" style="text-align:center;color:#999">（无数据）</td></tr>'}</table></div>`;
+  };
+
+  document.getElementById("balTables").innerHTML = `
+    <div class="bal-sec"><h3>一、产品平衡 Products</h3><table class="bal">
+      <tr><th>序号</th><th>产品名称</th><th>单位</th><th>产量/小时</th><th>产量/年</th><th>内部消耗/年</th><th>净外销/年</th><th>说明</th><th>分装置明细</th></tr>
+      ${prodRows||'<tr><td colspan="9" style="text-align:center;color:#999">（无数据）</td></tr>'}</table></div>
+    ${matSection(B.mat,"二、原材料平衡 Raw Materials")}
+    ${matSection(B.util,"三、燃料与动力平衡 Utilities")}`;
+}
+
+/* ============ 产业链图（PPT风格 SVG） ============ */
+const PALETTE = ["#1f5fa8","#2e8b57","#b98a2f","#8e44ad","#c0504d","#16808c","#b8860b","#5b6ee1"];
+function renderDiagram(){
+  const plants = state.plants.filter(p=>p.name);
+  /* 连线：上游产品 → 下游原料（仅原料，不含动力，同名匹配，排除自身） */
+  const links = [];
+  plants.forEach(up=>up.products.forEach(pr=>{
+    if(!pr.name) return;
+    plants.forEach(dn=>{
+      if(dn===up) return;
+      dn.materials.forEach(mt=>{ if(mt.name===pr.name) links.push({up:up.id,dn:dn.id,name:pr.name}); });
+    });
+  }));
+  /* 分层：无内部进料=第0层；否则=上游最大层+1 */
+  const tier = new Map();
+  const inLinks = id=>links.filter(l=>l.dn===id);
+  const calcTier = (id,seen)=>{
+    if(tier.has(id)) return tier.get(id);
+    if(seen.has(id)) return 0;
+    seen.add(id);
+    const ins = inLinks(id);
+    const t = ins.length ? 1+Math.max(...ins.map(l=>calcTier(l.up,seen))) : 0;
+    tier.set(id,t); return t;
+  };
+  plants.forEach(p=>calcTier(p.id,new Set()));
+
+  /* 布局参数 */
+  const rowH=26, boxW=46, lineW=42, labW=118, padY=16;
+  const blockW = labW+lineW+boxW+lineW+labW;   /* 单装置区块宽 */
+  const gapX=110, gapY=46, x0=20, y0=20;
+
+  const cols = new Map();
+  plants.forEach(p=>{ const t=tier.get(p.id)||0; if(!cols.has(t)) cols.set(t,[]); cols.get(t).push(p); });
+  const maxTier = Math.max(0,...cols.keys());
+
+  const geo = new Map();  /* plant id -> geometry */
+  let svgH = 0;
+  for(let t=0;t<=maxTier;t++){
+    const list = cols.get(t)||[];
+    let y = y0;
+    list.forEach(p=>{
+      const mats = p.materials.filter(r=>r.name);
+      const prods = p.products.filter(r=>r.name);
+      const rows = Math.max(mats.length, prods.length, 2);
+      const nameLen = [...p.name].length;
+      const h = Math.max(rows*rowH + padY*2, nameLen*15 + 26, 96);
+      const bx = x0 + t*(blockW+gapX);
+      const by = y;
+      const rowsTop = by + (h - rows*rowH)/2;   /* 行区在框内垂直居中 */
+      geo.set(p.id,{p,bx,by,h,mats,prods,
+        boxX: bx+labW+lineW, boxY:by,
+        matY: i=> rowsTop + i*rowH + rowH/2,
+        prodY:i=> rowsTop + i*rowH + rowH/2 });
+      y += h + gapY;
+    });
+    svgH = Math.max(svgH, y);
+  }
+  const svgW = x0 + (maxTier+1)*(blockW+gapX) - gapX + 20;
+
+  let defs = PALETTE.map((c,i)=>
+    `<marker id="arr${i}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="${c}"/></marker>`).join("")
+    + `<marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#8a97a8"/></marker>`;
+
+  let out = "";
+  /* 装置块 */
+  geo.forEach(g=>{
+    const {p,bx,by,h,mats,prods,boxX} = g;
+    /* 竖排装置名 */
+    const chars = [...p.name];
+    const fs = Math.min(15, Math.max(10, (h-16)/chars.length/1.15));
+    const nameT = chars.map((ch,i)=>`<tspan x="${boxX+boxW/2}" ${i? `dy="1.12em"`:``}>${esc(ch)}</tspan>`).join("");
+    const nameY = by + h/2 - (chars.length-1)*fs*1.12/2;
+    out += `<rect x="${boxX}" y="${by}" width="${boxW}" height="${h}" rx="4" fill="#eef4fb" stroke="#1f5fa8" stroke-width="1.6"/>
+      <text x="${boxX+boxW/2}" y="${nameY}" font-size="${fs}" font-weight="700" fill="#1f5fa8" text-anchor="middle" dominant-baseline="middle">${nameT}</text>`;
+    mats.forEach((m,i)=>{
+      const y = g.matY(i);
+      out += `<text x="${bx+labW-6}" y="${y}" font-size="12" fill="#44576b" text-anchor="end" dominant-baseline="middle">${esc(m.name)}</text>
+        <line x1="${bx+labW}" y1="${y}" x2="${boxX-2}" y2="${y}" stroke="#8a97a8" stroke-width="1.3" marker-end="url(#arrG)"/>`;
+    });
+    prods.forEach((r,i)=>{
+      const y = g.prodY(i);
+      const xr = boxX+boxW;
+      out += `<line x1="${xr}" y1="${y}" x2="${xr+lineW-2}" y2="${y}" stroke="#8a97a8" stroke-width="1.3" marker-end="url(#arrG)"/>
+        <text x="${xr+lineW+4}" y="${y}" font-size="12" fill="#1c2733" font-weight="${r.type==="主"?"700":"400"}" dominant-baseline="middle">${esc(r.name)}</text>`;
+    });
+  });
+  /* 内部转供连线 */
+  links.forEach((l,li)=>{
+    const gu = geo.get(l.up), gd = geo.get(l.dn);
+    if(!gu||!gd) return;
+    const pi = gu.prods.findIndex(r=>r.name===l.name);
+    const mi = gd.mats.findIndex(r=>r.name===l.name);
+    if(pi<0||mi<0) return;
+    const x1 = gu.boxX+boxW+lineW+4 + l.name.length*12 + 6;   /* 产品标签末端 */
+    const y1 = gu.prodY(pi);
+    const x2 = gd.bx + labW - 6 - l.name.length*12 - 6;        /* 原料标签起点 */
+    const y2 = gd.matY(mi);
+    const c = PALETTE[li%PALETTE.length];
+    const midX = (x1+x2)/2;
+    out += `<path d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}" fill="none" stroke="${c}" stroke-width="2.2" opacity=".85" marker-end="url(#arr${li%PALETTE.length})"/>
+      <circle cx="${x1}" cy="${y1}" r="3" fill="${c}"/>`;
+  });
+
+  const svg = `<svg id="chainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" style="max-width:100%;height:auto;font-family:'Microsoft YaHei','PingFang SC',sans-serif">
+    <defs>${defs}</defs><rect width="${svgW}" height="${svgH}" fill="#ffffff"/>${out}</svg>`;
+  document.getElementById("diagram").innerHTML = svg;
+}
+function downloadSVG(){
+  const el = document.getElementById("chainSvg");
+  if(!el) return;
+  const blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n'+el.outerHTML],{type:"image/svg+xml"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "产业链图.svg"; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============ 页签 / 导入导出 ============ */
+function switchTab(t){
+  document.querySelectorAll(".tab").forEach(e=>e.classList.toggle("active",e.dataset.tab===t));
+  document.querySelectorAll(".tabc").forEach(e=>e.classList.remove("active"));
+  document.getElementById("tabc-"+t).classList.add("active");
+  if(t==="input") renderInput();
+  if(t==="balance") renderBalance();
+  if(t==="chain") renderDiagram();
+}
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "物料平衡数据.json"; a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importJSON(inp){
+  const f = inp.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{ try{
+      const s = JSON.parse(rd.result);
+      if(!s.plants) throw new Error("格式不正确");
+      state = s; fixUid(state); save(); switchTab("input");
+      alert("导入成功："+state.plants.length+" 个装置");
+    }catch(e){ alert("导入失败："+e.message); } };
+  rd.readAsText(f); inp.value="";
+}
+function resetDemo(){
+  if(!confirm("将清除当前数据并恢复为示例（醋酸→醋酸乙酯/醋酸丁酯），确认？")) return;
+  state = demoState(); save(); switchTab("input");
+}
+
+/* ============ 启动 ============ */
+const hi = document.getElementById("hoursInput");
+hi.value = state.hours;
+hi.oninput = ()=>{ state.hours = +hi.value||8000; save(); };
+renderInput();
+</script>
+</body>
+</html>
