@@ -177,7 +177,8 @@ async function fetchViaAllOrigins(feedUrl){
     title:it.querySelector('title')?.textContent||'',
     link:it.querySelector('link')?.textContent||'',
     date:it.querySelector('pubDate')?.textContent||'',
-    source:it.querySelector('source')?.textContent||''
+    source:it.querySelector('source')?.textContent||'',
+    desc:it.querySelector('description')?.textContent||''
   }));
 }
 async function fetchViaRss2Json(feedUrl){
@@ -185,8 +186,20 @@ async function fetchViaRss2Json(feedUrl){
   if(!r.ok)throw new Error('rss2json '+r.status);
   const j=await r.json();
   if(j.status!=='ok')throw new Error('rss2json '+(j.message||'error'));
-  return(j.items||[]).map(it=>({title:it.title||'',link:it.link||'',date:it.pubDate||'',source:it.author||''}));
+  return(j.items||[]).map(it=>({title:it.title||'',link:it.link||'',date:it.pubDate||'',source:it.author||'',desc:it.description||it.content||''}));
 }
+/* Auto-sort each live headline into the same categories as the Intelligence Feed */
+function liveCat(text){
+  const t=(text||'').toLowerCase();
+  if(/acqui|merger|m&a|buyout|takeover|divest|\bstake\b|\bsells?\b|\bsale\b|private equity|joint venture/.test(t))return"ma";
+  if(/capacity|cracker|\bplant\b|closure|\bcloses?\b|shut|\bidle\b|output|production line|facility|expansion|restart/.test(t))return"capacity";
+  if(/tariff|dut(y|ies)|anti-dumping|regulation|\bpolicy\b|cbam|reach|\bban\b|carbon tax|commission|sanction|subsid/.test(t))return"policy";
+  if(/\bprice|\bcost|margin|energy|feedstock|profit|\bloss|earnings|revenue|natural gas|electricity|demand/.test(t))return"cost";
+  if(/technolog|innovat|recycl|hydrogen|electrolys|catalyst|battery|patent|\br&d\b|bio-based|sustainab/.test(t))return"tech";
+  return"narrative";
+}
+function liveStrip(h){const d=document.createElement('div');d.innerHTML=h||'';return(d.textContent||'').replace(/\s+/g,' ').trim();}
+const LIVE_WATCH=['CBAM','BASF','INEOS','SABIC','Dow','LyondellBasell','Covestro','Arkema','Evonik','Solvay','Anti-Dumping','Ethylene','Cracker','PVC','Ammonia','Hydrogen','REACH','Tariff','Recycling'];
 async function loadLiveNews(){
   if(liveBusy)return;liveBusy=true;
   const status=document.getElementById('liveStatus'),feed=document.getElementById('liveFeed');
@@ -203,9 +216,22 @@ async function loadLiveNews(){
   feed.innerHTML=items.map((it,i)=>{
     let head=it.title,src=(it.source||'').trim();
     const m=head.match(/^(.*)\s[-–]\s([^-–]+)$/);
-    if(!src&&m){head=m[1];src=m[2];}
+    if(m){head=m[1];if(!src)src=m[2].trim();}
+    head=head.trim();
+    const c=getcat(liveCat(head+' '+it.desc));
+    let excerpt=liveStrip(it.desc);
+    if(!excerpt||excerpt.toLowerCase().startsWith(head.toLowerCase().slice(0,30)))excerpt='';
+    if(excerpt.length>150)excerpt=excerpt.slice(0,150)+'…';
     let dt='';const d=new Date(it.date);if(it.date&&!isNaN(d))dt=d.toLocaleString();
-    return'<a class="intel-card live-card" href="'+esc(it.link)+'" target="_blank" rel="noopener" style="animation-delay:'+(i*.03)+'s"><div class="card-header"><div class="card-cat"><span class="live-dot"></span><span class="label-sm" style="color:var(--green);">LIVE</span>'+(src?'<span class="label-sm" style="color:var(--text4);">· '+esc(src)+'</span>':'')+'</div><span style="font-size:9px;color:var(--text5);">'+esc(dt)+'</span></div><div class="card-headline">'+esc(head.trim())+'</div></a>';
+    const tags=[];if(src)tags.push(src);
+    LIVE_WATCH.forEach(w=>{if(new RegExp('\\b'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','i').test(head)&&tags.length<5)tags.push(w);});
+    return'<a class="intel-card live-card" href="'+esc(it.link)+'" target="_blank" rel="noopener" style="animation-delay:'+(i*.03)+'s">'
+      +'<div class="card-header"><div class="card-cat"><span style="color:'+c.color+';font-size:14px;">'+c.icon+'</span><span class="label-sm" style="color:'+c.color+';">'+esc(c.label)+'</span></div>'
+      +'<div class="card-badges">'+badge('◉ LIVE','#7EC49E')+(dt?'<span style="font-size:9px;color:var(--text5);">'+esc(dt)+'</span>':'')+'</div></div>'
+      +'<div class="card-headline">'+esc(head)+'</div>'
+      +(excerpt?'<div class="card-excerpt">'+esc(excerpt)+'</div>':'')
+      +(tags.length?'<div class="card-tags">'+tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div>':'')
+      +'</a>';
   }).join('');
   status.innerHTML='Updated '+esc(new Date().toLocaleTimeString())+' · '+items.length+' headlines · auto-refresh every '+LIVE.refreshMinutes+' min';
   liveBusy=false;
